@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  data:
+    redis:
+      host: redis
+
+app:
+  uploads:
+    dir: /app/uploads
+  ai:
+    base-url: http://ai-service:8000
+  notification:
+    base-url: http://notification-service:8001

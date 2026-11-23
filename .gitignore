@@ -1,0 +1,38 @@
+# Secrets
+.env
+*.env.local
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Java
+backend/target/
+backend/uploads/
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+scripts/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+ai-service/models/*.joblib
+ai-service/data/*.csv
+
+# PHP / Laravel
+notification-service/vendor/
+notification-service/.env
+notification-service/storage/logs/*.log
+notification-service/storage/framework/cache/data/
+notification-service/storage/framework/sessions/*
+notification-service/storage/framework/views/*.php
+notification-service/bootstrap/cache/*.php
+notification-service/.phpunit.result.cache

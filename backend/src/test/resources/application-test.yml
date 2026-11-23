@@ -1,0 +1,29 @@
+spring:
+  cache:
+    type: simple
+  data:
+    redis:
+      repositories:
+        enabled: false
+
+management:
+  health:
+    redis:
+      enabled: false
+
+app:
+  internal-api-key: test-internal-key
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret
+  uploads:
+    dir: ${java.io.tmpdir}/markethub-test-uploads
+  ai:
+    base-url: http://localhost:1
+    timeout: 200ms
+  notification:
+    enabled: false
+
+logging:
+  level:
+    org.testcontainers: WARN
+    io.zonky: WARN
