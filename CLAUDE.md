@@ -8,11 +8,12 @@ Architecture and decisions: `docs/architecture.md`. Schema: `docs/erd.md`.
 | Path | Service | Stack |
 |---|---|---|
 | `backend/` | Main API | Java 21, Spring Boot 3, Maven, PostgreSQL, Redis |
-| `frontend/` | SPA | Angular (standalone, lazy routes), Angular Material, Chart.js |
+| `frontend/` | SPA | Angular 22 (standalone, zoneless, signals, lazy routes), Angular Material 3, Chart.js |
 | `ai-service/` | AI microservice | Python 3.11, FastAPI, scikit-learn, pandas |
-| `notification-service/` | Emails + PDF invoices | PHP 8.3, Laravel 11, dompdf |
+| `notification-service/` | Emails + PDF invoices | PHP 8.3, Laravel 13, dompdf |
+| `e2e/` | Browser journey test + README screenshots | puppeteer-core + installed Chrome/Edge |
 | `docs/` | ERD, UML, API contract, test report | Mermaid / Markdown |
-| `scripts/` | Dev helpers (screenshots, OpenAPI export) | Node / shell |
+| `scripts/` | Dev helpers (`export-api-contract.mjs`) | Node |
 
 ## Commands
 
@@ -24,12 +25,17 @@ Backend (`cd backend`):
 - Run against docker Postgres/Redis: `mvn spring-boot:run`
 - Run without Docker (embedded PostgreSQL + demo seed): `mvn spring-boot:test-run`
 
-Frontend (`cd frontend`): `npm ci`, `npm start` (proxy to :8080), `npm test`, `npm run build`
+Frontend (`cd frontend`): `npm ci`, `npm start` (proxy to :8080), `npx ng test --watch=false` (Vitest), `npm run build`
 
 AI (`cd ai-service`): `pip install -r requirements-dev.txt`, `python -m scripts.generate_dataset`,
 `python -m scripts.train`, `uvicorn app.main:app --reload --port 8000`, `pytest`
 
-Notifications (`cd notification-service`): `composer install`, `php artisan serve --port=8001`, `php artisan test`
+Notifications (`cd notification-service`): `composer install`, `cp .env.example .env && php artisan key:generate`,
+`php artisan serve --port=8001`, `php artisan test`
+
+E2E (stack running on :4200): `cd e2e && npm install && npm test` (also refreshes `docs/screenshots/`)
+
+API contract (backend running): `node scripts/export-api-contract.mjs` → `docs/api-contract.md`, `docs/openapi.json`
 
 ## Conventions
 
@@ -46,7 +52,7 @@ Notifications (`cd notification-service`): `composer install`, `php artisan serv
   `X-Internal-Key` header.
 - **Tests**: JUnit 5 + Mockito for services (`*ServiceTest`), Spring + PostgreSQL for integration
   (`*IT`, extend `IntegrationTest`). Target ≥ 70 % line coverage on `service` packages. pytest for AI.
-  Jasmine-style specs for Angular guards, interceptors, cart and auth services.
+  Vitest specs (Jest/Jasmine-style API) for Angular guards, interceptors, cart and auth services.
 - **Frontend**: standalone components, one lazy route tree per role (`store`, `seller`, `admin`),
   signals for state, `authInterceptor` adds the JWT and refreshes on 401, guards per role.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`, `ci:`), one per phase.

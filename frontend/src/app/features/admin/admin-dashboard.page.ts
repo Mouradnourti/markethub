@@ -8,7 +8,7 @@ import { AdminApi } from '../../core/api/admin.api';
 import { AdminStats } from '../../core/models/api.models';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { humanize } from '../../shared/status';
-import { CHART_COLORS, ChartComponent } from '../../shared/ui/chart';
+import { CHART_COLORS, ChartComponent, STATUS_COLORS } from '../../shared/ui/chart';
 import { StatCard } from '../../shared/ui/stat-card';
 
 @Component({
@@ -96,7 +96,7 @@ export class AdminDashboardPage {
   });
 
   protected readonly payments = computed(() => this.doughnut(this.stats()?.paymentMethods, (k) => (k === 'COD' ? 'Cash on delivery' : 'Card')));
-  protected readonly statuses = computed(() => this.doughnut(this.stats()?.ordersByStatus, humanize));
+  protected readonly statuses = computed(() => this.doughnut(this.stats()?.ordersByStatus, humanize, STATUS_COLORS));
   protected readonly categories = computed(() => this.horizontalBars(this.stats()?.topCategories, CHART_COLORS[1]));
   protected readonly shops = computed(() => this.horizontalBars(this.stats()?.topShops, CHART_COLORS[5]));
 
@@ -108,7 +108,8 @@ export class AdminDashboardPage {
     return this.moneyPipe.transform(value);
   }
 
-  private doughnut(values: Record<string, number> | undefined, label: (key: string) => string): ChartConfiguration<'doughnut'> | null {
+  private doughnut(values: Record<string, number> | undefined, label: (key: string) => string,
+                   colors?: Record<string, string>): ChartConfiguration<'doughnut'> | null {
     if (!values) {
       return null;
     }
@@ -117,7 +118,7 @@ export class AdminDashboardPage {
       type: 'doughnut',
       data: {
         labels: entries.map(([key]) => label(key)),
-        datasets: [{ data: entries.map(([, v]) => v), backgroundColor: CHART_COLORS, borderWidth: 0 }],
+        datasets: [{ data: entries.map(([, v]) => v), backgroundColor: colors ? entries.map(([k]) => colors[k] ?? '#64748b') : CHART_COLORS, borderWidth: 0 }],
       },
       options: { cutout: '62%', plugins: { legend: { position: 'bottom' } } },
     };

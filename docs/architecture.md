@@ -21,10 +21,10 @@ flowchart LR
 
 | Service | Tech | Port | Responsibility |
 |---|---|---|---|
-| `frontend` | Angular 20+, Angular Material, Chart.js | 4200 (dev) / 80 (docker) | Storefront, seller dashboard, admin dashboard |
-| `backend` | Spring Boot 3, Spring Security, JPA, Flyway, MapStruct | 8080 | Business API, auth, orders, payments, orchestration |
+| `frontend` | Angular 22, Angular Material 3, Chart.js | 4200 | Storefront, seller dashboard, admin dashboard |
+| `backend` | Spring Boot 3.5, Spring Security, JPA, Flyway, MapStruct | 8080 | Business API, auth, orders, payments, orchestration |
 | `ai-service` | Python 3.11, FastAPI, scikit-learn, pandas | 8000 | Recommendations, sales forecast, return-risk |
-| `notification-service` | PHP 8.3, Laravel 11, dompdf | 8001 | Order emails, PDF invoices |
+| `notification-service` | PHP 8.3, Laravel 13, dompdf | 8001 | Order emails, PDF invoices |
 | `postgres` | PostgreSQL 16 | 5432 | Main database |
 | `redis` | Redis 7 | 6379 | Catalog / category / recommendation cache |
 | `mailpit` | Mailpit | 8025 (UI), 1025 (SMTP) | Captures every email for the demo |
@@ -43,6 +43,8 @@ flowchart LR
 | 8 | **AI training data comes from the backend over REST** (`/api/internal/ml/dataset`, internal key). A synthetic dataset generator is used for offline training and tests. | Services only talk over REST; models stay consistent with the real catalog. |
 | 9 | **Forecasting is stateless**: the backend sends a shop's daily revenue history, the AI service fits and returns the forecast. | No data duplication; forecast always reflects live data. |
 | 10 | **Integration tests run on PostgreSQL** via Testcontainers; when Docker is missing they fall back to an embedded PostgreSQL binary (zonky). | Same SQL dialect as production everywhere; tests run on a laptop without Docker and in CI. |
+| 11 | **Angular unit tests use Vitest**, the default runner of Angular 22 (Jest/Jasmine-compatible `describe/it/expect`). | Official tooling, no extra Karma/Jest setup to maintain. |
+| 12 | **Tokens stored in localStorage** (15-min access token, rotating refresh token). | Simple for a SPA calling a separate API; XSS exposure limited by Angular sanitization and short lifetimes. |
 
 ## 3. Backend layering
 

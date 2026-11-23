@@ -9,7 +9,7 @@ import { SellerApi } from '../../core/api/seller.api';
 import { SalesForecast, SellerStats, Shop } from '../../core/models/api.models';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { humanize } from '../../shared/status';
-import { CHART_COLORS, ChartComponent } from '../../shared/ui/chart';
+import { CHART_COLORS, ChartComponent, STATUS_COLORS } from '../../shared/ui/chart';
 import { StatCard } from '../../shared/ui/stat-card';
 import { ShopStatusBanner } from './shop-status-banner';
 
@@ -65,7 +65,7 @@ export class SellerDashboardPage {
       type: 'doughnut',
       data: {
         labels: entries.map(([status]) => humanize(status)),
-        datasets: [{ data: entries.map(([, count]) => count), backgroundColor: CHART_COLORS, borderWidth: 0 }],
+        datasets: [{ data: entries.map(([, count]) => count), backgroundColor: entries.map(([s]) => STATUS_COLORS[s] ?? '#64748b'), borderWidth: 0 }],
       },
       options: { cutout: '65%', plugins: { legend: { position: 'right' } } },
     };

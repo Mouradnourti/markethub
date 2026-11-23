@@ -1,0 +1,13 @@
+{
+  "name": "markethub-e2e",
+  "version": "1.0.0",
+  "description": "End-to-end UI journey test (puppeteer-core + installed Chrome/Edge)",
+  "scripts": {
+    "test": "node journey.mjs"
+  },
+  "type": "module",
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  },
+  "private": true
+}

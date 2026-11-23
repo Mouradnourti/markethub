@@ -45,3 +45,14 @@ export class ChartComponent implements OnDestroy {
 
 /** Categorical palette shared by every chart (validated for contrast on light backgrounds). */
 export const CHART_COLORS = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b'];
+
+/** Order statuses keep the same meaning-carrying colour in every chart. */
+export const STATUS_COLORS: Record<string, string> = {
+  AWAITING_PAYMENT: '#f59e0b',
+  PENDING: '#0ea5e9',
+  CONFIRMED: '#6366f1',
+  SHIPPED: '#8b5cf6',
+  DELIVERED: '#10b981',
+  CANCELLED: '#94a3b8',
+  RETURNED: '#ef4444',
+};
