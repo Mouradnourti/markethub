@@ -224,18 +224,23 @@ public class DemoDataSeeder implements ApplicationRunner {
         for (int daysAgo = HISTORY_DAYS; daysAgo >= 0; daysAgo--) {
             LocalDate day = today.minusDays(daysAgo);
             int count = poisson(expectedOrders(day, daysAgo));
+            Instant dayStart = day.atStartOfDay(ZoneOffset.UTC).toInstant();
+            List<SeedCustomer> eligible = customers.stream().filter(c -> c.createdAt().isBefore(dayStart)).toList();
+            if (eligible.isEmpty()) {
+                continue;
+            }
+            List<Map.Entry<Instant, SeedCustomer>> dayOrders = new ArrayList<>();
             for (int n = 0; n < count; n++) {
-                Instant placedAt = day.atStartOfDay(ZoneOffset.UTC).toInstant().plus(Duration.ofMinutes(orderMinute()));
-                if (placedAt.isAfter(now.minus(Duration.ofMinutes(30)))) {
-                    continue;
-                }
-                List<SeedCustomer> eligible = customers.stream().filter(c -> c.createdAt().isBefore(placedAt)).toList();
-                if (eligible.isEmpty()) {
-                    continue;
-                }
                 SeedCustomer customer = weightedCustomer(eligible);
-                int prior = previousOrders.merge(customer.id(), 1, Integer::sum) - 1;
-                createOrder(customer, placedAt, prior, reviewed);
+                Instant placedAt = dayStart.plus(Duration.ofMinutes(orderMinute(customer.risky())));
+                if (placedAt.isBefore(now.minus(Duration.ofMinutes(30)))) {
+                    dayOrders.add(Map.entry(placedAt, customer));
+                }
+            }
+            dayOrders.sort(Map.Entry.comparingByKey());
+            for (Map.Entry<Instant, SeedCustomer> entry : dayOrders) {
+                int prior = previousOrders.merge(entry.getValue().id(), 1, Integer::sum) - 1;
+                createOrder(entry.getValue(), entry.getKey(), prior, reviewed);
             }
         }
     }
@@ -475,10 +480,13 @@ public class DemoDataSeeder implements ApplicationRunner {
         return "MH-" + DateTimeFormatter.ofPattern("yyMMdd").withZone(ZoneOffset.UTC).format(at) + "-" + suffix;
     }
 
-    private int orderMinute() {
-        double r = random.nextDouble();
-        int hour = r < 0.07 ? random.nextInt(6) : r < 0.45 ? 9 + random.nextInt(9) : r < 0.9 ? 18 + random.nextInt(5)
-                : 23;
+    /** Risky customers order late at night more often, a weak but observable signal for the AI model. */
+    private int orderMinute(boolean risky) {
+        if (random.nextDouble() < (risky ? 0.25 : 0.06)) {
+            int hour = random.nextInt(7);
+            return (hour == 6 ? 23 : hour) * 60 + random.nextInt(60);
+        }
+        int hour = random.nextDouble() < 0.45 ? 9 + random.nextInt(9) : 17 + random.nextInt(6);
         return hour * 60 + random.nextInt(60);
     }
 

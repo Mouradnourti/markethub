@@ -24,8 +24,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
-ai-service/models/*.joblib
-ai-service/data/*.csv
+ai-service/models/
+ai-service/data/
 
 # PHP / Laravel
 notification-service/vendor/

@@ -66,6 +66,15 @@ services:
     depends_on:
       - mailpit
 
+  ai-service:
+    build: ./ai-service
+    environment:
+      BACKEND_URL: http://backend:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      AI_SYNC_INTERVAL: "3600"
+    ports:
+      - "8000:8000"
+
   mailpit:
     image: axllent/mailpit:v1.21
     ports:
