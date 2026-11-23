@@ -2,6 +2,8 @@ package com.pfe.marketplace.order.repository;
 
 import com.pfe.marketplace.order.entity.OrderStatus;
 import com.pfe.marketplace.order.entity.ShopOrder;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,9 @@ public interface ShopOrderRepository extends JpaRepository<ShopOrder, Long> {
             where so.shop.id = :shopId and (:status is null or so.status = :status)
             """)
     Page<ShopOrder> findForShop(@Param("shopId") Long shopId, @Param("status") OrderStatus status, Pageable pageable);
+
+    @EntityGraph(attributePaths = "order")
+    List<ShopOrder> findByStatusAndCreatedAtBefore(OrderStatus status, Instant before);
 
     @EntityGraph(attributePaths = {"order", "order.customer", "shop"})
     Optional<ShopOrder> findByIdAndShopId(Long id, Long shopId);

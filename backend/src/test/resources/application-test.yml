@@ -21,6 +21,8 @@ app:
     base-url: http://localhost:1
     timeout: 200ms
   notification:
+    base-url: http://localhost:1
+    timeout: 500ms
     enabled: false
 
 logging:
