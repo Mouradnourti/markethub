@@ -1,0 +1,112 @@
+:host {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+  background: var(--mh-surface);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 56px;
+  background: radial-gradient(circle at 20% 20%, #818cf8 0, transparent 45%),
+    radial-gradient(circle at 80% 70%, #c084fc 0, transparent 40%), #312e81;
+  color: #fff;
+
+  h1 {
+    max-width: 460px;
+    font-size: 40px;
+    line-height: 1.1;
+  }
+
+  p {
+    max-width: 420px;
+    color: #c7d2fe;
+    font-size: 17px;
+  }
+
+  ul {
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      color: #e0e7ff;
+    }
+  }
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.form-side {
+  display: grid;
+  place-items: center;
+  padding: 32px 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 28px;
+  }
+
+  > p {
+    margin: 0 0 24px;
+    color: var(--mh-text-muted);
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.submit {
+  height: 48px;
+  margin-top: 6px;
+}
+
+.switch {
+  margin-top: 18px;
+  text-align: center;
+  color: var(--mh-text-muted);
+}
+
+.demo {
+  margin-top: 26px;
+  padding: 14px;
+  border: 1px dashed var(--mh-border);
+  border-radius: 12px;
+  font-size: 13px;
+
+  strong {
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

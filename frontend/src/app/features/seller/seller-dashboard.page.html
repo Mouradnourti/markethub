@@ -1,0 +1,94 @@
+<div class="page-title">
+  <div>
+    <h1>{{ shop()?.name ?? 'My shop' }}</h1>
+    <p>Sales overview for the last 12 months</p>
+  </div>
+  @if (shop()?.status === 'APPROVED') {
+    <div class="row">
+      <a mat-stroked-button routerLink="/seller/orders"><mat-icon>local_shipping</mat-icon> Process orders</a>
+      <a mat-flat-button routerLink="/seller/products/new"><mat-icon>add</mat-icon> New product</a>
+    </div>
+  }
+</div>
+
+<app-shop-status-banner [shop]="shop()" />
+
+@if (stats(); as s) {
+  <div class="grid-stats">
+    <app-stat-card label="Revenue (delivered)" [value]="format(s.grossRevenue)" icon="payments" color="#4f46e5"
+                   [hint]="'Net after commission: ' + format(s.netRevenue)" />
+    <app-stat-card label="In progress" [value]="format(s.pipelineRevenue)" icon="pending_actions" color="#0ea5e9"
+                   hint="Placed, confirmed or shipped" />
+    <app-stat-card label="Orders to process" [value]="s.ordersToProcess" icon="inventory" color="#f59e0b"
+                   [hint]="s.totalOrders + ' orders in total'" />
+    <app-stat-card label="Return rate" [value]="(s.returnRate | number: '1.1-1') + ' %'" icon="assignment_return" color="#ef4444"
+                   [hint]="s.returnedOrders + ' returned parcels'" />
+    <app-stat-card label="Average rating" [value]="(s.averageRating | number: '1.1-1') + ' / 5'" icon="star" color="#10b981"
+                   [hint]="s.productCount + ' products · ' + s.lowStockCount + ' low on stock'" />
+  </div>
+
+  <div class="grid-2 section">
+    <section class="panel">
+      <h2>Monthly revenue</h2>
+      @if (monthlyChart(); as config) { <app-chart [config]="config" [height]="300" /> }
+    </section>
+    <section class="panel">
+      <h2>Orders by status</h2>
+      @if (statusChart(); as config) { <app-chart [config]="config" [height]="300" /> }
+    </section>
+  </div>
+
+  <section class="panel section forecast">
+    <header>
+      <div>
+        <h2><mat-icon>auto_awesome</mat-icon> AI sales forecast — next 30 days</h2>
+        <span class="muted">Time-series regression on your daily sales (trend + weekly seasonality)</span>
+      </div>
+      @if (forecast()?.available) {
+        <div class="projection">
+          <span class="muted">Projected revenue</span>
+          <strong>{{ format(forecastTotal()) }}</strong>
+        </div>
+      }
+    </header>
+    @if (forecastChart(); as config) {
+      <app-chart [config]="config" [height]="300" />
+      <p class="muted small">Model: {{ forecast()?.model }}. The shaded band is the 80 % prediction interval.</p>
+    } @else if (forecast()) {
+      <p class="muted">{{ forecast()?.message || 'Forecast unavailable.' }}</p>
+    } @else {
+      <div class="loading"><mat-spinner diameter="32" /></div>
+    }
+  </section>
+
+  <div class="grid-2 section">
+    <section class="panel">
+      <h2>Top products</h2>
+      <table class="simple">
+        <tr><th>Product</th><th class="num">Units</th><th class="num">Revenue</th></tr>
+        @for (product of s.topProducts; track product.productId) {
+          <tr>
+            <td><a [routerLink]="['/seller/products', product.productId]">{{ product.name }}</a></td>
+            <td class="num">{{ product.units }}</td>
+            <td class="num">{{ product.revenue | money }}</td>
+          </tr>
+        } @empty {
+          <tr><td colspan="3" class="muted">No sales yet</td></tr>
+        }
+      </table>
+    </section>
+    <section class="panel">
+      <h2>Low stock</h2>
+      @for (product of s.lowStock; track product.productId) {
+        <a class="low" [routerLink]="['/seller/products', product.productId]">
+          <span>{{ product.name }}</span>
+          <span class="pill" [class.zero]="product.stock === 0">{{ product.stock }} left</span>
+        </a>
+      } @empty {
+        <p class="muted">All products are well stocked.</p>
+      }
+    </section>
+  </div>
+} @else if (shop()?.status === 'APPROVED') {
+  <div class="loading"><mat-spinner diameter="40" /></div>
+}

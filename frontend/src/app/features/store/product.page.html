@@ -1,0 +1,128 @@
+<div class="container page">
+  @if (notFound()) {
+    <div class="panel missing">
+      <h2>This product is not available</h2>
+      <p class="muted">It may have been removed by the seller.</p>
+      <a mat-flat-button routerLink="/products">Back to the catalog</a>
+    </div>
+  } @else if (product(); as p) {
+    <nav class="crumbs">
+      <a routerLink="/">Home</a> / <a routerLink="/products" [queryParams]="{ categoryId: p.categoryId }">{{ p.categoryName }}</a>
+      / <span>{{ p.name }}</span>
+    </nav>
+
+    <section class="product">
+      <div class="gallery">
+        <div class="main-image">
+          @if (image(); as src) {
+            <img [src]="src" [alt]="p.name" />
+          }
+        </div>
+        @if (p.images.length > 1) {
+          <div class="thumbs">
+            @for (src of p.images; track src; let i = $index) {
+              <button [class.on]="i === activeImage()" (click)="activeImage.set(i)" [attr.aria-label]="'Image ' + (i + 1)">
+                <img [src]="src" alt="" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="info">
+        <a class="shop" [routerLink]="['/shops', p.shopSlug]"><mat-icon>storefront</mat-icon> {{ p.shopName }}</a>
+        <h1>{{ p.name }}</h1>
+        <div class="row">
+          <app-rating-stars [value]="p.avgRating" />
+          <span class="muted">{{ p.avgRating | number: '1.1-1' }} · {{ p.reviewCount }} reviews · {{ p.soldCount }} sold</span>
+        </div>
+        <div class="price">{{ p.price | money }}</div>
+
+        @if (p.stock === 0) {
+          <div class="stock out"><mat-icon>block</mat-icon> Out of stock</div>
+        } @else if (p.stock < 5) {
+          <div class="stock low"><mat-icon>hourglass_bottom</mat-icon> Only {{ p.stock }} left, order soon</div>
+        } @else {
+          <div class="stock in"><mat-icon>check_circle</mat-icon> In stock</div>
+        }
+
+        @if (p.stock > 0) {
+          <div class="buy">
+            <div class="qty">
+              <button mat-icon-button (click)="changeQuantity(-1)" [disabled]="quantity() <= 1" aria-label="Decrease"><mat-icon>remove</mat-icon></button>
+              <span>{{ quantity() }}</span>
+              <button mat-icon-button (click)="changeQuantity(1)" [disabled]="quantity() >= maxQuantity()" aria-label="Increase"><mat-icon>add</mat-icon></button>
+            </div>
+            <button mat-flat-button class="grow" (click)="addToCart()" [disabled]="adding()">
+              <mat-icon>add_shopping_cart</mat-icon> Add to cart
+            </button>
+            <button mat-stroked-button (click)="addToCart(true)" [disabled]="adding()">Buy now</button>
+          </div>
+        }
+
+        <ul class="perks">
+          <li><mat-icon>local_shipping</mat-icon> Shipped by {{ p.shopName }}</li>
+          <li><mat-icon>payments</mat-icon> Card payment or cash on delivery</li>
+          <li><mat-icon>autorenew</mat-icon> Free returns within 14 days</li>
+        </ul>
+
+        <h3>Description</h3>
+        <p class="description">{{ p.description }}</p>
+      </div>
+    </section>
+
+    <section class="reviews panel">
+      <header>
+        <h2>Customer reviews</h2>
+        <div class="row"><app-rating-stars [value]="p.avgRating" /> <strong>{{ p.avgRating | number: '1.1-1' }}</strong>
+          <span class="muted">({{ reviewTotal() }})</span></div>
+      </header>
+
+      @if (eligibility(); as e) {
+        @if (e.canReview) {
+          <form class="review-form" (ngSubmit)="submitReview()">
+            <strong>Write a review</strong>
+            <app-rating-stars [editable]="true" [(value)]="newRating" />
+            <mat-form-field class="full-width">
+              <mat-label>Your opinion (optional)</mat-label>
+              <textarea matInput rows="3" name="comment" [(ngModel)]="newComment" maxlength="2000"></textarea>
+            </mat-form-field>
+            <button mat-flat-button [disabled]="submitting()">Publish review</button>
+          </form>
+        }
+      }
+
+      @for (review of reviews(); track review.id) {
+        <article class="review">
+          <div class="row">
+            <span class="avatar">{{ review.authorName.charAt(0) }}</span>
+            <div>
+              <strong>{{ review.authorName }}</strong>
+              <div class="muted small">{{ review.createdAt | date: 'mediumDate' }}</div>
+            </div>
+            <span class="spacer"></span>
+            <app-rating-stars [value]="review.rating" />
+          </div>
+          @if (review.comment) {
+            <p>{{ review.comment }}</p>
+          }
+        </article>
+      } @empty {
+        <p class="muted">No reviews yet. Customers who receive this product can review it.</p>
+      }
+    </section>
+
+    @if (similar().length) {
+      <section class="similar">
+        <h2>You may also like</h2>
+        <div class="grid-products">
+          @for (item of similar(); track item.id) {
+            <app-product-card [product]="item" />
+          }
+        </div>
+      </section>
+    }
+  } @else {
+    <div class="loading"><mat-spinner diameter="40" /></div>
+  }
+</div>

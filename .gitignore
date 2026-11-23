@@ -36,3 +36,4 @@ notification-service/storage/framework/sessions/*
 notification-service/storage/framework/views/*.php
 notification-service/bootstrap/cache/*.php
 notification-service/.phpunit.result.cache
+backend/.local-pg/

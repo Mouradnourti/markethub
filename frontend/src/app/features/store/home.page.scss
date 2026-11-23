@@ -1,0 +1,140 @@
+.hero {
+  background: radial-gradient(circle at 85% 20%, #c4b5fd 0, transparent 35%),
+    radial-gradient(circle at 10% 90%, #a5f3fc 0, transparent 35%), linear-gradient(135deg, #312e81, #4c1d95);
+  color: #fff;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+  align-items: center;
+  padding-top: 56px;
+  padding-bottom: 56px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    margin: 12px 0;
+    font-size: clamp(32px, 5vw, 50px);
+    line-height: 1.05;
+  }
+
+  p {
+    max-width: 520px;
+    margin-bottom: 24px;
+    color: #ddd6fe;
+    font-size: 18px;
+  }
+}
+
+.eyebrow {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.15);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cta {
+  height: 48px;
+  padding: 0 26px;
+  background: #fff !important;
+  color: #312e81 !important;
+}
+
+.cta-alt {
+  height: 48px;
+  color: #fff !important;
+  border-color: rgb(255 255 255 / 0.5) !important;
+}
+
+.perks {
+  display: grid;
+  gap: 12px;
+
+  div {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(4px);
+
+    mat-icon {
+      grid-row: span 2;
+    }
+
+    span {
+      color: #ddd6fe;
+      font-size: 13px;
+    }
+  }
+}
+
+.block {
+  margin-bottom: 40px;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-size: 22px;
+  }
+
+  header h2 {
+    margin: 0;
+  }
+}
+
+.ai {
+  color: var(--mh-accent);
+}
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 20px 10px;
+  border: 1px solid var(--mh-border);
+  border-radius: 16px;
+  background: var(--mh-surface);
+  color: var(--mh-text);
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+
+  mat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    color: var(--mh-accent);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--mh-accent);
+  }
+}

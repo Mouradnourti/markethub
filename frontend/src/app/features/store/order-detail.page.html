@@ -1,0 +1,122 @@
+<div class="container page">
+  @if (order(); as o) {
+    @if (placed()) {
+      <div class="placed">
+        <mat-icon>celebration</mat-icon>
+        <div>
+          <strong>Thank you! Your order {{ o.reference }} is confirmed.</strong>
+          <span>A confirmation email with your invoice is on its way.</span>
+        </div>
+      </div>
+    }
+
+    <div class="page-title">
+      <div>
+        <a routerLink="/orders" class="back"><mat-icon>arrow_back</mat-icon> My orders</a>
+        <h1>Order {{ o.reference }}</h1>
+        <p>Placed on {{ o.createdAt | date: 'medium' }}</p>
+      </div>
+      <div class="row">
+        @if (o.paymentStatus !== 'FAILED') {
+          <button mat-stroked-button (click)="downloadInvoice()"><mat-icon>picture_as_pdf</mat-icon> Invoice</button>
+        }
+        @if (cancellable()) {
+          <button mat-stroked-button color="warn" (click)="cancel()" [disabled]="busy()"><mat-icon>cancel</mat-icon> Cancel order</button>
+        }
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="parcels">
+        @for (parcel of o.shopOrders; track parcel.id; let i = $index) {
+          <section class="panel parcel">
+            <header>
+              <div>
+                <span class="muted">Parcel {{ i + 1 }} of {{ o.shopOrders.length }}</span>
+                <h2><mat-icon>storefront</mat-icon> {{ parcel.shopName }}</h2>
+              </div>
+              <app-status-chip [status]="parcel.status" />
+            </header>
+
+            @if (parcel.status !== 'CANCELLED' && parcel.status !== 'AWAITING_PAYMENT') {
+              <ol class="tracker">
+                @for (step of track; track step) {
+                  <li [class.reached]="stepReached(parcel, step)">
+                    <span class="dot"></span><span>{{ humanize(step) }}</span>
+                  </li>
+                }
+              </ol>
+            }
+            @if (parcel.trackingNumber) {
+              <p class="tracking"><mat-icon>local_shipping</mat-icon> Tracking number <strong>{{ parcel.trackingNumber }}</strong></p>
+            }
+
+            <table class="items">
+              @for (item of parcel.items; track item.productId) {
+                <tr>
+                  <td><a [routerLink]="['/products', item.productId]">{{ item.productName }}</a></td>
+                  <td class="muted">{{ item.quantity }} × {{ item.unitPrice | money }}</td>
+                  <td class="num">{{ item.lineTotal | money }}</td>
+                </tr>
+              }
+            </table>
+
+            <details class="history">
+              <summary>Status history</summary>
+              @for (change of parcel.history; track $index) {
+                <div class="change">
+                  <app-status-chip [status]="change.status" />
+                  <span>{{ change.changedAt | date: 'medium' }}</span>
+                  @if (change.note) { <span class="muted">— {{ change.note }}</span> }
+                </div>
+              }
+            </details>
+
+            @if (parcel.status === 'DELIVERED') {
+              @if (parcel.returnRequested) {
+                <div class="notice"><mat-icon>hourglass_top</mat-icon> Return requested — awaiting review by our team.</div>
+              } @else if (returnFor() === parcel.id) {
+                <div class="return-form">
+                  <mat-form-field class="full-width">
+                    <mat-label>What is wrong with this parcel?</mat-label>
+                    <textarea matInput rows="2" [(ngModel)]="returnReason" maxlength="500"></textarea>
+                  </mat-form-field>
+                  <div class="row">
+                    <button mat-flat-button (click)="submitReturn(parcel)" [disabled]="busy()">Send return request</button>
+                    <button mat-button (click)="returnFor.set(null)">Cancel</button>
+                  </div>
+                </div>
+              } @else {
+                <button mat-stroked-button (click)="returnFor.set(parcel.id)"><mat-icon>assignment_return</mat-icon> Return this parcel</button>
+              }
+            }
+          </section>
+        }
+      </div>
+
+      <aside class="side">
+        <section class="panel">
+          <h3>Payment</h3>
+          <div class="row"><mat-icon>{{ o.paymentMethod === 'COD' ? 'savings' : 'credit_card' }}</mat-icon>
+            {{ o.paymentMethod === 'COD' ? 'Cash on delivery' : 'Card' }} <span class="spacer"></span>
+            <app-status-chip [status]="o.paymentStatus" [text]="paymentLabel(o.paymentStatus)" /></div>
+          <div class="sum"><span>Subtotal</span><span>{{ o.subtotal | money }}</span></div>
+          <div class="sum"><span>Shipping</span><span>{{ o.shippingFee ? (o.shippingFee | money) : 'Free' }}</span></div>
+          <div class="sum total"><span>Total</span><span>{{ o.total | money }}</span></div>
+        </section>
+        <section class="panel">
+          <h3>Delivery address</h3>
+          <address>
+            <strong>{{ o.shippingAddress.fullName }}</strong><br />
+            {{ o.shippingAddress.addressLine }}<br />
+            {{ o.shippingAddress.postalCode }} {{ o.shippingAddress.city }}<br />
+            {{ o.shippingAddress.country }}<br />
+            <span class="muted">{{ o.shippingAddress.phone }}</span>
+          </address>
+        </section>
+      </aside>
+    </div>
+  } @else {
+    <div class="loading"><mat-spinner diameter="40" /></div>
+  }
+</div>

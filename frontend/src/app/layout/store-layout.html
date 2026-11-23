@@ -1,0 +1,88 @@
+<header class="topbar">
+  <div class="container bar">
+    <a routerLink="/" class="brand" aria-label="MarketHub home"><app-logo /></a>
+
+    <form class="search" (ngSubmit)="search()" role="search">
+      <mat-icon>search</mat-icon>
+      <input name="q" [(ngModel)]="query" placeholder="Search products, brands, shops…" aria-label="Search" />
+    </form>
+
+    <nav class="actions">
+      @if (auth.user(); as user) {
+        @if (user.role === 'CUSTOMER') {
+          <a mat-button routerLink="/orders" class="hide-sm"><mat-icon>receipt_long</mat-icon> Orders</a>
+          <a mat-icon-button routerLink="/cart" aria-label="Cart">
+            <mat-icon [matBadge]="cart.count() || null" matBadgeColor="primary" matBadgeSize="small">shopping_cart</mat-icon>
+          </a>
+        } @else {
+          <a mat-flat-button [routerLink]="auth.homeFor(user.role)">
+            <mat-icon>dashboard</mat-icon> {{ user.role === 'ADMIN' ? 'Admin console' : 'Seller dashboard' }}
+          </a>
+        }
+        <button mat-button [matMenuTriggerFor]="account" class="account">
+          <span class="avatar">{{ user.firstName.charAt(0) }}</span>
+          <span class="hide-sm">{{ user.firstName }}</span>
+          <mat-icon>expand_more</mat-icon>
+        </button>
+        <mat-menu #account="matMenu" xPosition="before">
+          <div class="menu-head">
+            <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <mat-divider />
+          @if (user.role === 'CUSTOMER') {
+            <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon>My orders</a>
+            <a mat-menu-item routerLink="/cart"><mat-icon>shopping_cart</mat-icon>My cart</a>
+          } @else {
+            <a mat-menu-item [routerLink]="auth.homeFor(user.role)"><mat-icon>dashboard</mat-icon>Dashboard</a>
+          }
+          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon>Sign out</button>
+        </mat-menu>
+      } @else {
+        <a mat-button routerLink="/login">Sign in</a>
+        <a mat-flat-button routerLink="/register">Create account</a>
+      }
+    </nav>
+  </div>
+
+  <nav class="categories">
+    <div class="container cats">
+      <a routerLink="/products" [queryParams]="{}" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">All products</a>
+      @for (category of categories(); track category.id) {
+        @if (!category.parentId) {
+          <a routerLink="/products" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a>
+        }
+      }
+    </div>
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <app-logo [light]="true" />
+      <p>Independent sellers, one checkout. Pay by card or cash on delivery.</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <a routerLink="/products">All products</a>
+      <a routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">Best sellers</a>
+      <a routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">New arrivals</a>
+    </div>
+    <div>
+      <h4>Sell on MarketHub</h4>
+      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }">Open a shop</a>
+      <a routerLink="/login">Seller sign in</a>
+    </div>
+    <div>
+      <h4>Help</h4>
+      <span>Free returns within 14 days</span>
+      <span>Secure payments (Stripe)</span>
+    </div>
+  </div>
+  <div class="container copyright">© 2026 MarketHub — PFE project</div>
+</footer>

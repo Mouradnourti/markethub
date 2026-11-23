@@ -1,0 +1,198 @@
+@use '@angular/material' as mat;
+@use 'material-symbols/outlined.css';
+
+:root {
+  color-scheme: light;
+  --mh-bg: #f6f7fb;
+  --mh-surface: #ffffff;
+  --mh-surface-2: #f1f5f9;
+  --mh-border: #e2e8f0;
+  --mh-text: #0f172a;
+  --mh-text-muted: #64748b;
+  --mh-accent: #4f46e5;
+  --mh-accent-soft: #eef2ff;
+  --mh-info: #1d4ed8;
+  --mh-info-bg: #dbeafe;
+  --mh-progress: #6d28d9;
+  --mh-progress-bg: #ede9fe;
+  --mh-success: #047857;
+  --mh-success-bg: #d1fae5;
+  --mh-warning: #b45309;
+  --mh-warning-bg: #fef3c7;
+  --mh-danger: #b91c1c;
+  --mh-danger-bg: #fee2e2;
+  --mh-radius: 16px;
+}
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$violet-palette,
+      tertiary: mat.$cyan-palette,
+      theme-type: light,
+    ),
+    typography: (
+      plain-family: "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      brand-family: "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    ),
+    density: 0,
+  ));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mh-bg);
+  color: var(--mh-text);
+  font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--mh-accent);
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.01em;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ---------- Layout helpers ---------- */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: 600px) {
+    padding: 0 16px;
+  }
+}
+
+.page {
+  padding-top: 28px;
+  padding-bottom: 56px;
+}
+
+.page-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--mh-text-muted);
+  }
+}
+
+.panel {
+  background: var(--mh-surface);
+  border: 1px solid var(--mh-border);
+  border-radius: var(--mh-radius);
+  padding: 20px;
+
+  > h2:first-child,
+  > h3:first-child,
+  > header h2 {
+    margin-top: 0;
+    font-size: 17px;
+  }
+}
+
+.grid-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
+}
+
+.grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.muted {
+  color: var(--mh-text-muted);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  padding: 60px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.table-wrap {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+  }
+
+  .mat-mdc-row:hover {
+    background: var(--mh-surface-2);
+  }
+}
+
+.mat-mdc-cell,
+.mat-mdc-header-cell {
+  padding: 0 10px !important;
+}
+
+/* ---------- Snackbars ---------- */
+.snack-success .mdc-snackbar__surface {
+  background: #065f46 !important;
+}
+
+.snack-error .mdc-snackbar__surface {
+  background: #991b1b !important;
+}
+
+.snack-success .mat-mdc-snack-bar-label,
+.snack-error .mat-mdc-snack-bar-label {
+  color: #fff !important;
+}

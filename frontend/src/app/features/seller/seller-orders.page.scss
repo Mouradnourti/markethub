@@ -1,0 +1,158 @@
+.filters {
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+
+  &.with-detail {
+    grid-template-columns: 1.3fr 1fr;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.list {
+  padding: 8px;
+}
+
+.order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  & + & {
+    border-top: 1px solid var(--mh-border);
+    border-radius: 0 0 12px 12px;
+  }
+
+  &:hover {
+    background: var(--mh-surface-2);
+  }
+
+  &.on {
+    background: var(--mh-accent-soft);
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  span {
+    font-size: 13px;
+  }
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pay {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--mh-surface-2);
+  font-size: 11px;
+  font-weight: 700;
+
+  &.card {
+    background: var(--mh-info-bg);
+    color: var(--mh-info);
+  }
+}
+
+.detail {
+  position: sticky;
+  top: 88px;
+
+  header {
+    display: flex;
+    justify-content: space-between;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+  }
+
+  h3 {
+    margin: 18px 0 6px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mh-text-muted);
+  }
+}
+
+.wrap {
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.risk-tip {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--mh-danger-bg);
+  color: var(--mh-danger);
+  font-size: 14px;
+}
+
+address {
+  font-style: normal;
+  line-height: 1.5;
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+
+  &.total {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--mh-border);
+    font-weight: 600;
+  }
+
+  &.net {
+    font-weight: 800;
+    color: var(--mh-success);
+  }
+}
+
+.change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 13px;
+}
+
+mat-paginator {
+  background: transparent;
+}

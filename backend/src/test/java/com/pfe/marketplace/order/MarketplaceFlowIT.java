@@ -84,8 +84,13 @@ class MarketplaceFlowIT extends ApiFixtures {
                 Map.of("type", "RETURN", "reason", "Left earcup crackles"), 201);
         JsonNode reloaded = send(customer, get("/api/orders/" + customerOrder), null, 200);
         assertThat(reloaded.get("shopOrders").get(0).get("returnRequested").asBoolean()).isTrue();
-        JsonNode disputes = send(admin, get("/api/admin/disputes?status=OPEN"), null, 200).get("content");
-        long disputeId = disputes.get(0).get("id").asLong();
+        JsonNode disputes = send(admin, get("/api/admin/disputes?status=OPEN&size=100"), null, 200).get("content");
+        long disputeId = 0;
+        for (JsonNode dispute : disputes) {
+            if (dispute.get("shopOrderId").asLong() == parcelA) {
+                disputeId = dispute.get("id").asLong();
+            }
+        }
         send(admin, patch("/api/admin/disputes/" + disputeId), Map.of("decision", "APPROVED", "note", "Refund"), 200);
         assertThat(stockOf(headphones)).isEqualTo(10);
 

@@ -1,0 +1,163 @@
+h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  .span-2 {
+    grid-column: span 2;
+  }
+}
+
+.methods {
+  display: grid;
+  gap: 10px;
+}
+
+.method {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--mh-border);
+  border-radius: 14px;
+  cursor: pointer;
+
+  &.on {
+    border-color: var(--mh-accent);
+    background: var(--mh-accent-soft);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  span {
+    color: var(--mh-text-muted);
+    font-size: 13px;
+  }
+}
+
+.summary {
+  position: sticky;
+  top: 128px;
+  align-self: start;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--mh-text-muted);
+}
+
+.sum {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+
+  &:first-of-type {
+    margin-top: 10px;
+    border-top: 1px solid var(--mh-border);
+    padding-top: 12px;
+  }
+}
+
+.total {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.place {
+  width: 100%;
+  height: 48px;
+  margin: 14px 0 6px;
+}
+
+.steps {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--mh-surface-2);
+    color: var(--mh-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+
+    &.done {
+      background: var(--mh-success-bg);
+      color: var(--mh-success);
+    }
+
+    &.current {
+      background: var(--mh-accent);
+      color: #fff;
+    }
+  }
+}
+
+.stripe {
+  min-height: 220px;
+  margin: 16px 0;
+}
+
+.simulated {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--mh-warning-bg);
+  color: var(--mh-warning);
+
+  p {
+    margin: 4px 0 0;
+    color: #78350f;
+    font-size: 14px;
+  }
+}
+
+.actions {
+  flex-wrap: wrap;
+
+  .grow {
+    flex: 1;
+    height: 48px;
+  }
+
+  button[mat-stroked-button] {
+    height: 48px;
+  }
+}
+
+.error {
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--mh-danger-bg);
+  color: var(--mh-danger);
+}
+
+.small {
+  font-size: 12px;
+}

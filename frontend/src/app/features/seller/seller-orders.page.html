@@ -1,0 +1,110 @@
+<div class="page-title">
+  <div><h1>Orders</h1><p>Confirm, ship and deliver your parcels.</p></div>
+</div>
+
+<mat-button-toggle-group class="filters" [value]="filter()" (change)="setFilter($event.value)" aria-label="Status filter">
+  @for (status of filters; track status) {
+    <mat-button-toggle [value]="status">{{ status ? humanize(status) : 'All' }}</mat-button-toggle>
+  }
+</mat-button-toggle-group>
+
+<div class="layout" [class.with-detail]="selected()">
+  <section class="panel list">
+    @if (page(); as p) {
+      @for (order of p.content; track order.id) {
+        <button class="order" [class.on]="selected()?.id === order.id" (click)="select(order)">
+          <div class="main">
+            <strong>{{ order.orderReference }}</strong>
+            <span class="muted">{{ order.createdAt | date: 'MMM d, HH:mm' }} · {{ order.customerName }} · {{ order.items.length }} item(s)</span>
+          </div>
+          <div class="meta">
+            @if (order.paymentMethod === 'COD') {
+              <app-risk-badge [score]="order.returnRiskScore" />
+              <span class="pay">COD</span>
+            } @else {
+              <span class="pay card">Card</span>
+            }
+            <strong>{{ order.subtotal | money }}</strong>
+            <app-status-chip [status]="order.status" />
+          </div>
+        </button>
+      } @empty {
+        <app-empty-state icon="inbox" title="No orders here" message="Orders with this status will appear here." />
+      }
+      @if (p.totalPages > 1) {
+        <mat-paginator [length]="p.totalElements" [pageIndex]="p.page" [pageSize]="p.size" [hidePageSize]="true"
+                       (page)="load($event.pageIndex)" />
+      }
+    }
+  </section>
+
+  @if (selected(); as o) {
+    <aside class="panel detail">
+      <header>
+        <div>
+          <h2>{{ o.orderReference }}</h2>
+          <span class="muted">{{ o.createdAt | date: 'medium' }}</span>
+        </div>
+        <button mat-icon-button (click)="selected.set(null)" aria-label="Close"><mat-icon>close</mat-icon></button>
+      </header>
+      <div class="row wrap">
+        <app-status-chip [status]="o.status" />
+        <app-status-chip [status]="o.paymentStatus" [text]="(o.paymentMethod === 'COD' ? 'Cash on delivery · ' : 'Card · ') + o.paymentStatus.toLowerCase()" />
+        @if (o.paymentMethod === 'COD') { <app-risk-badge [score]="o.returnRiskScore" /> }
+      </div>
+
+      @if (o.paymentMethod === 'COD' && (o.returnRiskScore ?? 0) >= 0.35) {
+        <div class="risk-tip">
+          <mat-icon>tips_and_updates</mat-icon>
+          <span>High refusal risk: call the customer to confirm the order before shipping.</span>
+        </div>
+      }
+
+      <h3>Ship to</h3>
+      <address>
+        <strong>{{ o.shippingAddress.fullName }}</strong> · {{ o.shippingAddress.phone }}<br />
+        {{ o.shippingAddress.addressLine }}, {{ o.shippingAddress.postalCode }} {{ o.shippingAddress.city }}, {{ o.shippingAddress.country }}
+      </address>
+
+      <h3>Items</h3>
+      @for (item of o.items; track item.productId) {
+        <div class="line"><span>{{ item.quantity }} × {{ item.productName }}</span><span>{{ item.lineTotal | money }}</span></div>
+      }
+      <div class="line total"><span>Subtotal</span><span>{{ o.subtotal | money }}</span></div>
+      <div class="line muted"><span>Platform commission</span><span>− {{ o.commissionAmount | money }}</span></div>
+      <div class="line net"><span>Your earnings</span><span>{{ o.netAmount | money }}</span></div>
+
+      @if (nextStatuses(o).length) {
+        <h3>Next step</h3>
+        @if (o.status === 'CONFIRMED') {
+          <mat-form-field class="full-width">
+            <mat-label>Tracking number</mat-label>
+            <input matInput [(ngModel)]="trackingNumber" maxlength="60" />
+          </mat-form-field>
+        }
+        <mat-form-field class="full-width">
+          <mat-label>Note (optional)</mat-label>
+          <input matInput [(ngModel)]="note" maxlength="255" />
+        </mat-form-field>
+        <div class="row wrap">
+          @for (status of nextStatuses(o); track status) {
+            @if (status === 'CANCELLED' || status === 'RETURNED') {
+              <button mat-stroked-button (click)="move(o, status)" [disabled]="busy()">{{ actionLabel(status) }}</button>
+            } @else {
+              <button mat-flat-button (click)="move(o, status)" [disabled]="busy()">{{ actionLabel(status) }}</button>
+            }
+          }
+        </div>
+      }
+
+      <h3>History</h3>
+      @for (change of o.history; track $index) {
+        <div class="change">
+          <app-status-chip [status]="change.status" />
+          <span class="muted">{{ change.changedAt | date: 'MMM d, HH:mm' }}</span>
+          @if (change.note) { <span>{{ change.note }}</span> }
+        </div>
+      }
+    </aside>
+  }
+</div>

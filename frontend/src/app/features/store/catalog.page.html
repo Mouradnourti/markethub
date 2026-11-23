@@ -1,0 +1,91 @@
+<div class="container page layout">
+  <aside class="filters panel">
+    <div class="filters-head">
+      <h3>Filters</h3>
+      <button mat-button (click)="clearFilters()">Reset</button>
+    </div>
+
+    <section>
+      <h4>Category</h4>
+      <button class="cat" [class.on]="!categoryId()" (click)="setFilter({ categoryId: null })">All categories</button>
+      @for (parent of parents(); track parent.id) {
+        <button class="cat" [class.on]="categoryId() === '' + parent.id" (click)="setFilter({ categoryId: parent.id })">
+          {{ parent.name }}
+        </button>
+        @for (child of childrenOf(parent.id); track child.id) {
+          <button class="cat child" [class.on]="categoryId() === '' + child.id" (click)="setFilter({ categoryId: child.id })">
+            {{ child.name }}
+          </button>
+        }
+      }
+    </section>
+
+    <section>
+      <h4>Price</h4>
+      <div class="price">
+        <mat-form-field>
+          <mat-label>Min</mat-label>
+          <input matInput type="number" min="0" [(ngModel)]="minPriceInput" (keyup.enter)="applyPrice()" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Max</mat-label>
+          <input matInput type="number" min="0" [(ngModel)]="maxPriceInput" (keyup.enter)="applyPrice()" />
+        </mat-form-field>
+      </div>
+      <button mat-stroked-button class="full-width" (click)="applyPrice()">Apply</button>
+    </section>
+
+    <section>
+      <h4>Customer rating</h4>
+      <mat-radio-group class="ratings" [value]="minRating() ?? ''" (change)="setFilter({ minRating: $event.value || null })">
+        <mat-radio-button value="">Any</mat-radio-button>
+        <mat-radio-button value="4">4★ & up</mat-radio-button>
+        <mat-radio-button value="3">3★ & up</mat-radio-button>
+      </mat-radio-group>
+    </section>
+
+    <section>
+      <mat-checkbox [checked]="inStock() === 'true'" (change)="setFilter({ inStock: $event.checked || null })">
+        In stock only
+      </mat-checkbox>
+    </section>
+  </aside>
+
+  <section class="results">
+    <div class="results-head">
+      <div>
+        <h1>{{ heading() }}</h1>
+        <span class="muted">{{ result()?.totalElements ?? 0 }} products</span>
+      </div>
+      <mat-form-field class="sort">
+        <mat-label>Sort by</mat-label>
+        <mat-select [value]="sort() || 'NEWEST'" (selectionChange)="setFilter({ sort: $event.value })">
+          @for (option of sortOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (result(); as page) {
+      @if (page.content.length) {
+        <div class="grid-products">
+          @for (product of page.content; track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+        <mat-paginator [length]="page.totalElements" [pageIndex]="page.page" [pageSize]="pageSize"
+                       [hidePageSize]="true" (page)="changePage($event)" />
+      } @else {
+        <app-empty-state icon="search_off" title="No products match your filters"
+                         message="Try another category, widen the price range or clear the filters.">
+          <button mat-flat-button (click)="clearFilters()">Clear filters</button>
+        </app-empty-state>
+      }
+    }
+  </section>
+</div>
