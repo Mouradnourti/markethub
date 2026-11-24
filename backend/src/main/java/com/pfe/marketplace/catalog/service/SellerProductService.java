@@ -12,8 +12,11 @@ import com.pfe.marketplace.common.exception.BusinessException;
 import com.pfe.marketplace.common.exception.NotFoundException;
 import com.pfe.marketplace.shop.entity.Shop;
 import com.pfe.marketplace.shop.service.ShopService;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -103,10 +106,26 @@ public class SellerProductService {
                 .orElseThrow(() -> new NotFoundException("Product", productId));
     }
 
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
     private void apply(Product product, ProductRequest request) {
+        BigDecimal price = request.price().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal compareAt = request.compareAtPrice() == null
+                ? null : request.compareAtPrice().setScale(2, RoundingMode.HALF_UP);
+        if (compareAt != null && compareAt.compareTo(price) <= 0) {
+            throw new BusinessException("The compare-at price must be higher than the selling price");
+        }
         product.setName(request.name().trim());
+        product.setTagline(blankToNull(request.tagline()));
         product.setDescription(request.description());
-        product.setPrice(request.price().setScale(2, RoundingMode.HALF_UP));
+        product.setHighlights(request.highlights() == null ? new ArrayList<>()
+                : request.highlights().stream().map(String::trim).collect(Collectors.toCollection(ArrayList::new)));
+        product.setSpecs(request.specs() == null ? new ArrayList<>()
+                : request.specs().stream().map(mapper::toEntity).collect(Collectors.toCollection(ArrayList::new)));
+        product.setPrice(price);
+        product.setCompareAtPrice(compareAt);
         product.setStock(request.stock());
         product.setActive(request.active() == null || request.active());
         product.setCategory(categoryRepository.findById(request.categoryId())

@@ -2,6 +2,7 @@ package com.pfe.marketplace.ai;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -133,6 +134,27 @@ class AiIntegrationIT extends ApiFixtures {
         assertThat(dataset.has("codOrders")).isTrue();
     }
 
+    @Test
+    void sellersDraftProductCopyWithTheAiWriter() throws Exception {
+        String admin = adminToken();
+        long parent = createCategory(admin, "Fashion " + System.nanoTime());
+        long child = send(admin, post("/api/admin/categories"),
+                java.util.Map.of("name", "Jackets " + System.nanoTime(), "parentId", parent), 201).get("id").asLong();
+        String seller = approvedSeller(admin, "Copy Shop");
+
+        JsonNode draft = send(seller, post("/api/seller/products/describe"), java.util.Map.of(
+                "name", "Rain Jacket", "categoryId", child, "keywords", java.util.List.of(" waterproof "),
+                "tone", "premium"), 200);
+        assertThat(draft.get("tagline").asText()).isEqualTo("Stay dry.");
+        assertThat(draft.get("specs").get(0).get("value").asText()).isEqualTo("320 g");
+        assertThat(REQUESTS.getLast()).contains("\"category\":\"Fashion").contains("/ Jackets")
+                .contains("\"keywords\":[\"waterproof\"]").contains("\"tone\":\"premium\"");
+
+        send(seller, post("/api/seller/products/describe"), java.util.Map.of("name", "Rain Jacket", "tone", "loud"), 400);
+        String customer = register(uniqueEmail("copy"), "CUSTOMER", null);
+        send(customer, post("/api/seller/products/describe"), java.util.Map.of("name", "Rain Jacket"), 403);
+    }
+
     private static HttpServer startFakeAi() {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
@@ -140,6 +162,10 @@ class AiIntegrationIT extends ApiFixtures {
                     "{\"score\":0.42,\"level\":\"high\",\"reasons\":[\"First order from this customer\"],\"model\":\"lr\"}"));
             server.createContext("/recommendations", exchange -> respond(exchange,
                     "{\"productIds\":" + RECOMMENDED + ",\"strategy\":\"personalized\"}"));
+            server.createContext("/copywriter", exchange -> respond(exchange, """
+                    {"tagline":"Stay dry.","description":"A great jacket.","highlights":["Waterproof"],
+                     "specs":[{"label":"Weight","value":"320 g"}],"suggestedSpecLabels":["Fit"],
+                     "categoryProfile":"fashion"}"""));
             server.createContext("/forecast", exchange -> respond(exchange, """
                     {"model":"Ridge regression","mae":3.1,"baselineMae":4.2,"forecast":[
                      {"date":"2030-01-01","revenue":10,"lower":5,"upper":15},

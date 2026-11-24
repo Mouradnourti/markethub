@@ -1,0 +1,187 @@
+<div class="page-title">
+  <div>
+    <a routerLink="/seller/products" class="back"><mat-icon>arrow_back</mat-icon> Products</a>
+    <h1>{{ isEdit() ? 'Edit product' : 'New product' }}</h1>
+  </div>
+  <div class="row">
+    @if (product(); as p) {
+      <a mat-stroked-button [routerLink]="['/products', p.id]" target="_blank"><mat-icon>open_in_new</mat-icon> View in store</a>
+    }
+    <button mat-flat-button (click)="save()" [disabled]="saving()"><mat-icon>save</mat-icon> {{ isEdit() ? 'Save changes' : 'Create product' }}</button>
+  </div>
+</div>
+
+<form class="layout" [formGroup]="form" (ngSubmit)="save()">
+  <div class="main">
+    <section class="panel fields">
+      <h2>Basics</h2>
+      <mat-form-field class="span-2">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" maxlength="200" placeholder="e.g. Linen Shirt Relaxed Fit" />
+        @if (form.controls.name.hasError('required')) { <mat-error>The name is required</mat-error> }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="categoryId">
+          @for (group of categoryGroups(); track group.parent.id) {
+            <mat-optgroup [label]="group.parent.name">
+              @if (!group.children.length) { <mat-option [value]="group.parent.id">{{ group.parent.name }}</mat-option> }
+              @for (child of group.children; track child.id) {
+                <mat-option [value]="child.id">{{ child.name }}</mat-option>
+              }
+            </mat-optgroup>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-slide-toggle formControlName="active" class="toggle">Visible in the store</mat-slide-toggle>
+    </section>
+
+    <section class="panel fields">
+      <h2>Pricing &amp; stock</h2>
+      <mat-form-field>
+        <mat-label>Price</mat-label>
+        <input matInput type="number" step="0.01" min="0.01" formControlName="price" />
+        <span matTextSuffix>{{ currency }}</span>
+        @if (form.controls.price.invalid) { <mat-error>Enter a price above 0</mat-error> }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Compare-at price (optional)</mat-label>
+        <input matInput type="number" step="0.01" min="0" formControlName="compareAtPrice" />
+        <span matTextSuffix>{{ currency }}</span>
+        <mat-hint>
+          @if (discount()) { Shown struck through: <strong>-{{ discount() }}%</strong> badge in the store }
+          @else { Original price, to run a sale }
+        </mat-hint>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Stock</mat-label>
+        <input matInput type="number" min="0" step="1" formControlName="stock" />
+        <mat-hint>Under 5 units, shoppers see "Only N left"</mat-hint>
+      </mat-form-field>
+    </section>
+
+    <section class="panel writer" [formGroup]="writer">
+      <div class="writer-head">
+        <mat-icon class="spark">auto_awesome</mat-icon>
+        <div>
+          <h2>Write with AI</h2>
+          <p class="muted">List a few facts about the product. The writer drafts the tagline, description, key benefits
+            and specs from the name and your keywords. It never invents specifications, so check the draft before saving.</p>
+        </div>
+      </div>
+      <mat-form-field class="full-width">
+        <mat-label>Keywords and facts (comma separated)</mat-label>
+        <textarea matInput rows="2" formControlName="keywords"
+                  placeholder="e.g. 100% linen, breathable, relaxed fit, machine washable, navy"></textarea>
+      </mat-form-field>
+      <div class="writer-actions">
+        <mat-button-toggle-group formControlName="tone" aria-label="Tone of voice" hideSingleSelectionIndicator>
+          <mat-button-toggle value="friendly">Friendly</mat-button-toggle>
+          <mat-button-toggle value="premium">Premium</mat-button-toggle>
+          <mat-button-toggle value="technical">Technical</mat-button-toggle>
+        </mat-button-toggle-group>
+        <span class="spacer"></span>
+        @if (lastDraft()) {
+          <button type="button" mat-stroked-button (click)="write(true)" [disabled]="writing()"><mat-icon>refresh</mat-icon> Another version</button>
+        }
+        <button type="button" mat-flat-button class="ai-button" (click)="write()" [disabled]="writing()">
+          <mat-icon>auto_awesome</mat-icon> {{ writing() ? 'Writing…' : 'Write my product page' }}
+        </button>
+      </div>
+      @if (writing()) { <mat-progress-bar mode="indeterminate" /> }
+    </section>
+
+    <section class="panel fields">
+      <h2>Product page</h2>
+      <mat-form-field class="span-2">
+        <mat-label>Tagline</mat-label>
+        <input matInput formControlName="tagline" maxlength="200" placeholder="One line on why someone should buy it" />
+        <mat-hint align="end">{{ form.controls.tagline.value.length }}/200</mat-hint>
+      </mat-form-field>
+      <mat-form-field class="span-2">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="7" formControlName="description" maxlength="5000"></textarea>
+        <mat-hint>Separate paragraphs with an empty line.</mat-hint>
+        <mat-hint align="end">{{ form.controls.description.value.length }}/5000</mat-hint>
+      </mat-form-field>
+
+      <div class="span-2 list-block">
+        <div class="list-head">
+          <h3>Key benefits <span class="muted">({{ highlights.length }}/{{ maxHighlights }})</span></h3>
+          <button type="button" mat-button (click)="addHighlight()" [disabled]="highlights.length >= maxHighlights"><mat-icon>add</mat-icon> Add</button>
+        </div>
+        @for (control of highlights.controls; track control; let i = $index) {
+          <div class="list-row">
+            <mat-icon class="check">check_circle</mat-icon>
+            <mat-form-field class="grow" subscriptSizing="dynamic">
+              <input matInput [formControl]="control" maxlength="160" placeholder="e.g. Breathable linen keeps you cool" />
+            </mat-form-field>
+            <button type="button" mat-icon-button (click)="highlights.removeAt(i)" aria-label="Remove benefit"><mat-icon>delete</mat-icon></button>
+          </div>
+        } @empty {
+          <p class="muted small">Short bullet points shown next to the "Add to cart" button.</p>
+        }
+      </div>
+
+      <div class="span-2 list-block">
+        <div class="list-head">
+          <h3>Specifications <span class="muted">({{ specs.length }}/{{ maxSpecs }})</span></h3>
+          <button type="button" mat-button (click)="addSpec()" [disabled]="specs.length >= maxSpecs"><mat-icon>add</mat-icon> Add</button>
+        </div>
+        @for (group of specs.controls; track group; let i = $index) {
+          <div class="list-row" [formGroup]="group">
+            <mat-form-field class="label" subscriptSizing="dynamic">
+              <input matInput formControlName="label" maxlength="60" placeholder="Label, e.g. Material" />
+            </mat-form-field>
+            <mat-form-field class="grow" subscriptSizing="dynamic">
+              <input matInput formControlName="value" maxlength="200" placeholder="Value, e.g. 100% linen" />
+            </mat-form-field>
+            <button type="button" mat-icon-button (click)="specs.removeAt(i)" aria-label="Remove specification"><mat-icon>delete</mat-icon></button>
+          </div>
+        } @empty {
+          <p class="muted small">Size, material, capacity, what's in the box… Specs answer questions before they are asked.</p>
+        }
+      </div>
+    </section>
+  </div>
+
+  <aside class="side">
+    <section class="panel quality">
+      <h2>Listing quality</h2>
+      <div class="score" [class.good]="quality().score >= 80" [class.ok]="quality().score >= 50 && quality().score < 80">
+        <strong>{{ quality().score }}</strong><span>/100</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="quality().score" />
+      <ul>
+        @for (check of quality().checks; track check.label) {
+          <li [class.done]="check.done">
+            <mat-icon>{{ check.done ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <div>
+              <strong>{{ check.label }}</strong>
+              @if (!check.done) { <span>{{ check.tip }}</span> }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="panel images">
+      <h2>Images</h2>
+      @if (product(); as p) {
+        <div class="gallery">
+          @for (src of p.images; track src) {
+            <img [src]="src" alt="" />
+          }
+        </div>
+        <label class="upload">
+          <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="upload($event)" hidden />
+          <mat-icon>cloud_upload</mat-icon>
+          <span>Upload an image (JPEG, PNG, WebP · max 5 MB)</span>
+        </label>
+        @if (uploading()) { <mat-progress-bar mode="indeterminate" /> }
+      } @else {
+        <p class="muted">Save the product first, then add images.</p>
+      }
+    </section>
+  </aside>
+</form>

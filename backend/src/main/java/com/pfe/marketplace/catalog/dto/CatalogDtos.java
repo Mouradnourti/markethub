@@ -1,5 +1,6 @@
 package com.pfe.marketplace.catalog.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -34,11 +35,13 @@ public final class CatalogDtos {
             Long id,
             String name,
             BigDecimal price,
+            BigDecimal compareAtPrice,
             int stock,
             BigDecimal avgRating,
             int reviewCount,
             int soldCount,
             String imageUrl,
+            String hoverImageUrl,
             Long shopId,
             String shopName,
             Long categoryId,
@@ -49,8 +52,12 @@ public final class CatalogDtos {
     public record ProductDto(
             Long id,
             String name,
+            String tagline,
             String description,
+            List<String> highlights,
+            List<ProductSpecDto> specs,
             BigDecimal price,
+            BigDecimal compareAtPrice,
             int stock,
             boolean active,
             BigDecimal avgRating,
@@ -65,10 +72,18 @@ public final class CatalogDtos {
             Instant createdAt) implements Serializable {
     }
 
+    public record ProductSpecDto(@NotBlank @Size(max = 60) String label, @NotBlank @Size(max = 200) String value)
+            implements Serializable {
+    }
+
     public record ProductRequest(
             @NotBlank @Size(max = 200) String name,
+            @Size(max = 200) String tagline,
             @Size(max = 5000) String description,
+            @Size(max = 8) List<@NotBlank @Size(max = 160) String> highlights,
+            @Size(max = 20) List<@Valid ProductSpecDto> specs,
             @NotNull @DecimalMin("0.01") @DecimalMax("1000000") @Digits(integer = 10, fraction = 2) BigDecimal price,
+            @DecimalMin("0.01") @DecimalMax("1000000") @Digits(integer = 10, fraction = 2) BigDecimal compareAtPrice,
             @Min(0) @Max(1_000_000) int stock,
             @NotNull Long categoryId,
             Boolean active,
@@ -90,6 +105,7 @@ public final class CatalogDtos {
             BigDecimal maxPrice,
             BigDecimal minRating,
             Boolean inStock,
+            Boolean onSale,
             ProductSort sort) {
     }
 }

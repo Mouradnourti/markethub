@@ -139,14 +139,18 @@ async function main() {
     await go(page, `/products/${product.id}`);
     await expectText(page, product.name);
     await shot(page, '04-product');
+    await expectText(page, 'Frequently bought together');
     const added = page.waitForResponse((r) => r.url().endsWith('/api/cart/items') && r.request().method() === 'POST');
-    await click(page, 'button.grow');
+    await click(page, 'button.add-to-cart');
     if (!(await added).ok()) throw new Error('Add to cart was refused');
-    pass(`Product page: "${product.name}" added to the cart`);
+    await page.waitForSelector('aside.drawer.open', { visible: true, timeout: 15000 });
+    await expectText(page, 'free shipping');
+    await new Promise((resolve) => setTimeout(resolve, 400)); // let the slide-in animation finish
+    await shot(page, '05-cart-drawer');
+    pass(`Product page: "${product.name}" added; the cart drawer shows free-shipping progress`);
 
     await go(page, '/cart');
     await expectText(page, 'Order summary');
-    await shot(page, '05-cart');
     await clickAndWaitForPath(page, '::-p-text(Proceed to checkout)', /^\/checkout$/);
     await fill(page, 'input[formcontrolname=addressLine]', '12 rue de la Gare');
     await fill(page, 'input[formcontrolname=city]', 'Lyon');
@@ -164,6 +168,14 @@ async function main() {
     await expectText(page, 'Projected revenue');
     await shot(page, '08-seller-dashboard');
     pass('Seller dashboard shows KPIs, charts and the AI sales forecast');
+
+    await go(page, `/seller/products/${product.id}`);
+    await fill(page, 'textarea[formcontrolname=keywords]', 'AMOLED display, 48 MP camera, fast charging');
+    await click(page, '::-p-text(Write my product page)');
+    await expectText(page, 'Draft ready');
+    await expectText(page, 'Listing quality');
+    await shot(page, '13-ai-writer');
+    pass('Seller drafts the product page with the AI writer and sees the listing quality score');
 
     await go(page, '/seller/orders');
     await click(page, `::-p-text(${reference})`);

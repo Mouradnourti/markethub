@@ -22,7 +22,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "products")
@@ -51,6 +53,21 @@ public class Product {
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
+
+    /** Original price shown struck through; set only while the product is discounted. */
+    @Column(name = "compare_at_price", precision = 12, scale = 2)
+    private BigDecimal compareAtPrice;
+
+    @Column(length = 200)
+    private String tagline;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private List<String> highlights = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(nullable = false, columnDefinition = "jsonb")
+    private List<ProductSpec> specs = new ArrayList<>();
 
     @Column(nullable = false)
     private int stock;

@@ -44,7 +44,10 @@
       </mat-radio-group>
     </section>
 
-    <section>
+    <section class="toggles">
+      <mat-checkbox [checked]="onSale() === 'true'" (change)="setFilter({ onSale: $event.checked || null })">
+        On sale
+      </mat-checkbox>
       <mat-checkbox [checked]="inStock() === 'true'" (change)="setFilter({ inStock: $event.checked || null })">
         In stock only
       </mat-checkbox>
@@ -83,7 +86,7 @@
       } @else {
         <app-empty-state icon="search_off" title="No products match your filters"
                          message="Try another category, widen the price range or clear the filters.">
-          <button mat-flat-button (click)="clearFilters()">Clear filters</button>
+          <button mat-flat-button class="btn-ink" (click)="clearFilters()">Clear filters</button>
         </app-empty-state>
       }
     }

@@ -18,7 +18,7 @@ import { EmptyState } from '../../shared/ui/empty-state';
       @if (cart.isEmpty()) {
         <div class="panel">
           <app-empty-state icon="shopping_cart" title="Your cart is empty" message="Browse the catalog and add products you like.">
-            <a mat-flat-button routerLink="/products">Start shopping</a>
+            <a mat-flat-button class="btn-ink" routerLink="/products">Start shopping</a>
           </app-empty-state>
         </div>
       } @else {
@@ -60,7 +60,7 @@ import { EmptyState } from '../../shared/ui/empty-state';
               <div class="hint"><mat-icon>local_shipping</mat-icon> Add {{ missingForFree() | money }} for free shipping</div>
             }
             <div class="sum total-line"><span>Total</span><span>{{ cart.cart().total | money }}</span></div>
-            <a mat-flat-button routerLink="/checkout" class="checkout" [class.disabled]="hasUnavailable()"
+            <a mat-flat-button routerLink="/checkout" class="checkout btn-ink" [class.disabled]="hasUnavailable()"
                [attr.aria-disabled]="hasUnavailable()">Proceed to checkout</a>
             <a mat-button routerLink="/products" class="full-width">Continue shopping</a>
             <p class="muted small">Items from {{ groups().length }} shop(s) ship separately, one checkout.</p>

@@ -1,0 +1,271 @@
+# Home & Kitchen product copy (format: see copy-electronics.txt)
+
+# Non-stick Frying Pan 28 cm
+art: pan #1f2937
+was: 39.9
+tag: Eggs slide off, cleanup takes seconds.
+desc: A three-layer, PFOA-free non-stick coating lets you cook with almost no oil, and the thick forged base heats evenly on every hob, induction included. The stay-cool handle means no tea towel needed.
++ PFOA-free 3-layer non-stick coating
++ Works on all hobs, including induction
++ Stay-cool riveted handle
++ Oven safe up to 180 °C
+= Diameter: 28 cm
+= Material: forged aluminium
+= Hobs: gas, electric, ceramic, induction
+= Dishwasher safe: yes
+
+# Stainless Steel Cookware Set (6 pcs)
+art: pot #cbd5e1
+was: 149
+tag: The last cookware set you'll need to buy.
+desc: Tri-ply stainless steel spreads heat evenly from base to rim, so sauces don't scorch and pasta water boils fast. Glass lids let you watch without lifting, and every piece goes from hob to oven to dishwasher.
++ Tri-ply base for even heating
++ Oven safe up to 260 °C
++ Tempered glass lids with steam vents
++ Dishwasher safe
+= Includes: 16, 20 and 24 cm pots, 24 cm pan, 2 lids
+= Material: 18/10 stainless steel
+= Hobs: all, including induction
+
+# Electric Kettle 1.7 L
+art: kettle #e2e8f0
+tag: Boiling water in under four minutes, with a gentle glow.
+desc: The borosilicate glass body lights up softly as the water heats, and the 2,200 W element boils a full litre in under three minutes. It switches off automatically and has boil-dry protection.
++ Boils 1 L in under 3 minutes
++ Borosilicate glass with LED glow
++ Auto shut-off and boil-dry protection
++ 360° cordless base
+= Capacity: 1.7 L
+= Power: 2,200 W
+= Material: borosilicate glass, stainless steel
+
+# Espresso Machine 15 bar
+art: espresso #b91c1c
+was: 209
+tag: Café-style cappuccinos at home for a fraction of the price.
+desc: 15 bars of pressure extract rich espresso with a thick crema, and the steam wand textures milk for lattes and flat whites. Ready in 40 seconds, it pays for itself in a couple of months of skipped café visits.
++ 15-bar pump for real crema
++ Steam wand for milk foam
++ Heats up in 40 seconds
++ Removable 1.2 L water tank
+= Pressure: 15 bar
+= Power: 1,350 W
+= Water tank: 1.2 L
+= Compatible with: ground coffee and ESE pods
+
+# Air Fryer 5.5 L
+art: air-fryer #111827
+was: 109
+tag: Crispy fries with a spoonful of oil, dinner in 20 minutes.
+desc: Rapid hot-air circulation gives food a golden crunch with up to 80 % less fat than deep frying. Eight one-touch programmes take the guesswork out of fries, chicken, fish and even cakes, and the basket is dishwasher safe.
++ Up to 80 % less fat than deep frying
++ 5.5 L basket feeds a family of 4
++ 8 one-touch cooking programmes
++ Non-stick, dishwasher-safe basket
+= Capacity: 5.5 L
+= Power: 1,700 W
+= Temperature: 80–200 °C
+
+# Chef's Knife 20 cm
+art: knife #44403c
+tag: Razor-sharp German steel that makes prep a pleasure.
+desc: Forged from a single piece of German stainless steel and sharpened to 15°, this knife glides through tomatoes and dense squash alike. The full tang and balanced handle give you control and comfort for years.
++ German stainless steel, hand-sharpened to 15°
++ Full tang for balance and strength
++ Ergonomic, slip-resistant handle
++ Gift box included
+= Blade length: 20 cm
+= Steel: X50CrMoV15
+= Hardness: 56 HRC
+
+# Bamboo Cutting Board Set
+art: cutting-board #d97706
+tag: Three boards for every job, kind to your knives.
+desc: Naturally antibacterial bamboo is gentle on knife edges and doesn't hold smells. Deep juice grooves keep counters clean, and the three sizes cover everything from garlic to a Sunday roast.
++ 3 sizes: small, medium, large
++ Deep juice grooves
++ Gentle on knife edges
++ Sustainable bamboo
+= Sizes: 23 × 15, 30 × 20, 38 × 25 cm
+= Material: organic bamboo
+
+# Glass Food Containers (10 pcs)
+art: containers #0ea5e9
+was: 34.9
+tag: Meal prep that goes from fridge to microwave to table.
+desc: Borosilicate glass doesn't stain or hold odours, and the locking lids are 100 % leak-proof, even with soup in your bag. Stackable sizes save space in the fridge.
++ 100 % leak-proof locking lids
++ Oven, microwave and freezer safe
++ No stains, no smells
++ Stackable to save space
+= Pieces: 5 containers + 5 lids
+= Sizes: 370 ml to 1,040 ml
+= Material: borosilicate glass, BPA-free lids
+
+# Hand Blender 800 W
+art: hand-blender #f8fafc
+tag: Smooth soups, sauces and smoothies straight in the pot.
+desc: An 800 W motor and four stainless blades purée soup in the pan in seconds. The whisk and chopper attachments turn it into three tools that store in one drawer.
++ 800 W motor, 12 speeds + turbo
++ Whisk and chopper included
++ Stainless steel blending foot
++ Splash-guard blade design
+= Power: 800 W
+= Speeds: 12 + turbo
+= Includes: whisk, 500 ml chopper, 700 ml beaker
+
+# Cast Iron Dutch Oven 5 L
+art: pot #b45309
+was: 84
+tag: Slow-cooked stews and crusty bread from one heirloom pot.
+desc: Enamelled cast iron holds heat beautifully, so stews simmer gently and bread bakes with a crackling crust. It goes from hob to oven to table and needs no seasoning.
++ Even heat retention for slow cooking
++ Enamelled: no seasoning needed
++ Oven safe up to 250 °C
++ Works on all hobs
+= Capacity: 5 L
+= Diameter: 26 cm
+= Material: enamelled cast iron
+
+# Digital Kitchen Scale
+art: scale #f8fafc
+tag: Precise to the gram, for baking that works every time.
+desc: Weigh flour, sugar and liquids to the gram with the bright backlit display. The tare button lets you add ingredients one after another in the same bowl.
++ Precise to 1 g, up to 5 kg
++ Tare function
++ Measures g, ml, oz and lb
++ Slim tempered-glass top
+= Capacity: 5 kg
+= Precision: 1 g
+= Battery: 2 × AAA (included)
+
+# French Press Coffee Maker 1 L
+art: french-press #334155
+was: 32.9
+tag: Rich, full-bodied coffee in four minutes, no machine needed.
+desc: Double-wall stainless steel keeps coffee hot for an hour and won't break like glass. The four-layer filter stops grounds from reaching your cup.
++ Double-wall: keeps coffee hot for 1 h
++ Unbreakable stainless steel
++ 4-layer fine filter
++ Makes 8 cups
+= Capacity: 1 L
+= Material: 18/8 stainless steel
+
+# Scandinavian Table Lamp
+art: table-lamp #d6c7a1
+was: 54
+tag: Warm, cosy light with a natural Nordic look.
+desc: A solid oak base and a natural linen shade diffuse a soft, warm glow that makes any corner feel welcoming. The in-line switch is easy to reach from the sofa or the bed.
++ Solid oak base
++ Natural linen shade
++ Soft, warm diffused light
++ E27 bulb socket
+= Height: 45 cm
+= Shade: Ø 28 cm
+= Bulb: E27, max 40 W (not included)
+
+# LED Strip Lights 10 m
+art: led-strip #7c3aed
+tag: Millions of colours, synced to your music, controlled from your phone.
+desc: Ten metres of adhesive LEDs transform a bedroom, desk or TV wall in minutes. Choose any colour in the app, set timers, or let the lights dance to your music.
++ 16 million colours
++ Music sync mode
++ App and remote control
++ Cuttable to any length
+= Length: 10 m
+= Control: app, IR remote
+= Power: plug-in adapter included
+
+# Velvet Cushion Covers (set of 2)
+art: cushion #0f766e
+tag: Instant sofa upgrade in rich, soft velvet.
+desc: Thick, soft velvet in deep colours adds texture and comfort to any sofa or bed. A hidden zip keeps the look clean, and they're machine washable.
++ Soft, thick velvet
++ Hidden zip closure
++ Machine washable at 30 °C
++ Set of 2
+= Size: 45 × 45 cm
+= Material: 100 % polyester velvet
+= Inserts: not included
+
+# Ceramic Vase Set
+art: vase #c2410c
+was: 42
+tag: Three handmade-look vases that make shelves look styled.
+desc: Matte ceramic in warm, earthy tones looks beautiful with dried flowers, fresh stems or nothing at all. Three heights let you group them for a designer look.
++ Set of 3 heights
++ Matte, textured finish
++ Watertight for fresh flowers
++ Earthy, neutral tones
+= Heights: 12, 18 and 24 cm
+= Material: ceramic
+
+# Wall Mirror Round 60 cm
+art: mirror #a16207
+tag: Brighten and open up any room.
+desc: A round mirror with a slim brass-tone frame reflects light and makes small rooms feel bigger. It arrives ready to hang with the fixings included.
++ Slim metal frame
++ Makes rooms look bigger and brighter
++ Ready to hang, fixings included
++ Shatter-resistant backing
+= Diameter: 60 cm
+= Frame: brass-tone metal
+
+# Scented Soy Candle Trio
+art: candle #ea580c
+was: 32.9
+tag: Three cosy scents, 120 hours of calm.
+desc: Hand-poured natural soy wax burns clean and slowly, filling your home with fig, cedar and vanilla. Cotton wicks give an even, smoke-free flame.
++ Natural soy wax, clean burn
++ 40 hours of burn time each
++ Fig, cedar and vanilla
++ Gift-ready box
+= Burn time: 3 × 40 h
+= Wax: 100 % soy
+= Weight: 3 × 180 g
+
+# Cotton Throw Blanket
+art: blanket #d6c7a1
+tag: The sofa blanket everyone fights over.
+desc: A chunky, breathable cotton knit that's warm in winter and light enough for summer evenings. It looks great folded over a chair and only gets softer with every wash.
++ 100 % cotton, breathable
++ Softer with every wash
++ Generous 130 × 170 cm
++ Machine washable
+= Size: 130 × 170 cm
+= Material: 100 % cotton
+
+# Framed Botanical Prints (3 pcs)
+art: frames #15803d
+was: 54.9
+tag: A ready-made gallery wall in five minutes.
+desc: Three botanical illustrations printed on thick matte paper and framed in natural oak. Hang them together for an instant, balanced gallery wall.
++ Set of 3 coordinated prints
++ Natural oak frames
++ Thick matte art paper
++ Ready to hang
+= Size: A4 (21 × 30 cm) each
+= Frame: oak, with acrylic glazing
+
+# Floor Lamp Arc
+art: floor-lamp #111827
+was: 109
+tag: A statement light that reaches over the sofa.
+desc: The arching steel arm puts warm light right over your reading spot, while the heavy marble base keeps it rock steady. A foot switch makes it easy to turn on.
++ Arched arm reaches over sofas
++ Solid marble base
++ Foot switch
++ Adjustable shade angle
+= Height: 180 cm
+= Reach: 140 cm
+= Bulb: E27, max 60 W
+
+# Macramé Plant Hanger
+art: plant-hanger #d6c7a1
+tag: Handmade boho charm for your favourite plant.
+desc: Knotted by hand from soft cotton rope, this hanger shows off trailing plants at eye level and frees up shelf space.
++ Handmade from cotton rope
++ Fits pots up to 20 cm
++ Ceiling hook included
+= Length: 90 cm
+= Material: 100 % cotton

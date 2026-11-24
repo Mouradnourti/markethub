@@ -16,7 +16,7 @@ import { Page, ProductSort, ProductSummary } from '../../core/models/api.models'
 import { EmptyState } from '../../shared/ui/empty-state';
 import { ProductCard } from '../../shared/ui/product-card';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 24;
 
 /** Catalog with filters kept in the URL (shareable, back-button friendly). */
 @Component({
@@ -47,6 +47,7 @@ export class CatalogPage {
   readonly maxPrice = input<string>();
   readonly minRating = input<string>();
   readonly inStock = input<string>();
+  readonly onSale = input<string>();
   readonly page = input<string>();
 
   private readonly catalog = inject(CatalogApi);
@@ -75,6 +76,9 @@ export class CatalogPage {
   protected readonly heading = computed(() => {
     if (this.q()) {
       return `Results for “${this.q()}”`;
+    }
+    if (this.onSale() === 'true' && !this.selectedCategory()) {
+      return 'Deals';
     }
     return this.selectedCategory()?.name ?? 'All products';
   });
@@ -117,6 +121,7 @@ export class CatalogPage {
         maxPrice: this.num(this.maxPrice()),
         minRating: this.num(this.minRating()),
         inStock: this.inStock() === 'true' || undefined,
+        onSale: this.onSale() === 'true' || undefined,
         page: this.num(this.page()) ?? 0,
         size: PAGE_SIZE,
       })

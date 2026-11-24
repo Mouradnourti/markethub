@@ -458,6 +458,37 @@
         }
       }
     },
+    "/api/seller/products/describe": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Draft a tagline, description, key benefits and specs for a product (AI writer)",
+        "operationId": "describe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopyDraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CopyDraft"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/products/{productId}/reviews": {
       "get": {
         "tags": [
@@ -1443,6 +1474,14 @@
             }
           },
           {
+            "name": "onSale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "sort",
             "in": "query",
             "required": false,
@@ -1582,6 +1621,51 @@
               "type": "integer",
               "format": "int32",
               "default": 6
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{id}/bought-together": {
+      "get": {
+        "tags": [
+          "Catalog (public)"
+        ],
+        "summary": "Products frequently ordered together with this one (padded with similar products)",
+        "operationId": "boughtTogether",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 2
             }
           }
         ],
@@ -2092,12 +2176,40 @@
             "maxLength": 200,
             "minLength": 0
           },
+          "tagline": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
           "description": {
             "type": "string",
             "maxLength": 5000,
             "minLength": 0
           },
+          "highlights": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 160,
+              "minLength": 0
+            },
+            "maxItems": 8,
+            "minItems": 0
+          },
+          "specs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSpecDto"
+            },
+            "maxItems": 20,
+            "minItems": 0
+          },
           "price": {
+            "type": "number",
+            "maximum": 1000000,
+            "minimum": 0.01
+          },
+          "compareAtPrice": {
             "type": "number",
             "maximum": 1000000,
             "minimum": 0.01
@@ -2130,6 +2242,25 @@
           "price"
         ]
       },
+      "ProductSpecDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 60,
+            "minLength": 0
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ]
+      },
       "ProductDto": {
         "type": "object",
         "properties": {
@@ -2140,10 +2271,28 @@
           "name": {
             "type": "string"
           },
+          "tagline": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
+          "highlights": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "specs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSpecDto"
+            }
+          },
           "price": {
+            "type": "number"
+          },
+          "compareAtPrice": {
             "type": "number"
           },
           "stock": {
@@ -2333,6 +2482,75 @@
           "parentId": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "CopyDraftRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 2
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 80,
+              "minLength": 0
+            },
+            "maxItems": 12,
+            "minItems": 0
+          },
+          "tone": {
+            "type": "string",
+            "pattern": "friendly|premium|technical"
+          },
+          "variant": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 1000,
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "CopyDraft": {
+        "type": "object",
+        "properties": {
+          "tagline": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "highlights": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "specs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSpecDto"
+            }
+          },
+          "suggestedSpecLabels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "categoryProfile": {
+            "type": "string"
           }
         }
       },
@@ -3274,6 +3492,9 @@
           "price": {
             "type": "number"
           },
+          "compareAtPrice": {
+            "type": "number"
+          },
           "stock": {
             "type": "integer",
             "format": "int32"
@@ -3290,6 +3511,9 @@
             "format": "int32"
           },
           "imageUrl": {
+            "type": "string"
+          },
+          "hoverImageUrl": {
             "type": "string"
           },
           "shopId": {

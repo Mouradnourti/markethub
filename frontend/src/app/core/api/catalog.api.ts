@@ -39,6 +39,10 @@ export class CatalogApi {
     return this.http.get<ProductSummary[]>(`/api/products/${id}/similar`, { params: { limit } });
   }
 
+  boughtTogether(id: number, limit = 2): Observable<ProductSummary[]> {
+    return this.http.get<ProductSummary[]>(`/api/products/${id}/bought-together`, { params: { limit } });
+  }
+
   /** Cached for the session; admins call {@link invalidateCategories} after editing. */
   categories(): Observable<Category[]> {
     this.categories$ ??= this.http.get<Category[]>('/api/categories').pipe(shareReplay(1));

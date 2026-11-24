@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -66,3 +67,25 @@ class ReturnRiskResponse(ApiModel):
     level: str
     reasons: list[str]
     model: str
+
+
+class CopyRequest(ApiModel):
+    name: str = Field(min_length=2, max_length=200)
+    category: str | None = Field(default=None, max_length=120)
+    keywords: list[str] = Field(default_factory=list, max_length=20)
+    tone: Literal["friendly", "premium", "technical"] = "friendly"
+    variant: int = Field(default=0, ge=0, le=1000)
+
+
+class SpecOut(ApiModel):
+    label: str
+    value: str
+
+
+class CopyResponse(ApiModel):
+    tagline: str
+    description: str
+    highlights: list[str]
+    specs: list[SpecOut]
+    suggested_spec_labels: list[str]
+    category_profile: str

@@ -55,7 +55,7 @@
         <div class="sum"><span>Subtotal</span><span>{{ cart.cart().subtotal | money }}</span></div>
         <div class="sum"><span>Shipping</span><span>{{ cart.cart().shippingFee ? (cart.cart().shippingFee | money) : 'Free' }}</span></div>
         <div class="sum total"><span>Total</span><span>{{ cart.cart().total | money }}</span></div>
-        <button mat-flat-button class="place" [disabled]="placing() || cart.isEmpty()">
+        <button mat-flat-button class="place btn-ink" [disabled]="placing() || cart.isEmpty()">
           @if (placing()) { <mat-spinner diameter="20" /> } @else {
             {{ form.controls.paymentMethod.value === 'COD' ? 'Place order' : 'Continue to payment' }}
           }
@@ -73,7 +73,7 @@
           <div #stripeHost class="stripe"></div>
           @if (paymentError()) { <div class="error">{{ paymentError() }}</div> }
           <p class="muted small">Test mode: use card 4242 4242 4242 4242, any future date and any CVC.</p>
-          <button mat-flat-button class="place" (click)="payWithStripe()" [disabled]="paying()">
+          <button mat-flat-button class="place btn-ink" (click)="payWithStripe()" [disabled]="paying()">
             @if (paying()) { <mat-spinner diameter="20" /> } @else { Pay now }
           </button>
         } @else {
@@ -86,7 +86,7 @@
             </div>
           </div>
           <div class="row actions">
-            <button mat-flat-button class="grow" (click)="paySimulated(false)" [disabled]="paying()">
+            <button mat-flat-button class="grow btn-ink" (click)="paySimulated(false)" [disabled]="paying()">
               @if (paying()) { <mat-spinner diameter="20" /> } @else { Pay {{ result.payment!.amount | money }} }
             </button>
             <button mat-stroked-button (click)="paySimulated(true)" [disabled]="paying()">Simulate a declined card</button>

@@ -1,16 +1,21 @@
 @use '@angular/material' as mat;
 @use 'material-symbols/outlined.css';
+@use '@fontsource-variable/inter';
 
 :root {
   color-scheme: light;
-  --mh-bg: #f6f7fb;
+  --mh-font: 'Inter Variable', Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mh-bg: #fafaf9;
   --mh-surface: #ffffff;
-  --mh-surface-2: #f1f5f9;
-  --mh-border: #e2e8f0;
-  --mh-text: #0f172a;
-  --mh-text-muted: #64748b;
-  --mh-accent: #4f46e5;
-  --mh-accent-soft: #eef2ff;
+  --mh-surface-2: #f5f5f4;
+  --mh-border: #e7e5e4;
+  --mh-text: #1c1917;
+  --mh-text-muted: #78716c;
+  --mh-ink: #111111;
+  --mh-accent: #6d28d9;
+  --mh-accent-soft: #f3efff;
+  --mh-sale: #dc2626;
+  --mh-sale-bg: #fef2f2;
   --mh-info: #1d4ed8;
   --mh-info-bg: #dbeafe;
   --mh-progress: #6d28d9;
@@ -22,6 +27,7 @@
   --mh-danger: #b91c1c;
   --mh-danger-bg: #fee2e2;
   --mh-radius: 16px;
+  --mh-shadow: 0 1px 2px rgb(28 25 23 / 0.04), 0 8px 24px -12px rgb(28 25 23 / 0.18);
 }
 
 html {
@@ -32,8 +38,8 @@ html {
       theme-type: light,
     ),
     typography: (
-      plain-family: "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-      brand-family: "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      plain-family: "'Inter Variable', Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      brand-family: "'Inter Variable', Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     ),
     density: 0,
   ));
@@ -52,7 +58,8 @@ body {
   margin: 0;
   background: var(--mh-bg);
   color: var(--mh-text);
-  font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--mh-font);
+  font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
 }
 
@@ -63,7 +70,123 @@ a {
 h1,
 h2,
 h3 {
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Buttons ---------- */
+/* Primary call to action: solid ink, the highest-converting button style on light storefronts. */
+.btn-ink {
+  @include mat.button-overrides((
+    filled-container-color: var(--mh-ink),
+    filled-label-text-color: #fff,
+    filled-container-shape: 999px,
+    filled-container-height: 48px,
+    filled-label-text-weight: 600,
+    outlined-container-shape: 999px,
+    outlined-container-height: 48px,
+    outlined-label-text-color: var(--mh-ink),
+    outlined-outline-color: var(--mh-ink),
+    outlined-label-text-weight: 600,
+  ));
+
+  &.mat-mdc-unelevated-button:not(:disabled):hover {
+    background: #000;
+  }
+}
+
+.btn-light {
+  @include mat.button-overrides((
+    filled-container-color: #fff,
+    filled-label-text-color: var(--mh-ink),
+    filled-container-shape: 999px,
+    filled-container-height: 48px,
+    filled-label-text-weight: 600,
+    outlined-container-shape: 999px,
+    outlined-container-height: 48px,
+    outlined-label-text-color: #fff,
+    outlined-outline-color: rgb(255 255 255 / 0.6),
+  ));
+}
+
+/* ---------- Prices ---------- */
+.price-now {
+  font-weight: 700;
+  color: var(--mh-text);
+
+  &.on-sale {
+    color: var(--mh-sale);
+  }
+}
+
+.price-was {
+  margin-left: 6px;
+  color: var(--mh-text-muted);
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--mh-surface-2);
+  color: var(--mh-text);
+
+  &.sale {
+    background: var(--mh-sale);
+    color: #fff;
+  }
+
+  &.dark {
+    background: var(--mh-ink);
+    color: #fff;
+  }
+
+  &.warn {
+    background: var(--mh-warning-bg);
+    color: #92400e;
+  }
+
+  &.accent {
+    background: var(--mh-accent);
+    color: #fff;
+  }
+}
+
+/* ---------- Storefront sections ---------- */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0;
+    font-size: clamp(22px, 2.4vw, 28px);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--mh-text-muted);
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--mh-text);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 }
 
 .material-symbols-outlined {
@@ -122,8 +245,29 @@ h3 {
 
 .grid-products {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 28px 20px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 12px;
+  }
+}
+
+/* Four product cards per row on storefront sections. */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 32px 20px;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 720px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 12px;
+  }
 }
 
 .grid-stats {

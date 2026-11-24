@@ -10,6 +10,7 @@ JSON uses camelCase.
 | POST | `/recommendations` | `{ userId, limit, excludeProductIds[] }` | `{ productIds[], strategy }` — 503 until trained on catalog data |
 | POST | `/forecast` | `{ history: [{ date, revenue }], horizonDays }` | `{ model, mae, baselineMae, forecast: [{ date, revenue, lower, upper }] }` — 422 with < 28 days |
 | POST | `/return-risk` | `{ total, itemCount, shopCount, priorOrders, priorReturns, priorReturnRate, accountAgeDays, hour, isWeekend, firstOrder, city }` | `{ score, level, reasons[], model }` |
+| POST | `/copywriter` | `{ name, category?, keywords[], tone: friendly\|premium\|technical, variant }` | `{ tagline, description, highlights[], specs[{label,value}], suggestedSpecLabels[], categoryProfile }` |
 | POST | `/train` | — | retrains from the backend dataset, returns metrics |
 
 The AI service itself calls `GET /api/internal/ml/dataset` on the backend (snake_case columns:

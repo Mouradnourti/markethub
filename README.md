@@ -2,8 +2,13 @@
 
 End-of-studies project (PFE): a marketplace where **customers** buy from many independent shops in one checkout,
 **sellers** run their shop from a dashboard and **admins** supervise the platform. Payment by **cash on delivery**
-or **card (Stripe test mode)**. An **AI microservice** recommends products, forecasts each seller's sales and scores
-the refusal risk of COD orders.
+or **card (Stripe test mode)**. An **AI microservice** recommends products, forecasts each seller's sales, scores
+the refusal risk of COD orders and writes product pages for sellers.
+
+The storefront is built for conversion: sale prices and badges, rich product pages (tagline, key benefits, specs,
+delivery window), a cart drawer with free-shipping progress and matching products, "frequently bought together"
+bundles from real order history, verified-purchase reviews and a sticky buy bar. It only uses real data: no fake
+countdowns, no fake scarcity.
 
 ![Home page](docs/screenshots/01-home.png)
 
@@ -56,8 +61,9 @@ Test card: `4242 4242 4242 4242`, any future date, any CVC.
 
 | Customer | Seller | Admin |
 |---|---|---|
-| Catalog with search, filters (category, price, rating, stock), sorting, pagination | Dashboard: revenue, net after commission, orders to process, return rate, rating, charts | Platform KPIs: GMV, commission earned, orders, users, shops; charts |
-| Product pages with gallery, reviews, similar products | Product CRUD, image upload, inline stock editing, low-stock alerts | Validate, reject or suspend sellers' shops |
+| Catalog with search, filters (category, price, rating, stock, on sale), sorting, pagination; **Deals** page | Dashboard: revenue, net after commission, orders to process, return rate, rating, charts | Platform KPIs: GMV, commission earned, orders, users, shops; charts |
+| Product pages: gallery, sale price and savings, tagline, key benefits, spec sheet, delivery window, verified-purchase reviews, sticky buy bar | Product editor with sale (compare-at) price, tagline, key benefits and specs; image upload, inline stock editing, low-stock alerts | Validate, reject or suspend sellers' shops |
+| **Cart drawer** with free-shipping progress and "pairs well with" suggestions; **frequently bought together** bundles; recently viewed | **AI description writer** (tagline, description, benefits, specs from a few keywords, 3 tones) and **listing quality score** | |
 | Server-side cart; one checkout split into one parcel per shop | Order inbox: confirm → ship (tracking no.) → deliver, or mark refused/returned | Per-shop commission overrides, default commission, shipping rules |
 | Cash on delivery or card (Stripe) | Earnings per order (commission deducted) | User management (disabling revokes sessions) |
 | Order tracking per parcel, cancellation, return requests | **AI sales forecast** for the next 30 days | Category tree management |
@@ -97,7 +103,8 @@ fallbacks…) are explained in [`docs/architecture.md`](docs/architecture.md).
 |---|---|---|
 | Recommendations | Hybrid: item-based collaborative filtering + TF-IDF content similarity + popularity prior | Customer home page, "Recommended for you" |
 | Sales forecast | Ridge regression on log daily sales (trend, weekly and yearly seasonality), 80 % prediction band, validated against a seasonal-naive baseline | Seller dashboard |
-| COD return risk | Logistic regression vs gradient boosting, selected by 5-fold CV ROC AUC (≈ 0.72 on the demo data) | Seller order list and order details (low / medium / high badge) |
+| COD return risk | Logistic regression vs gradient boosting, selected by 5-fold CV ROC AUC (≈ 0.70 on the demo data) | Seller order list and order details (low / medium / high badge) |
+| Description writer | Rule-based natural-language generation: extracts attributes (capacity, power, size, material, colour…) from the name and keywords, turns features into benefits, writes in a friendly, premium or technical tone. Never invents specifications | Seller product editor, "Write my product page" |
 
 The service trains on a synthetic dataset at build time (`python -m scripts.generate_dataset`,
 `python -m scripts.train`), then retrains every hour from the live data exported by the backend. If it is down, the
@@ -109,6 +116,7 @@ no risk badge.
 | | |
 |---|---|
 | ![Catalog](docs/screenshots/02-catalog.png) Catalog with filters | ![Product](docs/screenshots/04-product.png) Product page |
+| ![Cart drawer](docs/screenshots/05-cart-drawer.png) Cart drawer with free-shipping progress | ![AI writer](docs/screenshots/13-ai-writer.png) AI description writer and listing score |
 | ![Recommendations](docs/screenshots/03-recommendations.png) AI recommendations | ![Checkout](docs/screenshots/06-checkout.png) Checkout (COD or card) |
 | ![Order](docs/screenshots/10-order-tracking.png) Parcel tracking | ![Seller dashboard](docs/screenshots/08-seller-dashboard.png) Seller dashboard with AI forecast |
 | ![Seller order](docs/screenshots/09-seller-order.png) Order processing with risk badge | ![Admin](docs/screenshots/11-admin-dashboard.png) Admin console |
@@ -132,13 +140,13 @@ cd notification-service && composer install && cp .env.example .env && php artis
 
 | Suite | Command | Tests |
 |---|---|---|
-| Backend (unit + PostgreSQL integration, coverage gate ≥ 70 % on services) | `cd backend && mvn verify` | 99 |
-| Frontend | `cd frontend && npx ng test --watch=false` | 21 |
-| AI service | `cd ai-service && pytest` | 17 |
+| Backend (unit + PostgreSQL integration, coverage gate ≥ 70 % on services) | `cd backend && mvn verify` | 109 |
+| Frontend | `cd frontend && npx ng test --watch=false` | 36 |
+| AI service | `cd ai-service && pytest` | 24 |
 | Notification service | `cd notification-service && php artisan test` | 8 |
-| End-to-end journey (stack running) | `cd e2e && npm install && npm test` | 9 steps |
+| End-to-end journey (stack running) | `cd e2e && npm install && npm test` | 10 steps |
 
-Backend line coverage: 86.5 % on services, 89.5 % overall. Full results and AI metrics:
+Backend line coverage: 88.6 % on services, 91.6 % overall. Full results and AI metrics:
 [`docs/test-report.md`](docs/test-report.md). CI runs every suite and builds every Docker image.
 
 ## Documentation

@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,9 +8,10 @@ import { catchError, map, of } from 'rxjs';
 import { CatalogApi } from '../../core/api/catalog.api';
 import { OrderApi } from '../../core/api/order.api';
 import { AuthService } from '../../core/auth/auth.service';
-import { ProductSummary } from '../../core/models/api.models';
 import { ConfigService } from '../../core/config/config.service';
-import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { RecentlyViewedService } from '../../core/history/recently-viewed.service';
+import { Category, ProductSummary } from '../../core/models/api.models';
+import { Price, discountPercent } from '../../shared/ui/price';
 import { ProductCard } from '../../shared/ui/product-card';
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -22,81 +24,16 @@ const CATEGORY_ICONS: Record<string, string> = {
   'toys-games': 'toys',
 };
 
+interface CategoryTile {
+  category: Category;
+  image?: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-home-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, ProductCard, MoneyPipe],
-  template: `
-    <section class="hero">
-      <div class="container hero-inner">
-        <div>
-          <span class="eyebrow">New season · up to 30% off</span>
-          <h1>Everything you love,<br />from shops you trust.</h1>
-          <p>Discover {{ catalogSize() }} products from independent sellers. Pay by card or cash on delivery.</p>
-          <div class="row">
-            <a mat-flat-button routerLink="/products" class="cta">Start shopping</a>
-            <a mat-stroked-button routerLink="/register" [queryParams]="{ type: 'SELLER' }" class="cta-alt">Become a seller</a>
-          </div>
-        </div>
-        <div class="perks">
-          <div><mat-icon>local_shipping</mat-icon><strong>Free shipping</strong><span>from {{ config.config().freeShippingThreshold | money }} per order</span></div>
-          <div><mat-icon>payments</mat-icon><strong>Cash on delivery</strong><span>or secure card payment</span></div>
-          <div><mat-icon>autorenew</mat-icon><strong>Easy returns</strong><span>within 14 days</span></div>
-        </div>
-      </div>
-    </section>
-
-    <div class="container page">
-      <section class="block">
-        <h2>Shop by category</h2>
-        <div class="categories">
-          @for (category of topCategories(); track category.id) {
-            <a class="category" routerLink="/products" [queryParams]="{ categoryId: category.id }">
-              <mat-icon>{{ icon(category.slug) }}</mat-icon>
-              <span>{{ category.name }}</span>
-            </a>
-          }
-        </div>
-      </section>
-
-      @if (recommended().length) {
-        <section class="block">
-          <header>
-            <h2><mat-icon class="ai">auto_awesome</mat-icon> Recommended for you</h2>
-            <span class="muted">Picked by our AI from your purchase history</span>
-          </header>
-          <div class="grid-products">
-            @for (product of recommended(); track product.id) {
-              <app-product-card [product]="product" tag="For you" />
-            }
-          </div>
-        </section>
-      }
-
-      <section class="block">
-        <header>
-          <h2>Best sellers</h2>
-          <a mat-button routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">See all <mat-icon iconPositionEnd>arrow_forward</mat-icon></a>
-        </header>
-        <div class="grid-products">
-          @for (product of popular(); track product.id) {
-            <app-product-card [product]="product" />
-          }
-        </div>
-      </section>
-
-      <section class="block">
-        <header>
-          <h2>New arrivals</h2>
-          <a mat-button routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">See all <mat-icon iconPositionEnd>arrow_forward</mat-icon></a>
-        </header>
-        <div class="grid-products">
-          @for (product of newest(); track product.id) {
-            <app-product-card [product]="product" tag="New" />
-          }
-        </div>
-      </section>
-    </div>
-  `,
+  imports: [RouterLink, DecimalPipe, MatButtonModule, MatIconModule, ProductCard, Price],
+  templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -104,29 +41,65 @@ export class HomePage {
   private readonly catalog = inject(CatalogApi);
   protected readonly config = inject(ConfigService);
   private readonly auth = inject(AuthService);
-  private readonly popularPage = toSignal(this.catalog.search({ sort: 'POPULAR', size: 10, inStock: true }));
-  private readonly newestPage = toSignal(this.catalog.search({ sort: 'NEWEST', size: 5 }));
+  private readonly history = inject(RecentlyViewedService);
+
+  private readonly popularPage = toSignal(this.catalog.search({ sort: 'POPULAR', size: 48, inStock: true }));
+  private readonly dealsPage = toSignal(this.catalog.search({ onSale: true, sort: 'POPULAR', size: 24, inStock: true }));
+  private readonly newestPage = toSignal(this.catalog.search({ sort: 'NEWEST', size: 4 }));
   private readonly categories = toSignal(this.catalog.categories(), { initialValue: [] });
   protected readonly recommended = signal<ProductSummary[]>([]);
 
-  protected readonly popular = computed(() => this.popularPage()?.content ?? []);
+  private readonly popularAll = computed(() => this.popularPage()?.content ?? []);
+  protected readonly popular = computed(() => this.popularAll().slice(0, 8));
+  protected readonly heroProducts = computed(() => this.popularAll().slice(0, 4));
+  /** Discounted products that are not already in the best-seller row, so each section shows something new. */
+  protected readonly deals = computed(() => {
+    const shown = new Set(this.popular().map((p) => p.id));
+    return (this.dealsPage()?.content ?? []).filter((p) => !shown.has(p.id)).slice(0, 4);
+  });
   protected readonly newest = computed(() => this.newestPage()?.content ?? []);
-  protected readonly catalogSize = computed(() => this.popularPage()?.totalElements ?? '100+');
-  protected readonly topCategories = computed(() => this.categories().filter((c) => !c.parentId));
+  protected readonly recentlyViewed = computed(() => this.history.items().slice(0, 4));
+  protected readonly catalogSize = computed(() => this.popularPage()?.totalElements ?? 0);
+  protected readonly dealCount = computed(() => this.dealsPage()?.totalElements ?? 0);
+  protected readonly bestDiscount = computed(() =>
+    Math.max(0, ...(this.dealsPage()?.content ?? []).map((p) => discountPercent(p.price, p.compareAtPrice))),
+  );
+  /** Review-weighted average rating of the best sellers shown on the page. */
+  protected readonly bestSellerRating = computed(() => {
+    const rated = this.popularAll().filter((p) => p.reviewCount > 0);
+    const reviews = rated.reduce((sum, p) => sum + p.reviewCount, 0);
+    const rating = reviews ? rated.reduce((sum, p) => sum + p.avgRating * p.reviewCount, 0) / reviews : 0;
+    return { rating, reviews };
+  });
+
+  protected readonly tiles = computed<CategoryTile[]>(() => {
+    const all = this.categories();
+    const parentOf = new Map(all.map((c) => [c.id, c.parentId ?? c.id]));
+    const imageByTop = new Map<number, string>();
+    for (const product of this.popularAll()) {
+      const top = parentOf.get(product.categoryId);
+      if (top !== undefined && product.imageUrl && !imageByTop.has(top)) {
+        imageByTop.set(top, product.imageUrl);
+      }
+    }
+    return all
+      .filter((c) => !c.parentId)
+      .map((category) => ({
+        category,
+        image: imageByTop.get(category.id),
+        icon: CATEGORY_ICONS[category.slug] ?? 'category',
+      }));
+  });
 
   constructor() {
     if (this.auth.role() === 'CUSTOMER') {
       inject(OrderApi)
-        .recommendations(5)
+        .recommendations(8)
         .pipe(
-          map((items) => items.slice(0, 5)),
+          map((items) => items.slice(0, 4)),
           catchError(() => of([])),
         )
         .subscribe((items) => this.recommended.set(items));
     }
-  }
-
-  protected icon(slug: string): string {
-    return CATEGORY_ICONS[slug] ?? 'category';
   }
 }

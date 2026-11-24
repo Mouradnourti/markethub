@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { SILENT_ERRORS } from '../http/error.interceptor';
 import {
+  CopyDraft,
+  CopyDraftRequest,
   OrderStatus,
   Page,
   Product,
@@ -44,6 +46,10 @@ export class SellerApi {
 
   product(id: number): Observable<Product> {
     return this.http.get<Product>(`/api/seller/products/${id}`);
+  }
+
+  describe(body: CopyDraftRequest): Observable<CopyDraft> {
+    return this.http.post<CopyDraft>('/api/seller/products/describe', body);
   }
 
   createProduct(body: ProductRequest): Observable<Product> {

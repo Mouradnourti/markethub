@@ -5,6 +5,9 @@ import com.pfe.marketplace.common.util.Slugs;
 import com.pfe.marketplace.demo.DemoCatalog.CategoryDef;
 import com.pfe.marketplace.demo.DemoCatalog.ProductDef;
 import com.pfe.marketplace.demo.DemoCatalog.ShopDef;
+import com.pfe.marketplace.demo.DemoCopy.ProductCopy;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
@@ -51,6 +54,7 @@ public class DemoDataSeeder implements ApplicationRunner {
 
     static final String ADMIN_EMAIL = "admin@markethub.test";
     private static final int CUSTOMERS = 40;
+    private static final ObjectMapper JSON = new ObjectMapper();
     private static final int HISTORY_DAYS = 365;
     private static final String[] FIRST_NAMES = {"Emma", "Lucas", "Chloé", "Hugo", "Léa", "Louis", "Manon", "Gabriel",
             "Inès", "Adam", "Jade", "Arthur", "Sarah", "Nathan", "Lina", "Yanis", "Camille", "Noah", "Zoé", "Rayan",
@@ -81,6 +85,7 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final Map<String, Long> categoryIds = new HashMap<>();
     private final List<SeedShop> shops = new ArrayList<>();
     private final List<SeedProduct> products = new ArrayList<>();
+    private final Map<String, List<String>> pairings = DemoCopy.loadPairings();
     private final List<SeedCustomer> customers = new ArrayList<>();
     private final Rows rows = new Rows();
     private final Ids ids = new Ids();
@@ -181,6 +186,7 @@ public class DemoDataSeeder implements ApplicationRunner {
             colors.put(c.key(), c.color());
         });
 
+        Map<String, ProductCopy> copy = DemoCopy.load();
         int index = 0;
         for (ProductDef def : DemoCatalog.PRODUCTS) {
             index++;
@@ -189,15 +195,18 @@ public class DemoDataSeeder implements ApplicationRunner {
             boolean newArrival = index % 10 == 0;
             Instant created = newArrival ? now.minus(days(5 + random.nextInt(25))) : now.minus(days(380 + random.nextInt(20)));
             BigDecimal price = BigDecimal.valueOf(def.price()).setScale(2, RoundingMode.HALF_UP);
-            double quality = 3.0 + random.nextDouble() * 1.9;
+            double quality = 3.7 + random.nextDouble() * 1.25;
             int stock = stockLevel(index);
-            CategoryDef category = DemoCatalog.CATEGORIES.stream().filter(c -> c.key().equals(def.categoryKey()))
-                    .findFirst().orElseThrow();
+            ProductCopy text = copy.get(def.name());
+            if (text == null) {
+                throw new IllegalStateException("No demo copy for product " + def.name());
+            }
             rows.products.add(new Object[]{id, shop.shopId(), categoryIds.get(def.categoryKey()), def.name(),
-                    def.blurb() + "\n\nSold by " + shop.def().name() + ". Free returns within 14 days.",
-                    price, stock, true, ts(created), ts(created)});
+                    text.description().isEmpty() ? def.blurb() : text.description(), price, text.wasPrice(),
+                    text.tagline() == null ? def.blurb() : text.tagline(), json(text.highlights()), json(text.specs()),
+                    stock, true, ts(created), ts(created)});
             for (int variant = 0; variant < 2; variant++) {
-                String url = writeImage(index, variant, def.name(), category.name(), colors.get(def.categoryKey()));
+                String url = writeImage(index, variant, text.art(), text.color(), colors.get(def.categoryKey()));
                 rows.images.add(new Object[]{ids.next("product_images"), id, url, variant});
             }
             products.add(new SeedProduct(id, shop.shopId(), shop.commissionRate(), parentOf.get(def.categoryKey()),
@@ -409,6 +418,12 @@ public class DemoDataSeeder implements ApplicationRunner {
         List<SeedProduct> available = products.stream().filter(p -> p.createdAt().isBefore(at)).toList();
         List<SeedProduct> basket = new ArrayList<>();
         for (int i = 0; i < size * 4 && basket.size() < size; i++) {
+            SeedProduct companion = basket.size() == 1 && random.nextDouble() < 0.75
+                    ? companionOf(basket.getFirst(), available) : null;
+            if (companion != null && !basket.contains(companion)) {
+                basket.add(companion);
+                continue;
+            }
             String parent = random.nextDouble() < 0.75 ? customer.favourites().get(random.nextInt(2)) : null;
             List<SeedProduct> pool = parent == null ? available
                     : available.stream().filter(p -> p.parentCategory().equals(parent)).toList();
@@ -421,6 +436,13 @@ public class DemoDataSeeder implements ApplicationRunner {
             }
         }
         return basket;
+    }
+
+    /** A product typically bought with this one (phone → case), so "bought together" data looks real. */
+    private SeedProduct companionOf(SeedProduct product, List<SeedProduct> available) {
+        List<String> names = pairings.getOrDefault(product.name(), List.of());
+        List<SeedProduct> candidates = available.stream().filter(p -> names.contains(p.name())).toList();
+        return candidates.isEmpty() ? null : candidates.get(random.nextInt(candidates.size()));
     }
 
     /** Products earlier in a category list are more popular (a long-tail distribution). */
@@ -459,12 +481,20 @@ public class DemoDataSeeder implements ApplicationRunner {
 
     // ---------------------------------------------------------------- utils
 
-    private String writeImage(int index, int variant, String name, String category, String color) {
+    private static String json(Object value) {
+        try {
+            return JSON.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String writeImage(int index, int variant, String art, String color, String categoryColor) {
         String file = "p" + index + "-" + variant + ".svg";
         Path path = storage.root().resolve("demo").resolve(file);
         try {
             Files.createDirectories(path.getParent());
-            Files.writeString(path, DemoImages.svg(name, category, color, variant), StandardCharsets.UTF_8);
+            Files.writeString(path, DemoImages.illustration(art, color, categoryColor, variant), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -615,8 +645,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                     insert into shops (id, owner_id, name, slug, description, status, commission_rate, created_at, updated_at)
                     values (?,?,?,?,?,?,?,?,?)""", shops);
             jdbc.batchUpdate("""
-                    insert into products (id, shop_id, category_id, name, description, price, stock, active, created_at, updated_at)
-                    values (?,?,?,?,?,?,?,?,?,?)""", products);
+                    insert into products (id, shop_id, category_id, name, description, price, compare_at_price, tagline,
+                        highlights, specs, stock, active, created_at, updated_at)
+                    values (?,?,?,?,?,?,?,?,?::jsonb,?::jsonb,?,?,?,?)""", products);
             jdbc.batchUpdate("insert into product_images (id, product_id, url, position) values (?,?,?,?)", images);
             jdbc.batchUpdate("""
                     insert into orders (id, reference, customer_id, payment_method, payment_status, subtotal, shipping_fee,

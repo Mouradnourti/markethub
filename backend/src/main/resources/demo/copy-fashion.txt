@@ -1,0 +1,379 @@
+# Fashion and Beauty product copy (format: see copy-electronics.txt)
+
+# Organic Cotton T-Shirt
+art: tshirt #f8fafc
+tag: The heavyweight tee that keeps its shape wash after wash.
+desc: Made from thick 180 g/m² organic cotton, this T-shirt feels substantial, drapes well and doesn't go see-through. Pre-shrunk fabric means it fits the same on day 100 as on day one.
++ Heavyweight 180 g/m² organic cotton
++ Pre-shrunk, keeps its fit
++ Reinforced collar that won't stretch
++ GOTS-certified organic cotton
+= Fit: regular
+= Material: 100 % organic cotton
+= Care: machine wash 30 °C
+
+# Oversized Hoodie
+art: hoodie #4b5563
+was: 54.9
+tag: Cloud-soft fleece in a relaxed, oversized fit.
+desc: The brushed fleece inside feels like a blanket, and the dropped shoulders give it an easy, oversized shape. A double-layer hood and a roomy kangaroo pocket finish it off.
++ Brushed fleece interior
++ Relaxed, oversized fit
++ Double-layer hood
++ Kangaroo pocket
+= Fit: oversized
+= Material: 80 % cotton, 20 % recycled polyester
+= Weight: 350 g/m²
+
+# Slim Fit Jeans
+art: jeans #1e3a8a
+tag: Stretch denim that moves with you and keeps its shape.
+desc: Two percent stretch makes these jeans comfortable all day without bagging at the knees. The vintage wash and slim, tapered leg go with everything.
++ Comfort stretch denim
++ Keeps its shape all day
++ Slim, tapered leg
++ Vintage wash
+= Fit: slim
+= Material: 98 % cotton, 2 % elastane
+= Rise: mid
+
+# Puffer Jacket
+art: jacket #111827
+was: 109
+tag: Featherlight warmth that packs into its own pocket.
+desc: Recycled insulation traps heat like down and stays warm even when damp. The water-repellent shell shrugs off drizzle, and the whole jacket packs into its own pocket for travel.
++ Warm recycled insulation
++ Water-repellent shell
++ Packs into its own pocket
++ Two zipped hand pockets
+= Insulation: recycled synthetic fill
+= Shell: water-repellent recycled nylon
+= Weight: 480 g
+
+# Linen Shirt
+art: shirt #e7e5e4
+tag: Cool, breathable and effortlessly smart on hot days.
+desc: Pure European linen lets air flow so you stay cool, and it softens beautifully with every wash. Wear it buttoned up for dinner or open over a tee at the beach.
++ 100 % European linen
++ Breathable and cool in summer
++ Softens with every wash
++ Relaxed fit
+= Fit: relaxed
+= Material: 100 % linen
+= Care: machine wash 30 °C
+
+# Merino Wool Sweater
+art: sweater #7f1d1d
+was: 84
+tag: Warm when it's cold, never itchy, rarely needs washing.
+desc: Fine merino wool regulates your temperature, so you're comfortable from the cold street to a warm office. It naturally resists odours, so you can wear it several times between washes.
++ Fine, non-itchy merino wool
++ Temperature regulating
++ Naturally odour resistant
++ Machine washable on wool cycle
+= Material: 100 % extra-fine merino
+= Gauge: fine knit
+= Fit: regular
+
+# Cargo Trousers
+art: jeans #4d5b3a
+tag: Six pockets, relaxed fit, ready for anything.
+desc: Durable cotton twill with a little stretch, a relaxed straight leg and six pockets for your phone, keys and wallet. Adjustable hems let you wear them long or cropped.
++ Six functional pockets
++ Relaxed, straight fit
++ Durable cotton twill with stretch
++ Adjustable drawcord hems
+= Fit: relaxed
+= Material: 97 % cotton, 3 % elastane
+
+# Sports Leggings
+art: leggings #312e81
+was: 36.9
+tag: Squat-proof, high-waisted and they stay put.
+desc: The high, wide waistband stays in place through squats and runs, and the opaque fabric is squat-tested. A hidden pocket holds your keys or a card.
++ Squat-proof, opaque fabric
++ High waistband that doesn't roll
++ Sweat-wicking and quick-dry
++ Hidden waistband pocket
+= Material: 75 % nylon, 25 % elastane
+= Rise: high
+
+# Rain Jacket
+art: jacket #ca8a04
+tag: Stay dry in a downpour, then stuff it in your bag.
+desc: A fully waterproof, breathable shell with taped seams keeps rain out without making you sweat. The adjustable hood fits over a cap, and it packs down to the size of a water bottle.
++ Fully waterproof, taped seams
++ Breathable: no clammy feeling
++ Packable into its own pocket
++ Adjustable hood and cuffs
+= Waterproofing: 10,000 mm
+= Breathability: 10,000 g/m²/24 h
+= Weight: 320 g
+
+# Pack of 5 Cotton Socks
+art: socks #f8fafc
+tag: Five pairs of soft, tough everyday socks.
+desc: Combed cotton feels soft, and the reinforced heel and toe mean these socks last much longer than basic packs.
+desc: Neutral colours go with trainers and work shoes alike, and the cushioned sole keeps your feet comfortable from morning to night.
++ Soft combed cotton
++ Reinforced heel and toe
++ Seamless toe for comfort
++ Pack of 5 pairs
+= Material: 80 % cotton, 18 % polyamide, 2 % elastane
+= Pairs: 5
+
+# Classic White Sneakers
+art: sneaker #f8fafc
+was: 84
+tag: The clean white sneaker that goes with absolutely everything.
+desc: Full-grain leather uppers, a cushioned memory-foam insole and a hand-stitched sole make these sneakers comfortable from the first day. Minimal, timeless and easy to wipe clean.
++ Full-grain leather upper
++ Memory-foam insole
++ Stitched rubber cupsole
++ Easy to wipe clean
+= Upper: full-grain leather
+= Lining: leather
+= Sole: natural rubber
+
+# Running Shoes Glide
+art: running-shoe #2563eb
+was: 109
+tag: Light, bouncy cushioning that makes every kilometre easier.
+desc: Responsive foam returns energy with every step, so you run longer with less fatigue. The breathable mesh upper keeps your feet cool and the grippy outsole handles wet roads.
++ Responsive, energy-returning foam
++ Only 240 g per shoe
++ Breathable engineered mesh
++ Grippy outsole for wet roads
+= Drop: 8 mm
+= Weight: 240 g (size 42)
+= Use: road running, daily training
+
+# Chelsea Boots
+art: boot #78350f
+tag: Smart enough for the office, tough enough for the weekend.
+desc: Soft suede, elastic side panels and a pull tab make these boots easy to slip on and off. The rubber sole grips on wet pavements.
++ Premium suede upper
++ Easy pull-on design
++ Cushioned leather insole
++ Grippy rubber sole
+= Upper: suede
+= Sole: rubber
+= Heel: 3 cm
+
+# Canvas Backpack 20 L
+art: backpack #4d5b3a
+tag: Your laptop, lunch and gym kit, all in one tidy bag.
+desc: A padded sleeve protects laptops up to 15", while the organiser pockets keep chargers and pens in place. Water-resistant canvas and padded straps make it ready for the daily commute.
++ Padded 15" laptop sleeve
++ Water-resistant canvas
++ Organiser pockets
++ Padded, adjustable straps
+= Capacity: 20 L
+= Material: waxed canvas
+= Laptop: up to 15"
+
+# Leather Crossbody Bag
+art: crossbody #92400e
+was: 74
+tag: Hands-free, with room for everything that matters.
+desc: Soft genuine leather with three compartments keeps your phone, wallet and keys organised. The adjustable strap lets you wear it crossbody or on the shoulder.
++ Genuine soft leather
++ 3 organised compartments
++ Adjustable, removable strap
++ Zip closure
+= Size: 24 × 17 × 7 cm
+= Material: genuine leather
+
+# Weekend Duffel Bag
+art: duffel #1e3a8a
+tag: Pack for a weekend away in one stylish bag.
+desc: A spacious, water-resistant duffel with a separate shoe compartment, so clean clothes stay clean. Fits as cabin luggage on most airlines.
++ Separate shoe compartment
++ Water-resistant fabric
++ Cabin-size friendly
++ Padded shoulder strap
+= Capacity: 40 L
+= Size: 50 × 28 × 28 cm
+
+# Slide Sandals
+art: sandal #111827
+tag: Contoured comfort for the pool, beach and home.
+desc: The soft, contoured footbed supports your arches, and the quick-dry material is ready for water. Non-slip soles keep you steady on wet tiles.
++ Contoured, cushioned footbed
++ Quick-dry, waterproof
++ Non-slip sole
+= Material: EVA
+= Use: pool, beach, home
+
+# Minimalist Leather Wallet
+art: wallet #7c2d12
+was: 36.9
+tag: Slim enough for your front pocket, holds everything you need.
+desc: Eight card slots and a cash pocket in a wallet that's barely thicker than a few cards. RFID-blocking lining protects your contactless cards.
++ Holds 8 cards and notes
++ RFID-blocking protection
++ Ultra-slim profile
++ Full-grain leather
+= Size: 10 × 7.5 cm
+= Material: full-grain leather
+
+# Hiking Boots Waterproof
+art: boot #57534e
+was: 139
+tag: Dry feet and solid grip from trail start to summit.
+desc: A waterproof, breathable membrane keeps water out without trapping sweat, and the deep-lug outsole grips on mud and rock. Padded ankle support helps on rough ground.
++ Waterproof breathable membrane
++ Deep-lug grippy outsole
++ Padded ankle support
++ Cushioned midsole
+= Upper: suede and mesh
+= Membrane: waterproof, breathable
+= Weight: 520 g per boot
+
+# Tote Bag Canvas
+art: tote #e7e5e4
+tag: The everyday tote that carries the shopping and then some.
+desc: Heavy cotton canvas with reinforced handles and an inner zip pocket. Big enough for groceries or a laptop.
+desc: It folds flat into a backpack when empty and gets better looking with age. A greener choice than plastic bags, every single day.
++ Heavy cotton canvas
++ Reinforced handles
++ Inner zip pocket
+= Size: 40 × 38 × 12 cm
+= Material: 100 % cotton canvas
+
+# Classic Denim Jacket
+art: jacket #1e40af
+tag: A timeless layer that gets better with every wear.
+desc: Sturdy denim, classic button-flap pockets and a cut that works over a tee or a hoodie. It softens and fades beautifully over time.
++ Classic trucker cut
++ Sturdy, softening denim
++ Button-flap chest pockets
+= Material: 100 % cotton denim
+= Fit: regular
+
+# Fleece Zip Jacket
+art: jacket #15803d
+was: 49.9
+tag: Cosy recycled fleece for cool evenings and walks.
+desc: A warm, light fleece made from recycled bottles, with zipped pockets and a high collar that blocks the wind.
+desc: Wear it on its own on crisp mornings or as a mid-layer under a rain jacket when the weather turns. It dries quickly and packs small.
++ Recycled polyester fleece
++ High collar
++ Zipped hand pockets
+= Material: 100 % recycled polyester
+= Weight: 300 g/m²
+
+# Hyaluronic Acid Serum 30 ml
+art: serum #7dd3fc
+was: 24.9
+tag: Plump, dewy skin in one step, morning and night.
+desc: Three weights of hyaluronic acid hydrate the surface and deeper layers of the skin, so it looks smoother and plumper within days. Lightweight and fragrance-free, it suits every skin type, including sensitive.
++ 3 molecular weights of hyaluronic acid
++ Fragrance-free, suits sensitive skin
++ Lightweight, non-sticky
++ Vegan and cruelty-free
+= Volume: 30 ml
+= Key ingredients: hyaluronic acid 2 %, B5
+= Skin type: all
+
+# Vitamin C Brightening Serum
+art: serum #f59e0b
+tag: Brighter, more even skin in four weeks.
+desc: 15 % vitamin C with ferulic acid fades dark spots and boosts radiance while protecting skin from daily pollution. The airless amber bottle keeps the formula fresh.
++ 15 % stabilised vitamin C
++ Fades dark spots and dullness
++ Ferulic acid and vitamin E
++ Airless bottle keeps it fresh
+= Volume: 30 ml
+= Key ingredients: vitamin C 15 %, ferulic acid, vitamin E
+= Use: morning, before SPF
+
+# Daily Moisturiser SPF 30
+art: cream #fde68a
+was: 24.9
+tag: Hydration and sun protection in one weightless layer.
+desc: A light, non-greasy moisturiser with broad-spectrum SPF 30 that disappears into the skin without a white cast. Perfect under make-up.
++ Broad-spectrum SPF 30
++ No white cast
++ Non-greasy, fast absorbing
++ Great under make-up
+= Volume: 50 ml
+= Protection: SPF 30, UVA/UVB
+= Skin type: all
+
+# Gentle Foaming Cleanser
+art: pump-bottle #99f6e4
+tag: Clean, soft skin without the tight feeling.
+desc: A soap-free, pH-balanced foam removes make-up and sunscreen while keeping the skin barrier happy. Suitable for twice-daily use.
++ Soap-free and pH balanced
++ Removes make-up and SPF
++ No tight, dry feeling
+= Volume: 150 ml
+= Skin type: all, including sensitive
+
+# Argan Hair Oil
+art: oil-bottle #b45309
+tag: Smooth, shiny, frizz-free hair in a few drops.
+desc: Cold-pressed argan oil tames frizz, protects against heat styling and adds a glossy finish without weighing hair down.
++ 100 % cold-pressed argan oil
++ Tames frizz and flyaways
++ Heat protection up to 230 °C
+= Volume: 50 ml
+= Hair type: all
+
+# Electric Toothbrush Sonic
+art: toothbrush #f8fafc
+was: 59
+tag: Dentist-clean feeling every morning.
+desc: 40,000 sonic vibrations per minute remove up to 10× more plaque than a manual brush. The two-minute timer with 30-second pulses makes sure you brush every zone.
++ 40,000 vibrations per minute
++ 5 cleaning modes
++ 2-minute smart timer
++ 30-day battery life
+= Modes: clean, white, gum care, sensitive, polish
+= Battery: up to 30 days
+= Includes: 2 brush heads, travel case
+
+# Ionic Hair Dryer 2000 W
+art: hair-dryer #111827
+tag: Salon-smooth blow-dries in half the time.
+desc: 2,000 W of power dries hair fast, while ionic technology reduces frizz and static for a smooth, shiny finish. Three heat and two speed settings plus a cool shot.
++ 2,000 W for fast drying
++ Ionic technology for less frizz
++ 3 heat, 2 speed settings + cool shot
++ Concentrator and diffuser included
+= Power: 2,000 W
+= Cable: 2.5 m
+
+# Natural Deodorant
+art: deodorant #a7f3d0
+tag: 48 hours of freshness, without aluminium.
+desc: Plant-based ingredients neutralise odour while letting your skin breathe. Gentle, aluminium-free and in a recyclable tube.
++ Aluminium-free
++ 48-hour freshness
++ Plant-based formula
+= Size: 50 g
+= Scent: cucumber and mint
+
+# Bamboo Makeup Brush Set
+art: brushes #d6c7a1
+was: 32.9
+tag: Ten soft vegan brushes for a flawless finish.
+desc: Ultra-soft synthetic bristles blend foundation, powder and eyeshadow smoothly. Bamboo handles and a cotton pouch make this set kind to the planet.
++ 10 brushes for face and eyes
++ Ultra-soft vegan bristles
++ Sustainable bamboo handles
++ Cotton storage pouch
+= Pieces: 10 + pouch
+= Bristles: synthetic, cruelty-free
+
+# Aromatherapy Diffuser
+art: diffuser #e7e5e4
+tag: Calm, scented air and soft light for your evenings.
+desc: The ultrasonic diffuser fills a room with a fine, cool mist of your favourite essential oils and runs quietly for up to 8 hours. Seven soft light colours set the mood.
++ Ultra-quiet ultrasonic mist
++ Up to 8 hours per fill
++ 7 LED light colours
++ Auto shut-off when empty
+= Capacity: 300 ml
+= Runtime: up to 8 h

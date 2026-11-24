@@ -4,6 +4,7 @@ import static com.pfe.marketplace.catalog.repository.ProductSpecifications.inCat
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.inShop;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.inStock;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.matchesText;
+import static com.pfe.marketplace.catalog.repository.ProductSpecifications.onSale;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.priceAtLeast;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.priceAtMost;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.ratingAtLeast;
@@ -18,6 +19,7 @@ import com.pfe.marketplace.catalog.mapper.CatalogMapper;
 import com.pfe.marketplace.catalog.repository.ProductRepository;
 import com.pfe.marketplace.common.dto.PageResponse;
 import com.pfe.marketplace.common.exception.NotFoundException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,7 +56,8 @@ public class ProductService {
                 priceAtLeast(criteria.minPrice()),
                 priceAtMost(criteria.maxPrice()),
                 ratingAtLeast(criteria.minRating()),
-                inStock(criteria.inStock()));
+                inStock(criteria.inStock()),
+                onSale(criteria.onSale()));
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), sortOf(criteria.sort()));
         return PageResponse.of(repository.findAll(spec, pageable), mapper::toSummary);
     }
@@ -89,7 +92,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductSummaryDto> popular(int limit) {
-        return search(new ProductSearchCriteria(null, null, null, null, null, null, true, ProductSort.POPULAR), 0, limit)
+        return search(new ProductSearchCriteria(null, null, null, null, null, null, true, null, ProductSort.POPULAR), 0, limit)
                 .content();
     }
 
@@ -99,11 +102,34 @@ public class ProductService {
         Product product = repository.findWithShopAndCategoryById(productId)
                 .orElseThrow(() -> new NotFoundException("Product", productId));
         var criteria = new ProductSearchCriteria(null, product.getCategory().getId(), null, null, null, null, true,
-                ProductSort.POPULAR);
+                null, ProductSort.POPULAR);
         return search(criteria, 0, limit + 1).content().stream()
                 .filter(p -> !p.id().equals(productId))
                 .limit(limit)
                 .toList();
+    }
+
+    /**
+     * Products most often ordered together with this one (same checkout), padded with similar products
+     * when the order history is too thin.
+     */
+    @Transactional(readOnly = true)
+    public List<ProductSummaryDto> boughtTogether(Long productId, int limit) {
+        if (!repository.existsById(productId)) {
+            throw new NotFoundException("Product", productId);
+        }
+        List<Long> ids = repository.findBoughtTogetherIds(productId, limit * 3);
+        List<ProductSummaryDto> result = new ArrayList<>(findVisibleByIds(ids).stream()
+                .filter(p -> p.stock() > 0)
+                .limit(limit)
+                .toList());
+        if (result.size() < limit) {
+            similar(productId, limit * 2).stream()
+                    .filter(p -> result.stream().noneMatch(r -> r.id().equals(p.id())))
+                    .limit(limit - result.size())
+                    .forEach(result::add);
+        }
+        return result;
     }
 
     private static Sort sortOf(ProductSort sort) {

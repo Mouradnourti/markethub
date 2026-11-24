@@ -17,6 +17,11 @@ export class CartService {
   readonly count = computed(() => this.state().itemCount);
   readonly isEmpty = computed(() => this.state().items.length === 0);
 
+  /** Slide-over cart shown after "Add to cart", so shoppers see the result and the way to checkout. */
+  readonly drawerOpen = signal(false);
+  /** Product just added, used to suggest complementary items in the drawer. */
+  readonly lastAddedId = signal<number | null>(null);
+
   constructor() {
     effect(() => {
       if (this.auth.role() === 'CUSTOMER') {
@@ -41,6 +46,17 @@ export class CartService {
 
   remove(productId: number): Observable<Cart> {
     return this.track(this.http.delete<Cart>(`/api/cart/items/${productId}`));
+  }
+
+  openDrawer(addedProductId?: number): void {
+    if (addedProductId !== undefined) {
+      this.lastAddedId.set(addedProductId);
+    }
+    this.drawerOpen.set(true);
+  }
+
+  closeDrawer(): void {
+    this.drawerOpen.set(false);
   }
 
   /** Called after checkout: the backend already emptied the cart. */

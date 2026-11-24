@@ -1,0 +1,427 @@
+# Demo product copy. One block per product, keyed by the exact product name.
+# art: illustration kind + main colour | was: compare-at price | tag: one-line pitch | desc: paragraph
+# + key benefit | = Spec label: value
+
+# Nova X5 Smartphone 128 GB
+art: phone #1e293b
+was: 399
+tag: Flagship-looking screen and a two-day battery, without the flagship price.
+desc: The Nova X5 puts a 6.5" AMOLED display with deep blacks and vivid colour in your pocket. Its 48 MP camera with night mode keeps evening photos sharp, and the 5,000 mAh battery comfortably lasts a weekend away from the charger.
+desc: Dual SIM and 5G make it an easy upgrade for work and personal use on one device.
++ 6.5" AMOLED display at 90 Hz
++ 48 MP main camera with night mode
++ 5,000 mAh battery, up to 2 days of use
++ Dual SIM, 5G and NFC payments
+= Display: 6.5" AMOLED, 2400 × 1080, 90 Hz
+= Storage: 128 GB, microSD up to 1 TB
+= Battery: 5,000 mAh, 33 W fast charging
+= Camera: 48 MP + 8 MP ultra-wide, 16 MP selfie
+= Weight: 189 g
+
+# Nova X5 Pro Smartphone 256 GB
+art: phone #0f766e
+tag: Pro speed, a silky 120 Hz screen and 4K video that looks like it came from a camera.
+desc: Everything scrolls, swipes and loads instantly on the Nova X5 Pro's 120 Hz display. The triple camera records stabilised 4K video, the 3× telephoto gets you close to the action, and 256 GB means you never have to choose which memories to delete.
+desc: Wireless charging and an IP68 rating complete a phone built to keep up for years.
++ 120 Hz AMOLED, 1,500 nits peak brightness
++ Triple camera with 3× optical zoom
++ 4K 60 fps stabilised video
++ IP68 water and dust resistance
+= Display: 6.7" AMOLED, 120 Hz
+= Storage: 256 GB
+= Battery: 4,800 mAh, 67 W wired, 15 W wireless
+= Camera: 50 MP + 12 MP ultra-wide + 10 MP 3× telephoto
+= Protection: IP68, Gorilla Glass Victus
+
+# Lumi Tab 10 Tablet
+art: tablet #475569
+was: 269
+tag: The family tablet for films, homework and video calls on the sofa.
+desc: Lumi Tab 10 has a bright 10.1" screen with eye-comfort mode and quad speakers that make films feel bigger. Its battery lasts a full day of streaming, and kid profiles with screen-time limits let everyone share it safely.
++ 10.1" Full HD screen with eye-comfort mode
++ Quad speakers with Dolby audio
++ Up to 12 hours of video playback
++ Parental controls and kid profiles
+= Display: 10.1", 1920 × 1200
+= Storage: 64 GB, microSD up to 512 GB
+= Battery: 7,040 mAh
+= Weight: 465 g
+
+# Lumi Tab Mini 8
+art: tablet #a78bfa
+tag: A real tablet that slips into a coat pocket.
+desc: At 320 g, Lumi Tab Mini 8 is light enough to read with one hand on the train. The 8" screen is perfect for e-books, comics and recipes, and it charges in under two hours over USB-C.
++ 8" HD screen, ideal for reading
++ Only 320 g, fits in a coat pocket
++ 10 hours of battery life
++ USB-C charging
+= Display: 8", 1280 × 800
+= Storage: 32 GB, microSD up to 512 GB
+= Battery: 5,100 mAh
+= Weight: 320 g
+
+# Fast Charger 65 W USB-C
+art: charger #f8fafc
+was: 34.9
+tag: One small charger for your phone, tablet and laptop.
+desc: This 65 W GaN charger is half the size of a standard laptop brick and powers a phone to 50 % in about 20 minutes. Smart power negotiation delivers the right speed to every USB-C device, so one charger replaces three in your bag.
++ Phone to 50 % in about 20 minutes
++ Charges USB-C laptops up to 65 W
++ GaN technology: 50 % smaller
++ Over-heat and over-current protection
+= Output: up to 65 W (USB Power Delivery 3.0)
+= Ports: 1 × USB-C
+= Input: 100–240 V
+= Size: 45 × 45 × 30 mm
+
+# MagSafe-style Wireless Charger
+art: wireless-charger #e2e8f0
+tag: Snap your phone on and it charges. That's it.
+desc: The magnets align your phone perfectly every time, so you never wake up to a phone that was slightly off the pad. Charges through cases up to 5 mm and the soft LED dims automatically at night.
++ Magnetic alignment, no missed charges
++ 15 W fast wireless charging
++ Works through cases up to 5 mm
++ Night-friendly auto-dimming LED
+= Output: 15 W max
+= Cable: 1 m USB-C included
+= Compatibility: Qi and magnetic phones
+
+# Tempered Glass Screen Protector (2-pack)
+art: screen-protector #94a3b8
+tag: Protect your screen in 30 seconds, bubble-free.
+desc: Two sheets of 9H tempered glass that feel exactly like your phone's screen. The alignment frame makes installation foolproof, and the oleophobic coating keeps fingerprints off.
++ 9H hardness, resists keys and scratches
++ Alignment frame for a perfect fit
++ Keeps full touch sensitivity
++ Two protectors in the box
+= Thickness: 0.33 mm
+= Hardness: 9H
+= In the box: 2 protectors, frame, cleaning kit
+
+# Shockproof Phone Case
+art: phone-case #1d4ed8
+was: 19.9
+tag: Drop-tested protection that still slides into your pocket.
+desc: Air-cushioned corners absorb the shock of everyday drops, and the raised edges keep the screen and camera off the table. Slim, grippy and available in colours you'll actually want to show.
++ Survives 3 m drops
++ Raised lips protect screen and camera
++ Grippy matte finish, no fingerprints
++ Wireless charging compatible
+= Material: TPU and polycarbonate
+= Drop protection: 3 m
+= Thickness: 1.8 mm
+
+# Power Bank 20 000 mAh
+art: powerbank #334155
+was: 49.9
+tag: Four full phone charges in a bag-sized brick.
+desc: Charge your phone and earbuds at the same time, then recharge the power bank itself in under four hours with USB-C. The LED display shows the exact percentage left, so you're never caught out.
++ Around 4 full smartphone charges
++ Two devices at the same time
++ 22.5 W fast charging
++ Exact battery percentage display
+= Capacity: 20,000 mAh
+= Ports: 1 × USB-C in/out, 2 × USB-A out
+= Max output: 22.5 W
+= Weight: 350 g
+
+# Smartwatch Fit 3
+art: watch #111827
+was: 109
+tag: Your health, sleep and notifications on your wrist for two weeks per charge.
+desc: Fit 3 tracks heart rate, blood oxygen and sleep stages around the clock, and its 100+ sport modes cover everything from runs to yoga. A 1.7" AMOLED screen stays readable in sunlight, and one charge lasts up to 14 days.
++ 14-day battery life
++ Heart rate, SpO₂ and sleep tracking
++ 100+ sport modes, 5 ATM water resistant
++ Call and message notifications
+= Display: 1.7" AMOLED
+= Battery: up to 14 days
+= Water resistance: 5 ATM
+= Compatibility: Android and iOS
+
+# Wireless Noise-Cancelling Headphones
+art: headphones #1f2937
+was: 159
+tag: Switch off the world: 30 hours of quiet, wherever you are.
+desc: Adaptive noise cancelling removes engine hum, office chatter and street noise so you hear only your music. Memory-foam ear cushions stay comfortable on long flights, and a 10-minute charge gives you 5 hours of listening.
+desc: Fold them into the hard case and they take up less space than a paperback.
++ Adaptive active noise cancelling
++ 30 hours of battery, 10 min = 5 h
++ Memory-foam cushions for all-day comfort
++ Multipoint: connect phone and laptop at once
+= Battery: 30 h (ANC on), 40 h (ANC off)
+= Connectivity: Bluetooth 5.3, multipoint
+= Drivers: 40 mm
+= Weight: 250 g
+
+# True Wireless Earbuds Air
+art: earbuds #f8fafc
+tag: Light, sweat-proof earbuds that just work.
+desc: Air earbuds connect the moment you open the case and weigh only 4 g each, so you forget you're wearing them. IPX5 sweat resistance makes them ready for the gym, and the case adds 24 hours of playback.
++ 4 g per earbud, barely noticeable
++ IPX5 sweat and splash resistant
++ 24 h total battery with the case
++ Instant pairing when you open the case
+= Battery: 6 h + 18 h with case
+= Water resistance: IPX5
+= Connectivity: Bluetooth 5.3
+
+# True Wireless Earbuds Pro ANC
+art: earbuds #111827
+was: 119
+tag: Big-headphone noise cancelling in a pocket-sized case.
+desc: Hybrid noise cancelling uses six microphones to block out commutes and open offices, while transparency mode lets you hear announcements without taking the buds out. Wireless charging case included.
++ Hybrid ANC with 6 microphones
++ Transparency mode with one tap
++ Crystal-clear calls in wind
++ Wireless charging case
+= Battery: 8 h + 24 h with case
+= Water resistance: IPX4
+= Codecs: AAC, SBC, LDAC
+
+# Portable Bluetooth Speaker Mini
+art: speaker #0ea5e9
+tag: Fits in your hand, fills the room, survives the pool.
+desc: Mini is fully waterproof and floats, so it's ready for the beach, the shower or a picnic in the rain. A passive bass radiator gives it a punch you wouldn't expect from its size.
++ IP67 waterproof and dustproof
++ Surprising bass for its size
++ 12 hours of playtime
++ Pair two for stereo sound
+= Battery: 12 h
+= Output: 10 W
+= Water resistance: IP67
+= Weight: 280 g
+
+# Bluetooth Party Speaker 60 W
+art: party-speaker #1e1b4b
+was: 179
+tag: Turn any room into the party, lights included.
+desc: 60 W of sound with deep bass, light shows that pulse with the music, and a microphone input for karaoke nights. Twelve hours of battery and a built-in handle mean the party goes wherever you go.
++ 60 W with deep bass boost
++ Synced RGB light show
++ Mic and guitar inputs for karaoke
++ 12 h battery, carry handle
+= Output: 60 W
+= Battery: 12 h
+= Inputs: Bluetooth, USB, AUX, 6.3 mm mic
+= Weight: 3.2 kg
+
+# Studio Monitor Headphones
+art: headphones #0f172a
+tag: Hear exactly what you recorded, nothing added.
+desc: A flat, accurate frequency response makes these the headphones you can trust for mixing, editing podcasts and practising instruments. The closed-back design isolates sound and the coiled cable gives you room to move.
++ Flat, accurate studio sound
++ Closed-back, great isolation
++ Detachable coiled and straight cables
++ 6.3 mm adapter included
+= Type: closed-back, over-ear
+= Drivers: 45 mm
+= Impedance: 38 Ω
+= Frequency response: 15 Hz – 28 kHz
+
+# USB Podcast Microphone
+art: microphone #111827
+was: 79
+tag: Radio-quality voice from your desk, plug and play.
+desc: Plug it into USB and start recording: no drivers, no audio interface. The cardioid pattern focuses on your voice and rejects keyboard noise, and the zero-latency headphone jack lets you hear yourself in real time.
++ Plug and play over USB-C
++ Cardioid pattern: voice in, room noise out
++ Tap-to-mute with LED indicator
++ Zero-latency headphone monitoring
+= Resolution: 24-bit / 48 kHz
+= Pattern: cardioid
+= Connection: USB-C
+= Includes: desk stand, pop filter
+
+# Kids Volume-Limited Headphones
+art: headphones #f472b6
+tag: Safe volume for little ears, tough enough for little hands.
+desc: Volume is capped at 85 dB, the level recommended by audiologists, so children can listen safely on long trips. The flexible headband bends without breaking and folds flat into a backpack.
++ Volume limited to 85 dB
++ Bendable, nearly unbreakable headband
++ Soft cushions sized for kids
++ Built-in audio sharing port
+= Volume limit: 85 dB
+= Age: 3–12 years
+= Connection: 3.5 mm jack
+
+# Soundbar 2.1 with Subwoofer
+art: soundbar #111827
+was: 229
+tag: Cinema sound for your TV, set up in five minutes.
+desc: The wireless subwoofer adds rumble to explosions and soundtracks, while dialogue enhancement makes every word clear even at low volume. One HDMI cable connects it and your TV remote controls it.
++ Wireless subwoofer for deep bass
++ Clear dialogue mode
++ HDMI ARC: use your TV remote
++ Bluetooth music streaming
+= Output: 240 W total
+= Channels: 2.1
+= Connections: HDMI ARC, optical, Bluetooth 5.0
+
+# Vinyl Record Player
+art: turntable #92400e
+tag: Rediscover your records with warm sound and zero setup.
+desc: Built-in stereo speakers mean you can play your first record straight out of the box. The belt-drive turntable plays 33, 45 and 78 rpm, and Bluetooth output lets you upgrade to bigger speakers later.
++ Built-in stereo speakers
++ Plays 33, 45 and 78 rpm
++ Bluetooth out to external speakers
++ Walnut-finish wooden case
+= Drive: belt
+= Speeds: 33⅓, 45, 78 rpm
+= Outputs: RCA, Bluetooth, headphone
+
+# UltraBook 14 Laptop i5 16 GB
+art: laptop #94a3b8
+was: 899
+tag: All-day battery and real power in 1.3 kg of aluminium.
+desc: UltraBook 14 handles spreadsheets, video calls and photo editing with 16 GB of memory and a fast SSD that boots in seconds. The 14" 2.2K screen is sharp and bright, and the battery lasts a full working day away from the socket.
+desc: The backlit keyboard and fingerprint login make it as comfortable at night as it is in a café.
++ Intel Core i5 with 16 GB of RAM
++ Up to 12 hours of battery
++ 14" 2.2K anti-glare display
++ Fingerprint login and backlit keyboard
+= Processor: Intel Core i5, 12 threads
+= Memory: 16 GB
+= Storage: 512 GB NVMe SSD
+= Display: 14", 2240 × 1400
+= Weight: 1.3 kg
+
+# Gaming Laptop 15 RTX
+art: laptop #111827
+was: 1349
+tag: High frame rates for the latest games, wherever you plug in.
+desc: A dedicated RTX graphics card and a 144 Hz display make fast games feel smooth and responsive. The dual-fan cooling keeps performance steady during long sessions, and the RGB keyboard is fully customisable.
++ Dedicated RTX graphics
++ 15.6" 144 Hz display
++ Dual-fan cooling system
++ Per-key RGB keyboard
+= Processor: Intel Core i7
+= Graphics: NVIDIA RTX, 8 GB
+= Memory: 16 GB
+= Storage: 1 TB NVMe SSD
+= Display: 15.6", 144 Hz
+
+# Wireless Ergonomic Mouse
+art: mouse #334155
+tag: Silent clicks, a natural grip and 18 months per battery.
+desc: The sculpted shape supports your hand so your wrist stays relaxed through long workdays. Clicks are 90 % quieter than a standard mouse, and one AA battery lasts a year and a half.
++ Ergonomic shape reduces wrist strain
++ 90 % quieter clicks
++ 18-month battery life
++ Works on almost any surface
+= Connection: 2.4 GHz USB receiver + Bluetooth
+= Sensitivity: 800–2400 DPI
+= Battery: 1 × AA
+
+# Mechanical Keyboard TKL
+art: keyboard #1f2937
+was: 79
+tag: The satisfying typing feel that makes you want to write more.
+desc: Hot-swappable switches let you change the feel of every key without soldering. The compact tenkeyless layout frees up room for your mouse, and the RGB backlight has 18 effects.
++ Hot-swappable mechanical switches
++ Compact tenkeyless layout
++ Per-key RGB backlight
++ Detachable USB-C cable
+= Layout: TKL (87 keys)
+= Switches: hot-swappable, linear red
+= Connection: USB-C
+
+# 27" 4K Monitor
+art: monitor #0f172a
+was: 349
+tag: Four times the detail of Full HD, and one cable to your laptop.
+desc: A 27" 4K IPS panel shows sharp text and true-to-life colour from any angle. Plug in a single USB-C cable to get picture, data and 65 W of laptop charging at once.
++ 27" 4K IPS, 99 % sRGB colour
++ USB-C with 65 W charging
++ Height-adjustable, tilting stand
++ Low blue light, flicker-free
+= Resolution: 3840 × 2160
+= Panel: IPS, 60 Hz
+= Inputs: USB-C (65 W), 2 × HDMI, DisplayPort
+
+# USB-C Hub 7-in-1
+art: hub #64748b
+tag: Every port your laptop forgot, in your pocket.
+desc: Add a 4K HDMI screen, three USB devices, an SD card and pass-through charging through a single USB-C port. The aluminium shell matches your laptop and stays cool.
++ 4K HDMI output
++ 3 × USB-A 3.0 ports
++ SD and microSD card readers
++ 100 W pass-through charging
+= Ports: HDMI, 3 × USB-A, SD, microSD, USB-C PD
+= Charging: up to 100 W pass-through
+= Material: aluminium
+
+# 1080p Webcam with Microphone
+art: webcam #111827
+was: 54.9
+tag: Look sharp and well-lit on every video call.
+desc: Automatic light correction keeps your face bright even in a dim room, and dual microphones pick up your voice clearly. The privacy shutter slides closed when you're done.
++ Full HD 1080p at 30 fps
++ Automatic light correction
++ Dual noise-reducing microphones
++ Built-in privacy shutter
+= Resolution: 1920 × 1080, 30 fps
+= Field of view: 90°
+= Connection: USB-A, plug and play
+
+# Portable SSD 1 TB
+art: ssd #1d4ed8
+tag: Copy a full film in seconds and drop it without worry.
+desc: Transfer speeds up to 1,050 MB/s make backups and video projects fast. The rubber shell survives drops of up to 2 metres, and it fits in a jeans pocket.
++ Up to 1,050 MB/s
++ Drop-resistant to 2 m
++ Works with PC, Mac, phones and consoles
++ USB-C and USB-A cables included
+= Capacity: 1 TB
+= Speed: up to 1,050 MB/s
+= Interface: USB 3.2 Gen 2
+
+# Laptop Stand Aluminium
+art: laptop-stand #cbd5e1
+tag: Raise your screen to eye level and save your neck.
+desc: Six height positions bring your laptop screen up to eye level, which takes pressure off your neck and shoulders. It folds flat to pocket size, so it works at home, in the office and on the go.
++ 6 adjustable heights
++ Folds flat, 230 g
++ Ventilated to keep laptops cool
++ Holds laptops from 10" to 16"
+= Material: aluminium alloy
+= Weight: 230 g
+= Supports: up to 8 kg
+
+# Wi-Fi 6 Mesh Router (2-pack)
+art: router #f8fafc
+was: 189
+tag: Fast Wi-Fi in every room, goodbye dead zones.
+desc: Two units work together as one seamless network that covers up to 400 m², so you get fast Wi-Fi in the garden and the bedroom. Setup takes ten minutes with the app.
++ Covers up to 400 m²
++ Wi-Fi 6, up to 3 Gbps
++ One network name for the whole home
++ 10-minute setup with the app
+= Standard: Wi-Fi 6 (802.11ax)
+= Coverage: up to 400 m²
+= Ports: 2 × Gigabit Ethernet per unit
+
+# Over-Ear Headphones Retro
+art: headphones #92400e
+tag: Vintage looks, modern sound, foldable for the road.
+desc: Soft leatherette cushions and a brushed metal headband give these headphones a classic look. The detachable cable has an in-line mic for calls, and they fold flat into the included pouch.
++ Classic design with modern drivers
++ Detachable cable with mic
++ Folds flat, pouch included
++ Soft leatherette cushions
+= Type: over-ear, wired
+= Drivers: 40 mm
+= Cable: 1.2 m, 3.5 mm
+
+# Smart Speaker with Voice Assistant
+art: smart-speaker #475569
+was: 99
+tag: Music, timers and your smart home, just by asking.
+desc: Room-filling 360° sound makes this speaker the centre of your home. Ask it to play music, set timers, read the news or control lights and plugs, and turn the microphones off with one switch for privacy.
++ 360° room-filling sound
++ Voice control for music and smart home
++ Physical microphone-off switch
++ Multi-room music with other speakers
+= Output: 20 W, 360°
+= Connectivity: Wi-Fi, Bluetooth
+= Assistants: built-in voice assistant

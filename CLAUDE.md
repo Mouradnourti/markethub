@@ -56,6 +56,11 @@ API contract (backend running): `node scripts/export-api-contract.mjs` → `docs
 - **Frontend**: standalone components, one lazy route tree per role (`store`, `seller`, `admin`),
   signals for state, `authInterceptor` adds the JWT and refreshes on 401, guards per role.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`, `ci:`), one per phase.
+- **Demo content**: product copy (tagline, description, benefits, specs, sale price, illustration) lives in
+  `backend/src/main/resources/demo/copy-*.txt`, co-purchase pairs in `demo/pairings.txt`; `DemoCopyTest` checks
+  every demo product is complete. Product illustrations are drawn in code by `DemoImages`.
+- **Storefront**: only real data in conversion features (stock, discounts, delivery window, reviews): no fake
+  countdowns or fake scarcity.
 - Comments only where intent is not obvious. Short methods. Meaningful names.
 
 ## Demo accounts (seed, profile `demo`)

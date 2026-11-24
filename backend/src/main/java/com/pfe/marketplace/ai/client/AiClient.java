@@ -1,5 +1,7 @@
 package com.pfe.marketplace.ai.client;
 
+import com.pfe.marketplace.ai.dto.AiDtos.AiCopyRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.CopyDraft;
 import com.pfe.marketplace.ai.dto.AiDtos.ForecastRequest;
 import com.pfe.marketplace.ai.dto.AiDtos.ForecastResult;
 import com.pfe.marketplace.ai.dto.AiDtos.RecommendationRequest;
@@ -47,6 +49,10 @@ public class AiClient {
 
     public Optional<ForecastResult> forecast(ForecastRequest request) {
         return call("/forecast", request, ForecastResult.class);
+    }
+
+    public Optional<CopyDraft> writeCopy(AiCopyRequest request) {
+        return call("/copywriter", request, CopyDraft.class);
     }
 
     private <T> Optional<T> call(String path, Object body, Class<T> type) {

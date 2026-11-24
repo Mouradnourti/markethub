@@ -76,15 +76,23 @@ export interface Category {
   parentId?: number;
 }
 
+export interface ProductSpec {
+  label: string;
+  value: string;
+}
+
 export interface ProductSummary {
   id: number;
   name: string;
   price: number;
+  /** Original price, set while the product is discounted. */
+  compareAtPrice?: number;
   stock: number;
   avgRating: number;
   reviewCount: number;
   soldCount: number;
   imageUrl?: string;
+  hoverImageUrl?: string;
   shopId: number;
   shopName: string;
   categoryId: number;
@@ -95,8 +103,12 @@ export interface ProductSummary {
 export interface Product {
   id: number;
   name: string;
+  tagline?: string;
   description?: string;
+  highlights: string[];
+  specs: ProductSpec[];
   price: number;
+  compareAtPrice?: number;
   stock: number;
   active: boolean;
   avgRating: number;
@@ -113,12 +125,36 @@ export interface Product {
 
 export interface ProductRequest {
   name: string;
+  tagline?: string;
   description?: string;
+  highlights?: string[];
+  specs?: ProductSpec[];
   price: number;
+  compareAtPrice?: number | null;
   stock: number;
   categoryId: number;
   active: boolean;
   imageUrls?: string[];
+}
+
+export type CopyTone = 'friendly' | 'premium' | 'technical';
+
+export interface CopyDraftRequest {
+  name: string;
+  categoryId?: number;
+  keywords: string[];
+  tone: CopyTone;
+  variant: number;
+}
+
+/** Draft written by the AI description writer; the seller reviews it before saving. */
+export interface CopyDraft {
+  tagline: string;
+  description: string;
+  highlights: string[];
+  specs: ProductSpec[];
+  suggestedSpecLabels: string[];
+  categoryProfile: string;
 }
 
 export interface ProductQuery {
@@ -129,6 +165,7 @@ export interface ProductQuery {
   maxPrice?: number;
   minRating?: number;
   inStock?: boolean;
+  onSale?: boolean;
   sort?: ProductSort;
   page?: number;
   size?: number;

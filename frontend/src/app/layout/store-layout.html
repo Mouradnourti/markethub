@@ -1,28 +1,31 @@
+<div class="announcement" role="region" aria-label="Store benefits">
+  <div class="container announcement-inner">
+    <span [class.on]="announcement() === 0"><mat-icon>local_shipping</mat-icon> Free shipping on orders over {{ config.config().freeShippingThreshold | money }}</span>
+    <span [class.on]="announcement() === 1"><mat-icon>payments</mat-icon> Pay by card or cash on delivery</span>
+    <span [class.on]="announcement() === 2"><mat-icon>autorenew</mat-icon> Free returns within 14 days</span>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="container bar">
     <a routerLink="/" class="brand" aria-label="MarketHub home"><app-logo /></a>
 
     <form class="search" (ngSubmit)="search()" role="search">
       <mat-icon>search</mat-icon>
-      <input name="q" [(ngModel)]="query" placeholder="Search products, brands, shops…" aria-label="Search" />
+      <input name="q" [(ngModel)]="query" placeholder="Search products, brands and shops" aria-label="Search" />
+      <button type="submit" class="search-go" aria-label="Search"><mat-icon>arrow_forward</mat-icon></button>
     </form>
 
     <nav class="actions">
       @if (auth.user(); as user) {
-        @if (user.role === 'CUSTOMER') {
-          <a mat-button routerLink="/orders" class="hide-sm"><mat-icon>receipt_long</mat-icon> Orders</a>
-          <a mat-icon-button routerLink="/cart" aria-label="Cart">
-            <mat-icon [matBadge]="cart.count() || null" matBadgeColor="primary" matBadgeSize="small">shopping_cart</mat-icon>
-          </a>
-        } @else {
-          <a mat-flat-button [routerLink]="auth.homeFor(user.role)">
-            <mat-icon>dashboard</mat-icon> {{ user.role === 'ADMIN' ? 'Admin console' : 'Seller dashboard' }}
+        @if (user.role !== 'CUSTOMER') {
+          <a mat-flat-button class="btn-ink compact" [routerLink]="auth.homeFor(user.role)">
+            <mat-icon>dashboard</mat-icon> {{ user.role === 'ADMIN' ? 'Admin console' : 'Seller center' }}
           </a>
         }
-        <button mat-button [matMenuTriggerFor]="account" class="account">
+        <button class="icon-action" [matMenuTriggerFor]="account" aria-label="Account">
           <span class="avatar">{{ user.firstName.charAt(0) }}</span>
-          <span class="hide-sm">{{ user.firstName }}</span>
-          <mat-icon>expand_more</mat-icon>
+          <span class="label hide-sm">Hi, {{ user.firstName }}</span>
         </button>
         <mat-menu #account="matMenu" xPosition="before">
           <div class="menu-head">
@@ -32,27 +35,38 @@
           <mat-divider />
           @if (user.role === 'CUSTOMER') {
             <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon>My orders</a>
-            <a mat-menu-item routerLink="/cart"><mat-icon>shopping_cart</mat-icon>My cart</a>
+            <a mat-menu-item routerLink="/cart"><mat-icon>shopping_bag</mat-icon>My cart</a>
           } @else {
             <a mat-menu-item [routerLink]="auth.homeFor(user.role)"><mat-icon>dashboard</mat-icon>Dashboard</a>
           }
           <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon>Sign out</button>
         </mat-menu>
+        @if (user.role === 'CUSTOMER') {
+          <a class="icon-action hide-sm" routerLink="/orders"><mat-icon>package_2</mat-icon><span class="label">Orders</span></a>
+        }
       } @else {
-        <a mat-button routerLink="/login">Sign in</a>
-        <a mat-flat-button routerLink="/register">Create account</a>
+        <a class="icon-action" routerLink="/login"><mat-icon>person</mat-icon><span class="label hide-sm">Sign in</span></a>
       }
+      <button class="icon-action cart-button" (click)="cart.openDrawer()" aria-label="Open cart">
+        <mat-icon>shopping_bag</mat-icon>
+        @if (cart.count()) {
+          <span class="count">{{ cart.count() }}</span>
+        }
+      </button>
     </nav>
   </div>
 
-  <nav class="categories">
+  <nav class="categories" aria-label="Categories">
     <div class="container cats">
-      <a routerLink="/products" [queryParams]="{}" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">All products</a>
+      <a routerLink="/products" [queryParams]="{}" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Shop all</a>
+      <a routerLink="/products" [queryParams]="{ onSale: true }" class="deals"><mat-icon>sell</mat-icon>Deals</a>
       @for (category of categories(); track category.id) {
         @if (!category.parentId) {
           <a routerLink="/products" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a>
         }
       }
+      <span class="spacer"></span>
+      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }" class="sell hide-sm">Sell on MarketHub</a>
     </div>
   </nav>
 </header>
@@ -61,28 +75,44 @@
   <router-outlet />
 </main>
 
+<section class="assurance" aria-label="Why shop with us">
+  <div class="container assurance-grid">
+    <div><mat-icon>local_shipping</mat-icon><strong>Free shipping</strong><span>On orders over {{ config.config().freeShippingThreshold | money }}</span></div>
+    <div><mat-icon>payments</mat-icon><strong>Cash on delivery</strong><span>Or secure card payment</span></div>
+    <div><mat-icon>autorenew</mat-icon><strong>14-day returns</strong><span>Changed your mind? Send it back</span></div>
+    <div><mat-icon>verified_user</mat-icon><strong>Verified sellers</strong><span>Every shop is reviewed by our team</span></div>
+  </div>
+</section>
+
 <footer class="footer">
   <div class="container footer-grid">
-    <div>
+    <div class="about">
       <app-logo [light]="true" />
-      <p>Independent sellers, one checkout. Pay by card or cash on delivery.</p>
+      <p>The marketplace for independent shops. Discover products you'll love and check out once, whoever sells them.</p>
     </div>
     <div>
       <h4>Shop</h4>
       <a routerLink="/products">All products</a>
+      <a routerLink="/products" [queryParams]="{ onSale: true }">Deals</a>
       <a routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">Best sellers</a>
       <a routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">New arrivals</a>
     </div>
     <div>
-      <h4>Sell on MarketHub</h4>
-      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }">Open a shop</a>
-      <a routerLink="/login">Seller sign in</a>
+      <h4>Sell</h4>
+      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }">Open your shop</a>
+      <a routerLink="/login">Seller center</a>
     </div>
     <div>
       <h4>Help</h4>
-      <span>Free returns within 14 days</span>
-      <span>Secure payments (Stripe)</span>
+      <a routerLink="/orders">Track an order</a>
+      <span>Returns within 14 days</span>
+      <span>Card or cash on delivery</span>
     </div>
   </div>
-  <div class="container copyright">© 2026 MarketHub — PFE project</div>
+  <div class="container copyright">
+    <span>© 2026 MarketHub</span>
+    <span class="pay"><mat-icon>lock</mat-icon> Secure payments by Stripe · Cash on delivery</span>
+  </div>
 </footer>
+
+<app-cart-drawer />

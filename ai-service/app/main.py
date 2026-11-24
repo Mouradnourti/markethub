@@ -9,10 +9,13 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 from app.config import get_settings
+from app.ml import copywriter
 from app.ml.forecaster import NotEnoughHistory, forecast
 from app.ml.return_risk import explain
 from app.registry import ModelRegistry
 from app.schemas import (
+    CopyRequest,
+    CopyResponse,
     ForecastPointOut,
     ForecastRequest,
     ForecastResponse,
@@ -20,6 +23,7 @@ from app.schemas import (
     RecommendationResponse,
     ReturnRiskRequest,
     ReturnRiskResponse,
+    SpecOut,
 )
 from app.sync import SyncLoop, sync_from_backend
 from scripts.generate_dataset import generate
@@ -97,6 +101,16 @@ def return_risk(request: ReturnRiskRequest) -> ReturnRiskResponse:
     level = "high" if score >= 0.35 else "medium" if score >= 0.15 else "low"
     return ReturnRiskResponse(score=round(score, 4), level=level, reasons=explain(features),
                               model=f"{registry.return_risk.model_name} ({registry.return_risk.source})")
+
+
+@app.post("/copywriter", response_model=CopyResponse, response_model_by_alias=True,
+          dependencies=[Depends(require_internal_key)])
+def write_copy(request: CopyRequest) -> CopyResponse:
+    """Drafts a tagline, description and key benefits from the seller's product name and keywords."""
+    copy = copywriter.write(request.name, request.category, request.keywords, request.tone, request.variant)
+    return CopyResponse(tagline=copy.tagline, description=copy.description, highlights=copy.highlights,
+                        specs=[SpecOut(label=label, value=value) for label, value in copy.specs],
+                        suggested_spec_labels=copy.suggested_spec_labels, category_profile=copy.category_profile)
 
 
 @app.post("/train", dependencies=[Depends(require_internal_key)])

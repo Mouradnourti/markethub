@@ -43,10 +43,12 @@ public class CatalogController {
                                                   @RequestParam(required = false) BigDecimal maxPrice,
                                                   @RequestParam(required = false) BigDecimal minRating,
                                                   @RequestParam(required = false) Boolean inStock,
+                                                  @RequestParam(required = false) Boolean onSale,
                                                   @RequestParam(defaultValue = "NEWEST") ProductSort sort,
                                                   @RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "12") int size) {
-        var criteria = new ProductSearchCriteria(q, categoryId, shopId, minPrice, maxPrice, minRating, inStock, sort);
+        var criteria = new ProductSearchCriteria(q, categoryId, shopId, minPrice, maxPrice, minRating, inStock, onSale,
+                sort);
         return productService.search(criteria, page, size);
     }
 
@@ -60,6 +62,12 @@ public class CatalogController {
     @GetMapping("/products/{id}/similar")
     public List<ProductSummaryDto> similar(@PathVariable Long id, @RequestParam(defaultValue = "6") int limit) {
         return productService.similar(id, Math.clamp(limit, 1, 24));
+    }
+
+    @Operation(summary = "Products frequently ordered together with this one (padded with similar products)")
+    @GetMapping("/products/{id}/bought-together")
+    public List<ProductSummaryDto> boughtTogether(@PathVariable Long id, @RequestParam(defaultValue = "2") int limit) {
+        return productService.boughtTogether(id, Math.clamp(limit, 1, 6));
     }
 
     @Operation(summary = "All categories (flat list with parent ids)")

@@ -70,3 +70,16 @@ def test_return_risk(client):
 def test_models_metrics_and_failed_retrain(client):
     assert "recommender" in client.get("/models", headers=HEADERS).json()
     assert client.post("/train", headers=HEADERS).status_code == 502  # no backend in tests
+
+
+def test_copywriter_drafts_listing_copy(client):
+    response = client.post("/copywriter", headers=HEADERS, json={
+        "name": "Trail Runner Backpack 20 L", "category": "Sports & Outdoors",
+        "keywords": ["waterproof", "padded laptop sleeve"], "tone": "premium"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["categoryProfile"] == "sports"
+    assert body["tagline"] and "Trail Runner Backpack 20 L" in body["description"]
+    assert "Padded laptop sleeve" in body["highlights"]
+    assert {"label": "Capacity", "value": "20 L"} in body["specs"]
+    assert client.post("/copywriter", headers=HEADERS, json={"name": "x"}).status_code == 422

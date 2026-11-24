@@ -13,7 +13,7 @@ flowchart LR
     API -->|JPA / Flyway| PG[(PostgreSQL 16)]
     API -->|Spring Cache| R[(Redis 7)]
     API -->|REST + X-Internal-Key| AI[ai-service<br/>FastAPI + scikit-learn]
-    API -->|REST + X-Internal-Key| NS[notification-service<br/>Laravel 11]
+    API -->|REST + X-Internal-Key| NS[notification-service<br/>Laravel 13]
     API -->|stripe-java| STRIPE
     AI -->|GET /api/internal/ml/dataset| API
     NS -->|SMTP| MAIL[(Mailpit<br/>demo inbox)]
@@ -23,7 +23,7 @@ flowchart LR
 |---|---|---|---|
 | `frontend` | Angular 22, Angular Material 3, Chart.js | 4200 | Storefront, seller dashboard, admin dashboard |
 | `backend` | Spring Boot 3.5, Spring Security, JPA, Flyway, MapStruct | 8080 | Business API, auth, orders, payments, orchestration |
-| `ai-service` | Python 3.11, FastAPI, scikit-learn, pandas | 8000 | Recommendations, sales forecast, return-risk |
+| `ai-service` | Python 3.11, FastAPI, scikit-learn, pandas | 8000 | Recommendations, sales forecast, return-risk, product description writer |
 | `notification-service` | PHP 8.3, Laravel 13, dompdf | 8001 | Order emails, PDF invoices |
 | `postgres` | PostgreSQL 16 | 5432 | Main database |
 | `redis` | Redis 7 | 6379 | Catalog / category / recommendation cache |
@@ -45,6 +45,10 @@ flowchart LR
 | 10 | **Integration tests run on PostgreSQL** via Testcontainers; when Docker is missing they fall back to an embedded PostgreSQL binary (zonky). | Same SQL dialect as production everywhere; tests run on a laptop without Docker and in CI. |
 | 11 | **Angular unit tests use Vitest**, the default runner of Angular 22 (Jest/Jasmine-compatible `describe/it/expect`). | Official tooling, no extra Karma/Jest setup to maintain. |
 | 12 | **Tokens stored in localStorage** (15-min access token, rotating refresh token). | Simple for a SPA calling a separate API; XSS exposure limited by Angular sanitization and short lifetimes. |
+| 13 | **Merchandising content is part of the product** (V2): `compare_at_price` (sale), `tagline`, `highlights` and `specs` stored as JSONB lists. | One read per product page, no extra tables to join; the lists are small, always loaded together and validated by the API (≤ 8 benefits, ≤ 20 specs). |
+| 14 | **"Frequently bought together" is computed from real orders** (products in at least 2 of the same checkouts), padded with similar best sellers. | Data-driven cross-selling with no extra model; the minimum support of 2 keeps one-off coincidences out. |
+| 15 | **The AI description writer is rule-based NLG that never invents facts.** It extracts attributes (capacity, power, size, material…) from the name and the seller's keywords and writes in a chosen tone; specs it cannot read are only suggested as empty labels. | Sellers get a complete page in one click while every claim stays theirs: invented specs would cause returns and legal risk. No external LLM account is needed for the demo. |
+| 16 | **Conversion patterns on the storefront**: cart drawer with free-shipping progress and pairings, sale badges, stock urgency only from real stock, delivery window, verified-purchase reviews, sticky buy bar, recently viewed (browser storage). | Each pattern answers a buying objection (cost, trust, timing) using real data only: no fake countdowns or fake scarcity. |
 
 ## 3. Backend layering
 
@@ -88,17 +92,17 @@ Full contract: Swagger UI at `http://localhost:8080/swagger-ui.html`, exported t
 | Area | Endpoints |
 |---|---|
 | Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` |
-| Catalog (public) | `GET /products` (q, categoryId, shopId, minPrice, maxPrice, sort, page, size), `GET /products/{id}`, `GET /products/{id}/similar`, `GET /categories`, `GET /shops/{slug}` |
+| Catalog (public) | `GET /products` (q, categoryId, shopId, minPrice, maxPrice, minRating, inStock, onSale, sort, page, size), `GET /products/{id}`, `GET /products/{id}/similar`, `GET /products/{id}/bought-together`, `GET /categories`, `GET /shops/{slug}` |
 | Reviews | `GET /products/{id}/reviews`, `POST /products/{id}/reviews` (customer who received the product) |
 | Cart | `GET /cart`, `POST /cart/items`, `PUT /cart/items/{productId}`, `DELETE /cart/items/{productId}`, `DELETE /cart` |
 | Orders | `POST /orders/checkout`, `GET /orders`, `GET /orders/{id}`, `POST /orders/{id}/cancel`, `GET /orders/{id}/invoice`, `POST /orders/shop-orders/{id}/return-request` |
 | Payments | `POST /payments/{orderId}/confirm`, `POST /payments/stripe/webhook` |
 | Recommendations | `GET /recommendations` |
-| Seller | `GET/PUT /seller/shop`, `GET/POST/PUT/DELETE /seller/products`, `POST /seller/products/{id}/images`, `PATCH /seller/products/{id}/stock`, `GET /seller/orders`, `PATCH /seller/orders/{id}/status`, `GET /seller/stats`, `GET /seller/forecast` |
+| Seller | `GET/PUT /seller/shop`, `GET/POST/PUT/DELETE /seller/products`, `POST /seller/products/describe` (AI writer), `POST /seller/products/{id}/images`, `PATCH /seller/products/{id}/stock`, `GET /seller/orders`, `PATCH /seller/orders/{id}/status`, `GET /seller/stats`, `GET /seller/forecast` |
 | Admin | `GET /admin/users`, `PATCH /admin/users/{id}/enabled`, `GET /admin/shops`, `PATCH /admin/shops/{id}/status`, `PATCH /admin/shops/{id}/commission`, `POST/PUT/DELETE /admin/categories`, `GET/PUT /admin/settings`, `GET /admin/stats`, `GET /admin/disputes`, `PATCH /admin/disputes/{id}` |
 | Internal | `GET /internal/ml/dataset` (header `X-Internal-Key`) |
 
-AI service: `POST /recommendations`, `POST /forecast`, `POST /return-risk`, `POST /train`, `GET /health`.
+AI service: `POST /recommendations`, `POST /forecast`, `POST /return-risk`, `POST /copywriter`, `POST /train`, `GET /health`.
 Notification service: `POST /api/notifications/order-event`, `POST /api/invoices`, `GET /api/health`.
 
 ## 6. Roadmap
@@ -112,3 +116,4 @@ Notification service: `POST /api/notifications/order-event`, `POST /api/invoices
 | 4 | Laravel notifications + PDF invoices, Stripe test mode, COD flow | Emails visible in Mailpit |
 | 5 | AI service, dataset generator, training, backend + UI integration | `pytest` green, UI shows AI blocks |
 | 6 | E2E journey test, demo seed, README, Swagger export, CI | `docker compose up` = full demo |
+| 7 | Conversion-focused storefront redesign, rich product content (V2), deals, bundles, cart drawer, AI description writer, listing quality score, illustrated demo catalog | E2E journey (10 steps) green, all suites green |

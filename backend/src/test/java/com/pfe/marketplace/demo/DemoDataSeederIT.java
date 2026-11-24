@@ -29,7 +29,19 @@ class DemoDataSeederIT extends ApiFixtures {
         assertThat(jdbc.queryForObject("select count(*) from shop_orders where status = 'RETURNED'", Long.class))
                 .isPositive();
         assertThat(jdbc.queryForObject("select count(*) from disputes where status = 'OPEN'", Long.class)).isPositive();
-        assertThat(Files.exists(storage.root().resolve("demo/p1-0.svg"))).isTrue();
+        assertThat(Files.readString(storage.root().resolve("demo/p1-0.svg"))).startsWith("<svg").contains("</svg>");
+
+        // Every product has merchandising copy; about half are on sale.
+        String demoProducts = "from products p join shops s on s.id = p.shop_id where s.slug in "
+                + "('technova', 'soundwave-audio', 'maison-belle', 'urban-threads', 'glow-beauty', 'peaksport', 'pageturner')";
+        assertThat(jdbc.queryForObject("select count(*) " + demoProducts + " and (p.tagline is null "
+                + "or jsonb_array_length(p.highlights) < 3 or jsonb_array_length(p.specs) < 2)", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) " + demoProducts + " and p.compare_at_price > p.price",
+                Long.class)).isBetween(30L, 60L);
+        Long phone = jdbc.queryForObject("select id from products where name = 'Nova X5 Smartphone 128 GB'", Long.class);
+        JsonNode product = send(null, get("/api/products/" + phone), null, 200);
+        assertThat(product.get("highlights").size()).isGreaterThanOrEqualTo(3);
+        assertThat(product.get("description").asText()).contains("AMOLED");
 
         // Seeded accounts work and the data loads through JPA.
         String customer = login("customer1@markethub.test", "Customer123!");

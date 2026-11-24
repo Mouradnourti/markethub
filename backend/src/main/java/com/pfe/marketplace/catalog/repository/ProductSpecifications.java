@@ -56,6 +56,10 @@ public final class ProductSpecifications {
         return minRating == null ? null : (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("avgRating"), minRating);
     }
 
+    public static Specification<Product> onSale(Boolean onSaleOnly) {
+        return Boolean.TRUE.equals(onSaleOnly) ? (root, query, cb) -> cb.isNotNull(root.get("compareAtPrice")) : null;
+    }
+
     public static Specification<Product> inStock(Boolean inStockOnly) {
         return Boolean.TRUE.equals(inStockOnly) ? (root, query, cb) -> cb.greaterThan(root.get("stock"), 0) : null;
     }

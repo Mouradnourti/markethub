@@ -28,6 +28,21 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     long countByShopId(Long shopId);
 
+    /** Other products found in at least two of the same checkouts as this one, most frequent first. */
+    @Query(value = """
+            select other.product_id
+            from order_items mine
+            join shop_orders mine_so on mine_so.id = mine.shop_order_id
+            join shop_orders other_so on other_so.order_id = mine_so.order_id
+            join order_items other on other.shop_order_id = other_so.id
+            where mine.product_id = :productId and other.product_id <> :productId
+            group by other.product_id
+            having count(distinct mine_so.order_id) >= 2
+            order by count(distinct mine_so.order_id) desc, other.product_id
+            limit :limit
+            """, nativeQuery = true)
+    List<Long> findBoughtTogetherIds(@Param("productId") Long productId, @Param("limit") int limit);
+
     long countByShopIdAndStockLessThan(Long shopId, int threshold);
 
     /**

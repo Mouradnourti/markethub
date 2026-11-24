@@ -1,0 +1,391 @@
+# Sports, Books and Toys product copy (format: see copy-electronics.txt)
+
+# Yoga Mat 6 mm
+art: yoga-mat #7c3aed
+was: 36.9
+tag: Grip that holds in every pose, cushioning your knees will love.
+desc: The 6 mm eco TPE foam cushions your joints on hard floors, and the textured surface grips even when you sweat. Alignment lines help you place hands and feet, and the strap makes it easy to carry.
++ Non-slip on both sides
++ 6 mm joint-friendly cushioning
++ Alignment lines
++ Carry strap included
+= Size: 183 × 61 cm
+= Thickness: 6 mm
+= Material: eco TPE, latex-free
+
+# Adjustable Dumbbells 20 kg
+art: dumbbell #111827
+was: 149
+tag: A full rack of weights that fits under the bed.
+desc: Turn the dial to switch from 2 to 20 kg in seconds, replacing 15 pairs of dumbbells. Perfect for home workouts where space is tight.
++ 2 to 20 kg in seconds
++ Replaces 15 sets of dumbbells
++ Compact storage tray
++ Secure locking mechanism
+= Weight range: 2–20 kg per dumbbell
+= Increments: 15 settings
+
+# Resistance Bands Set
+art: bands #ef4444
+tag: A full-body gym in a pouch.
+desc: Five stackable bands from light to extra heavy, with handles, ankle straps and a door anchor, let you train every muscle at home or while travelling.
++ 5 resistance levels, stackable
++ Handles, ankle straps, door anchor
++ Travel pouch included
++ Exercise guide
+= Resistance: up to 68 kg combined
+= Material: natural latex
+
+# Insulated Water Bottle 750 ml
+art: bottle #0f766e
+was: 27.9
+tag: Ice-cold for 24 hours, hot for 12, never leaks.
+desc: Double-wall vacuum insulation keeps drinks cold all day, and the leak-proof lid makes it safe to throw in your bag.
++ Cold 24 h, hot 12 h
++ 100 % leak-proof lid
++ BPA-free stainless steel
++ Fits most cup holders
+= Capacity: 750 ml
+= Material: 18/8 stainless steel
+
+# Foam Roller
+art: foam-roller #f97316
+tag: Release tight muscles in minutes after training.
+desc: The high-density, textured surface massages deep into tight muscles to speed up recovery and improve mobility.
+desc: Ten minutes before or after a workout loosens calves, quads and back. The compact size fits in a gym bag or under the sofa.
++ High-density, holds its shape
++ Textured massage surface
++ Supports up to 150 kg
+= Size: 33 × 14 cm
+= Material: EVA foam
+
+# Camping Tent 2 Persons
+art: tent #16a34a
+was: 119
+tag: Pitch it in two minutes, stay dry all night.
+desc: The pop-up frame opens on its own, so you can set up camp in two minutes. A waterproof flysheet and taped seams keep you dry, and mesh panels keep insects out.
++ Pops up in 2 minutes
++ Waterproof 3,000 mm flysheet
++ Insect mesh ventilation
++ Packs into a shoulder bag
+= Sleeps: 2
+= Waterproofing: 3,000 mm
+= Weight: 2.4 kg
+
+# Trekking Poles (pair)
+art: trekking-poles #1d4ed8
+tag: Less strain on your knees, more confidence on the trail.
+desc: Lightweight aluminium poles with anti-shock springs and cork grips take pressure off your knees on descents. They collapse to 65 cm for your pack.
++ Anti-shock system
++ Natural cork grips
++ Adjustable 65–135 cm
++ Quick-lock clamps
+= Material: 7075 aluminium
+= Weight: 250 g per pole
+
+# Jump Rope Speed
+art: jump-rope #111827
+tag: The fastest, most efficient cardio you can pack.
+desc: Ball bearings spin smoothly for fast double-unders, and the cable adjusts to your height in seconds.
+desc: Ten minutes of skipping burns as much as a 30-minute jog, and the tangle-free cable means you can start anywhere: garden, garage or hotel room.
++ Smooth ball-bearing handles
++ Adjustable steel cable
++ Lightweight aluminium handles
+= Length: adjustable up to 3 m
+= Handles: aluminium, 15 cm
+= Weight: 160 g
+
+# Cycling Helmet
+art: helmet #f8fafc
+was: 59.9
+tag: Light, ventilated protection with a rear light built in.
+desc: An in-mould shell keeps it light and strong, 18 vents keep you cool on climbs, and the integrated USB-rechargeable rear LED makes you visible at dusk.
++ In-mould protective shell
++ Integrated rechargeable rear LED
++ 18 cooling vents
++ Dial-fit adjustment
+= Size: 55–61 cm
+= Weight: 290 g
+= Standard: EN 1078
+
+# Fitness Tracker Band
+art: watch #0f766e
+tag: Steps, heart rate and sleep, without the bulk of a watch.
+desc: A slim band that tracks your activity, heart rate and sleep quality and lasts up to 10 days per charge.
+desc: Vibration alerts show calls and messages, and the app turns your data into simple weekly trends so you can see your progress.
++ Heart rate and sleep tracking
++ 10-day battery
++ Water resistant to 50 m
+= Battery: up to 10 days
+= Water resistance: 5 ATM
+
+# Pull-Up Bar Doorway
+art: pullup-bar #111827
+tag: Build upper-body strength at home, no screws needed.
+desc: Hooks over a standard door frame and holds up to 120 kg. Multiple grip positions work your back, arms and core.
++ No screws or drilling
++ Holds up to 120 kg
++ Multiple grip positions
+= Fits doors: 61–81 cm wide
+= Max load: 120 kg
+
+# Sports Duffel Bag 40 L
+art: duffel #111827
+was: 39.9
+tag: Gym kit organised, wet towel separated.
+desc: A ventilated wet compartment keeps sweaty clothes apart from the rest, and the shoe pocket keeps trainers separate.
++ Separate wet compartment
++ Ventilated shoe pocket
++ Water-resistant base
+= Capacity: 40 L
+= Size: 55 × 30 × 28 cm
+= Material: water-resistant polyester
+
+# The Pragmatic Developer (paperback)
+art: book #1e3a8a
+tag: The habits that turn good programmers into great ones.
+desc: Practical, timeless advice on writing maintainable code, working in teams and growing your career. Each chapter ends with exercises you can apply at work the next day.
++ Practical, career-long advice
++ Exercises after every chapter
++ Updated edition
+= Format: paperback
+= Pages: 352
+= Language: English
+
+# Data Science from Scratch
+art: book #0f766e
+was: 44.9
+tag: Learn data science by building it yourself in Python.
+desc: Starting from first principles, this book teaches statistics, machine learning and data wrangling by implementing them in plain Python, so you truly understand how they work.
++ Hands-on Python examples
++ From statistics to neural networks
++ No prior data science needed
+= Format: paperback
+= Pages: 400
+
+# World Cuisine Cookbook
+art: book #c2410c
+tag: Travel the world from your kitchen, 200 recipes at a time.
+desc: 200 tested recipes from 40 countries, with step-by-step photos and ingredient swaps for supermarket shopping.
+desc: Each chapter opens with the story of a country's food, so you learn why dishes taste the way they do. A beautiful gift for curious cooks.
++ 200 recipes from 40 countries
++ Step-by-step photos
++ Easy ingredient swaps
+= Format: hardcover
+= Pages: 416
+
+# Mindful Mornings Journal
+art: notebook #fda4af
+tag: Ten minutes a morning for a calmer, more focused day.
+desc: Guided prompts for gratitude, intentions and reflection over 90 days, on thick paper that's a pleasure to write on.
++ 90 days of guided prompts
++ Thick 120 g/m² paper
++ Lay-flat binding
+= Pages: 192
+= Size: A5
+
+# Dotted Notebook A5
+art: notebook #111827
+was: 15.9
+tag: Smooth, thick paper for notes, sketches and bullet journals.
+desc: 120 g/m² paper means no ghosting from fountain pens, and the dot grid works for writing, drawing and planning.
+desc: The hard cover protects your notes in a bag, and an elastic closure and ribbon bookmark keep everything in place.
++ 120 g/m² paper, no bleed-through
++ Dot grid layout
++ Numbered pages and index
++ Lay-flat binding
+= Pages: 160
+= Size: A5
+
+# Fountain Pen Starter Kit
+art: pen #1d4ed8
+tag: Make handwriting a pleasure again.
+desc: A smooth steel nib, a comfortable grip and six ink cartridges: everything you need to start writing with a fountain pen.
++ Smooth medium steel nib
++ 6 ink cartridges + converter
++ Gift box
+= Nib: medium, stainless steel
+= Filling: cartridge or converter
+
+# Watercolour Paint Set 36
+art: paint-set #e11d48
+was: 34.9
+tag: Artist-grade colour in a tin that travels anywhere.
+desc: 36 highly pigmented half-pans in a metal travel tin with a built-in mixing palette and a water brush.
+desc: The colours rewet instantly and mix cleanly, so beginners get bright results and experienced painters get rich, layered washes.
++ 36 vibrant, artist-grade colours
++ Metal tin with mixing palette
++ Water brush included
+= Colours: 36 half-pans
+= Tin: metal with mixing palette
+= Includes: water brush, sponge
+
+# Graphic Novel Box Set
+art: book-stack #7c3aed
+tag: The complete award-winning trilogy in one hardcover box.
+desc: All three volumes of the saga in a collector's slipcase, with exclusive sketches and an afterword by the author.
++ Complete trilogy, hardcover
++ Collector's slipcase
++ Exclusive bonus sketches
+= Volumes: 3
+= Format: hardcover
+
+# Desk Organiser Bamboo
+art: desk-organiser #d97706
+tag: A clear desk in five minutes.
+desc: Five compartments for pens, notes and cables plus a phone slot, made from sustainable bamboo.
+desc: Keep pens, sticky notes, cables and your phone within reach and off the desk surface, so you can focus on the work in front of you. Natural bamboo looks warm in any home office.
++ 5 compartments + phone slot
++ Sustainable bamboo
++ Non-scratch felt feet
+= Size: 30 × 15 × 12 cm
+= Material: bamboo
+
+# Sci-Fi Classics Collection
+art: book-stack #0f172a
+was: 54.9
+tag: Five novels that shaped the future of fiction.
+desc: A beautifully bound collection of five science-fiction classics, perfect for your shelf or as a gift.
+desc: Space travel, artificial minds and future societies: these are the stories that inspired generations of writers, scientists and film-makers.
++ 5 classic novels
++ Matching cloth bindings
++ Gift-ready box
+= Volumes: 5
+= Format: cloth-bound hardcover
+
+# Productivity Planner 2027
+art: notebook #0f766e
+tag: Plan your week, hit your goals.
+desc: Weekly spreads, monthly goal tracking and habit trackers help you focus on what matters most.
+desc: Each week starts with a short review of what went well, so small wins add up to big goals by the end of the year.
++ Weekly and monthly layouts
++ Goal and habit trackers
++ Thick, smooth paper
+= Format: A5, hardcover
+= Period: Jan–Dec 2027
+
+# Strategy Board Game Settlers
+art: board-game #b45309
+was: 44.9
+tag: Trade, build and outsmart your friends, game night sorted.
+desc: Collect resources, trade with other players and build your way to victory. Every game plays out differently, so it never gets old.
++ 3–4 players, ages 10+
++ 60–90 minutes per game
++ Different board every game
+= Players: 3–4
+= Age: 10+
+= Playing time: 60–90 min
+
+# Cooperative Puzzle Game
+art: board-game #0e7490
+tag: Win together or lose together.
+desc: Everyone works as a team to escape the sinking island before the water rises. Easy to learn, tense to the very end.
++ Cooperative: everyone plays together
++ 2–4 players, ages 8+
++ 30 minutes per game
+= Players: 2–4
+= Age: 8+
+
+# 1000-Piece Jigsaw Puzzle
+art: jigsaw #2563eb
+tag: A relaxing evening project with a stunning skyline.
+desc: Thick, precision-cut pieces fit snugly, and the panoramic city skyline is challenging but satisfying.
+desc: Every piece is cut with a unique shape and printed on matte card that does not reflect lamp light. Perfect for a cosy weekend.
++ 1,000 precision-cut pieces
++ Thick, glare-free card
++ Poster included
+= Size completed: 70 × 50 cm
+= Pieces: 1,000
+= Age: 12+
+
+# Building Bricks Set 500 pcs
+art: bricks #ef4444
+was: 39.9
+tag: 500 pieces of pure imagination.
+desc: Compatible with major brands, this set includes bricks, wheels, windows and an idea booklet for hours of creative play.
++ 500 pieces in 30 colours
++ Compatible with major brands
++ Idea booklet included
+= Pieces: 500
+= Age: 4+
+
+# Remote Control Car Off-Road
+art: rc-car #ea580c
+tag: 30 km/h of mud-splashing fun.
+desc: Big, shock-absorbing tyres handle grass, gravel and sand, and the rechargeable battery gives 25 minutes of driving.
++ Up to 30 km/h
++ All-terrain suspension
++ Rechargeable battery
+= Scale: 1:16
+= Battery: 25 min per charge
+
+# Wooden Train Set
+art: train #dc2626
+was: 54.9
+tag: Classic wooden play that builds focus and imagination.
+desc: 50 pieces of smooth beech wood with a figure-eight track, bridge and colourful carriages.
+desc: Pieces connect easily for little hands and are compatible with most wooden railway brands, so the layout can grow over the years.
++ 50 pieces of solid wood
++ Figure-eight track with bridge
++ Child-safe paints
+= Pieces: 50
+= Age: 3+
+
+# Plush Bear 40 cm
+art: teddy #b45309
+tag: The softest cuddle buddy, machine washable.
+desc: Ultra-soft plush, embroidered eyes for safety, and it goes straight in the washing machine.
+desc: Big enough to hug, small enough to take everywhere. Tested to European toy safety standards and suitable from birth.
++ Ultra-soft plush
++ Embroidered, safe features
++ Machine washable
+= Height: 40 cm
+= Age: 0+
+
+# Kids Science Experiment Kit
+art: science-kit #16a34a
+tag: 30 experiments that make science the best part of the day.
+desc: Volcanoes, crystals and slime: everything needed for 30 safe experiments, with an illustrated guide book.
+desc: Clear step-by-step instructions explain the science behind each experiment, turning curiosity into real understanding.
++ 30 safe experiments
++ Illustrated guide
++ All materials included
+= Age: 8+
+= Experiments: 30
+= Includes: guide book, safety goggles
+
+# Card Game Party Pack
+art: cards #7c3aed
+was: 17.9
+tag: Fast, funny and loud: the game everyone asks for.
+desc: Learn in two minutes, play in ten, laugh all night. Works for 2 to 8 players.
+desc: Each round is quick and chaotic, so new players join in instantly. It fits in a pocket, which makes it the perfect travel game. Ideal for parties, family evenings and long trips.
++ 2–8 players
++ 10-minute rounds
++ Learn in 2 minutes
+= Age: 7+
+= Players: 2–8
+= Cards: 110
+
+# Drone Mini with Camera
+art: drone #111827
+was: 79
+tag: Your first drone: easy to fly, fun to film.
+desc: Altitude hold and one-key take-off and landing make it easy for beginners. Film HD video from the sky.
+desc: Propeller guards protect it during first flights, and headless mode means the controls always work the same way whichever way the drone faces.
++ HD camera
++ Altitude hold, one-key return
++ 2 batteries included
+= Flight time: 2 × 12 min
+= Camera: 720p HD
+
+# Magnetic Tiles 60 pcs
+art: tiles #3b82f6
+tag: Build castles, rockets and anything they dream up.
+desc: Strong magnets and translucent colours make building easy and beautiful for little hands.
+desc: Building in 3D develops spatial thinking and early maths skills. Tiles are rounded and riveted for safety, and they store neatly in the box.
++ 60 pieces
++ Strong, safe magnets
++ Translucent, vibrant colours
+= Pieces: 60
+= Age: 3+

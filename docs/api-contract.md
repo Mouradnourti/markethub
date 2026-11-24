@@ -17,6 +17,7 @@ paginated responses are `{ content, page, size, totalElements, totalPages }`.
 | GET | `/api/internal/ml/dataset` | X-Internal-Key |  | object | Training dataset for the AI service (internal, X-Internal-Key) |
 | GET | `/api/recommendations` | CUSTOMER |  | ProductSummaryDto[] | Personalised product recommendations for the signed-in customer |
 | GET | `/api/seller/forecast` | SELLER |  | SalesForecastDto | AI sales forecast of the seller's shop |
+| POST | `/api/seller/products/describe` | SELLER | CopyDraftRequest | CopyDraft | Draft a tagline, description, key benefits and specs for a product (AI writer) |
 
 ### Admin
 
@@ -64,6 +65,7 @@ paginated responses are `{ content, page, size, totalElements, totalPages }`.
 | GET | `/api/config` | public |  | PublicConfigDto | Public client configuration (currency, payment provider, shipping rules) |
 | GET | `/api/products` | public |  | PageResponseProductSummaryDto | Search the catalog with filters, sorting and pagination |
 | GET | `/api/products/{id}` | public |  | ProductDto | Product details |
+| GET | `/api/products/{id}/bought-together` | public |  | ProductSummaryDto[] | Products frequently ordered together with this one (padded with similar products) |
 | GET | `/api/products/{id}/similar` | public |  | ProductSummaryDto[] | Products similar to this one (same category, best sellers) |
 | GET | `/api/shops/{slug}` | public |  | ShopDto | Public shop page |
 

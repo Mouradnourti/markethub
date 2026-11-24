@@ -1,5 +1,11 @@
 package com.pfe.marketplace.ai.dto;
 
+import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSpecDto;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -49,5 +55,21 @@ public final class AiDtos {
     /** What the seller dashboard receives; {@code available=false} when the AI service is down. */
     public record SalesForecastDto(boolean available, List<SalesPoint> history, List<ForecastPoint> forecast,
                                    String model, String message) {
+    }
+
+    /** What the seller gives the description writer. */
+    public record CopyDraftRequest(
+            @NotBlank @Size(min = 2, max = 200) String name,
+            Long categoryId,
+            @Size(max = 12) List<@NotBlank @Size(max = 80) String> keywords,
+            @Pattern(regexp = "friendly|premium|technical") String tone,
+            @Min(0) @Max(1000) Integer variant) {
+    }
+
+    public record AiCopyRequest(String name, String category, List<String> keywords, String tone, int variant) {
+    }
+
+    public record CopyDraft(String tagline, String description, List<String> highlights, List<ProductSpecDto> specs,
+                            List<String> suggestedSpecLabels, String categoryProfile) {
     }
 }

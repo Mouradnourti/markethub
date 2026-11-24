@@ -67,12 +67,17 @@ erDiagram
         bigint shop_id FK
         bigint category_id FK
         varchar name
+        varchar tagline
         text description
+        jsonb highlights "key benefits"
+        jsonb specs "label/value list"
         numeric price
+        numeric compare_at_price "CHECK > price, sale"
         int stock "CHECK >= 0"
         boolean active
         numeric avg_rating
         int review_count
+        int sold_count
         bigint version
         timestamptz created_at
         timestamptz updated_at
@@ -179,6 +184,7 @@ erDiagram
 | Table | Index | Purpose |
 |---|---|---|
 | products | `(category_id)`, `(shop_id)`, `(active, created_at)`, `(price)`, `lower(name)` | Catalog filters and sorting |
+| products | `(sold_count desc) where compare_at_price is not null` (V2) | Deals listing |
 | cart_items | unique `(user_id, product_id)` | One line per product |
 | orders | `(customer_id, created_at desc)` | Order history |
 | shop_orders | `(shop_id, status)`, `(order_id)` | Seller inbox |
