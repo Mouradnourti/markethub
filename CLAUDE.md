@@ -16,6 +16,7 @@ Architecture and decisions: `docs/architecture.md`. Schema: `docs/erd.md`.
 | `scripts/` | Dev helpers (`export-api-contract.mjs`) | Node |
 | `monitoring/` | Prometheus scrape config, provisioned Grafana dashboard | YAML / JSON |
 | `render.yaml` | Render Blueprint (see `docs/deploy.md`) | YAML |
+| `deploy/`, `docker-compose.prod.yml` | One-command server install (Caddy HTTPS, nothing else published) | Bash / Caddy |
 
 ## Commands
 

@@ -1,0 +1,18 @@
+# Public entry point: HTTPS certificate from Let's Encrypt, renewed automatically.
+# The storefront container (nginx) serves the Angular app and proxies /api and /uploads to the backend.
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Live notifications (server-sent events): pass every event through immediately.
+	@stream path /api/notifications/stream
+	reverse_proxy @stream frontend:80 {
+		flush_interval -1
+	}
+
+	reverse_proxy frontend:80
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+}

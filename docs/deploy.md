@@ -4,6 +4,62 @@ Two supported ways: Docker Compose on any server (one machine, everything includ
 (`render.yaml`, managed database and HTTPS). Neither needs code changes: everything is configured with environment
 variables.
 
+## Free hosting (recommended): Oracle Cloud Always Free
+
+The whole stack (storefront, backend, AI, e-mails, PostgreSQL, Redis) runs unchanged on one free ARM server,
+with HTTPS and a free host name. Unlike free "platform" tiers, nothing sleeps after 15 minutes, uploaded images
+survive restarts and live notifications keep working.
+
+Why not a free platform tier: Vercel cannot run the Java, Python or PHP services; Render's free web services sleep
+when idle, share 750 hours a month between all services, have 512 MB of memory, lose files on restart and their free
+database expires after 30 days. Splitting MarketHub across several of those would cripple features.
+
+**1. Create the account (about 10 minutes).** Sign up at oracle.com/cloud/free. A bank card is asked to verify
+your identity; Always Free resources are not charged. Pick a home region close to your users; it cannot be changed.
+
+**2. Create the server.** Console → Compute → Instances → Create instance:
+- Image: **Canonical Ubuntu 24.04**.
+- Shape: **Ampere → VM.Standard.A1.Flex**, 2 OCPU and 12 GB memory (MarketHub needs about 4 GB; Oracle reportedly
+  lowered the free ARM allowance from 4 OCPU / 24 GB to 2 OCPU / 12 GB in 2026, so stay at or below that).
+- Networking: keep "Assign a public IPv4 address".
+- SSH keys: download the generated private key (or paste your own public key).
+- If Oracle answers "Out of capacity", try another availability domain or try again later.
+
+**3. Open the web ports in Oracle's network.** Instance → Subnet → Default security list → Add ingress rules:
+source `0.0.0.0/0`, TCP, destination ports `80` and `443`.
+
+**4. Install MarketHub with one command.**
+
+```bash
+ssh -i <private-key> ubuntu@<public-ip>
+curl -fsSLO https://raw.githubusercontent.com/Mouradnourti/markethub/main/deploy/setup-server.sh
+bash setup-server.sh
+```
+
+The script installs Docker, opens ports 80/443 in the server firewall, clones the repository, generates a `.env`
+with random secrets and starts everything behind Caddy, which gets a Let's Encrypt certificate. Without arguments
+the address is `https://<ip-with-dashes>.sslip.io` (free, nothing to configure). With your own domain, point its
+DNS A record to the server, then run `bash setup-server.sh shop.example.com`.
+
+The first build takes 10 to 20 minutes, then the demo data is seeded on first start. Sign in with the demo accounts
+from the README.
+
+**Updating after a new push:** run `bash setup-server.sh` again (it pulls and rebuilds, keeping `.env`).
+
+**Good to know:**
+- E-mails are caught by Mailpit on the server (not delivered). Open them through an SSH tunnel:
+  `ssh -i <private-key> -L 8025:localhost:8025 ubuntu@<public-ip>`, then http://localhost:8025. Add SMTP settings to
+  the notification service to really send them.
+- Monitoring: `sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile monitoring up -d`,
+  then tunnel port 3000 the same way for Grafana (password: `GRAFANA_ADMIN_PASSWORD` in `.env`). Admin UIs listen on
+  the server's loopback only, never on the public address.
+- Oracle may reclaim Always Free instances that stay almost completely idle for a week; a demo that gets visits
+  and the backend's scheduled jobs keep it active. Keep a copy of `.env`.
+
+**Free alternative for students:** the GitHub Student Developer Pack (education.github.com/pack) has included cloud
+credits (for example DigitalOcean or Azure for Students). The same script works on any Ubuntu 24.04 server with
+4 GB of memory or more.
+
 ## Option A: a server with Docker (VPS)
 
 Any Linux VM with 2 vCPU / 4 GB RAM (Hetzner, OVH, DigitalOcean, Azure for Students…).

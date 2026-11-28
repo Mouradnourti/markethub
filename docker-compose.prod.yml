@@ -1,0 +1,64 @@
+# Production override for a single public server (see docs/deploy.md, "Free hosting").
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Only Caddy is reachable from the internet (80/443, automatic HTTPS). Every other service stays on the internal
+# Docker network: no database, cache, API or mail port is published on the host.
+
+services:
+  postgres:
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    ports: !reset []
+    restart: unless-stopped
+
+  backend:
+    ports: !reset []
+    restart: unless-stopped
+
+  notification-service:
+    ports: !reset []
+    restart: unless-stopped
+
+  ai-service:
+    ports: !reset []
+    restart: unless-stopped
+
+  # Admin UIs listen on the server's loopback only: open them through an SSH tunnel.
+  mailpit:
+    ports: !override
+      - "127.0.0.1:8025:8025"
+    restart: unless-stopped
+
+  prometheus:
+    ports: !override
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    ports: !override
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
+  frontend:
+    ports: !reset []
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env (for example 203-0-113-7.sslip.io)}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+
+volumes:
+  caddy-data:
+  caddy-config:

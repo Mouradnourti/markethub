@@ -176,7 +176,7 @@ Backend line coverage: 89.9 % on services, 91.7 % overall. Full results and AI m
 | [`docs/uml.md`](docs/uml.md) | Use-case diagram and sequence diagrams (checkout, payment, fulfilment, AI, auth) |
 | [`docs/api-contract.md`](docs/api-contract.md) | Every REST endpoint of the three services ([`openapi.json`](docs/openapi.json)) |
 | [`docs/test-report.md`](docs/test-report.md) | Test results, coverage, AI evaluation |
-| [`docs/deploy.md`](docs/deploy.md) | Going live: Docker on a server or the Render Blueprint ([`render.yaml`](render.yaml)) |
+| [`docs/deploy.md`](docs/deploy.md) | Going live for free on Oracle Cloud with one command ([`deploy/setup-server.sh`](deploy/setup-server.sh)), any Docker server, or the Render Blueprint ([`render.yaml`](render.yaml)) |
 
 ## Project structure
 
