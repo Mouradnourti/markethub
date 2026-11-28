@@ -11,9 +11,10 @@ import { AuthService } from '../../core/auth/auth.service';
 import { Notifier } from '../../core/ui/notifier.service';
 import { Logo } from '../../layout/logo';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 @Component({
   selector: 'app-register-page',
-  imports: [
+  imports: [TranslatePipe, 
     ReactiveFormsModule,
     RouterLink,
     MatFormFieldModule,
@@ -28,11 +29,11 @@ import { Logo } from '../../layout/logo';
     <section class="hero">
       <a routerLink="/"><app-logo [light]="true" /></a>
       <div>
-        <h1>{{ form.controls.accountType.value === 'SELLER' ? 'Grow your business with MarketHub.' : 'Join thousands of happy shoppers.' }}</h1>
+        <h1>{{ (form.controls.accountType.value === 'SELLER' ? 'Grow your business with MarketHub.' : 'Join thousands of happy shoppers.') | t }}</h1>
         <p>
-          {{ form.controls.accountType.value === 'SELLER'
+          {{ (form.controls.accountType.value === 'SELLER'
             ? 'Open your shop in minutes. Our team validates new sellers, then you manage products, orders and sales from your dashboard.'
-            : 'Create your account to order from many shops in one checkout and follow every parcel.' }}
+            : 'Create your account to order from many shops in one checkout and follow every parcel.') | t }}
         </p>
       </div>
       <small>© 2026 MarketHub</small>
@@ -40,56 +41,56 @@ import { Logo } from '../../layout/logo';
 
     <section class="form-side">
       <div class="card">
-        <h2>Create your account</h2>
-        <p>It takes less than a minute.</p>
+        <h2>{{ 'Create your account' | t }}</h2>
+        <p>{{ 'It takes less than a minute.' | t }}</p>
         <form [formGroup]="form" (ngSubmit)="submit()">
-          <mat-button-toggle-group formControlName="accountType" class="full-width" aria-label="Account type">
-            <mat-button-toggle value="CUSTOMER" class="full-width"><mat-icon>shopping_bag</mat-icon> I want to buy</mat-button-toggle>
-            <mat-button-toggle value="SELLER" class="full-width"><mat-icon>storefront</mat-icon> I want to sell</mat-button-toggle>
+          <mat-button-toggle-group formControlName="accountType" class="full-width" [attr.aria-label]="'Account type' | t">
+            <mat-button-toggle value="CUSTOMER" class="full-width"><mat-icon>shopping_bag</mat-icon> {{ 'I want to buy' | t }}</mat-button-toggle>
+            <mat-button-toggle value="SELLER" class="full-width"><mat-icon>storefront</mat-icon> {{ 'I want to sell' | t }}</mat-button-toggle>
           </mat-button-toggle-group>
           <div class="two">
             <mat-form-field>
-              <mat-label>First name</mat-label>
+              <mat-label>{{ 'First name' | t }}</mat-label>
               <input matInput formControlName="firstName" autocomplete="given-name" />
             </mat-form-field>
             <mat-form-field>
-              <mat-label>Last name</mat-label>
+              <mat-label>{{ 'Last name' | t }}</mat-label>
               <input matInput formControlName="lastName" autocomplete="family-name" />
             </mat-form-field>
           </div>
           <mat-form-field>
-            <mat-label>Email</mat-label>
+            <mat-label>{{ 'Email' | t }}</mat-label>
             <input matInput type="email" formControlName="email" autocomplete="email" />
-            @if (form.controls.email.hasError('email')) { <mat-error>Enter a valid email</mat-error> }
+            @if (form.controls.email.hasError('email')) { <mat-error>{{ 'Enter a valid email' | t }}</mat-error> }
           </mat-form-field>
           <mat-form-field>
-            <mat-label>Password</mat-label>
+            <mat-label>{{ 'Password' | t }}</mat-label>
             <input matInput type="password" formControlName="password" autocomplete="new-password" />
-            <mat-hint>At least 8 characters with letters and digits</mat-hint>
+            <mat-hint>{{ 'At least 8 characters with letters and digits' | t }}</mat-hint>
             @if (form.controls.password.invalid && form.controls.password.touched) {
-              <mat-error>At least 8 characters with letters and digits</mat-error>
+              <mat-error>{{ 'At least 8 characters with letters and digits' | t }}</mat-error>
             }
           </mat-form-field>
           <mat-form-field>
-            <mat-label>Phone (optional)</mat-label>
+            <mat-label>{{ 'Phone (optional)' | t }}</mat-label>
             <input matInput formControlName="phone" autocomplete="tel" />
           </mat-form-field>
           @if (form.controls.accountType.value === 'SELLER') {
             <mat-form-field>
-              <mat-label>Shop name</mat-label>
+              <mat-label>{{ 'Shop name' | t }}</mat-label>
               <input matInput formControlName="shopName" />
               <mat-icon matPrefix>storefront</mat-icon>
             </mat-form-field>
             <mat-form-field>
-              <mat-label>What do you sell?</mat-label>
+              <mat-label>{{ 'What do you sell?' | t }}</mat-label>
               <textarea matInput rows="2" formControlName="shopDescription"></textarea>
             </mat-form-field>
           }
           <button mat-flat-button class="submit" [disabled]="loading()">
-            @if (loading()) { <mat-spinner diameter="20" /> } @else { Create account }
+            @if (loading()) { <mat-spinner diameter="20" /> } @else { {{ 'Create account' | t }} }
           </button>
         </form>
-        <p class="switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+        <p class="switch">{{ 'Already have an account?' | t }} <a routerLink="/login">{{ 'Sign in' | t }}</a></p>
       </div>
     </section>
   `,

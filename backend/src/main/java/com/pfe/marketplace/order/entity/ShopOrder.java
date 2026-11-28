@@ -59,6 +59,17 @@ public class ShopOrder {
     @Column(name = "commission_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal commissionAmount;
 
+    /** Coupon used on this parcel; the code is copied so history survives the coupon being deleted. */
+    @Column(name = "coupon_id")
+    private Long couponId;
+
+    @Column(name = "coupon_code", length = 30)
+    private String couponCode;
+
+    /** Amount taken off the items by the coupon. {@link #subtotal} is already net of it. */
+    @Column(name = "discount_amount", nullable = false, precision = 12, scale = 2)
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+
     @Column(name = "tracking_number", length = 60)
     private String trackingNumber;
 

@@ -1,13 +1,13 @@
 <div class="container page">
   <div class="page-title">
     <div>
-      <h1>Checkout</h1>
-      <p>{{ step() === 'details' ? 'Delivery details and payment method' : 'Secure payment' }}</p>
+      <h1>{{ 'Checkout' | t }}</h1>
+      <p>{{ (step() === 'details' ? 'Delivery details and payment method' : 'Secure payment') | t }}</p>
     </div>
     <ol class="steps">
-      <li class="done">Cart</li>
-      <li [class.done]="step() === 'payment'" [class.current]="step() === 'details'">Details</li>
-      <li [class.current]="step() === 'payment'">Payment</li>
+      <li class="done">{{ 'Cart' | t }}</li>
+      <li [class.done]="step() === 'payment'" [class.current]="step() === 'details'">{{ 'Details' | t }}</li>
+      <li [class.current]="step() === 'payment'">{{ 'Payment' | t }}</li>
     </ol>
   </div>
 
@@ -15,91 +15,97 @@
     <form class="grid-2" [formGroup]="form" (ngSubmit)="placeOrder()">
       <div class="stack">
         <section class="panel">
-          <h2><mat-icon>local_shipping</mat-icon> Delivery address</h2>
+          <h2><mat-icon>local_shipping</mat-icon> {{ 'Delivery address' | t }}</h2>
           <div class="fields">
-            <mat-form-field class="span-2"><mat-label>Full name</mat-label><input matInput formControlName="fullName" autocomplete="name" /></mat-form-field>
+            <mat-form-field class="span-2"><mat-label>{{ 'Full name' | t }}</mat-label><input matInput formControlName="fullName" autocomplete="name" /></mat-form-field>
             <mat-form-field class="span-2">
-              <mat-label>Phone</mat-label><input matInput formControlName="phone" autocomplete="tel" />
-              <mat-hint>The courier calls this number before delivery</mat-hint>
-              @if (form.controls.phone.invalid && form.controls.phone.touched) { <mat-error>Enter a valid phone number</mat-error> }
+              <mat-label>{{ 'Phone' | t }}</mat-label><input matInput formControlName="phone" autocomplete="tel" dir="ltr" />
+              <mat-hint>{{ 'The courier calls this number before delivery' | t }}</mat-hint>
+              @if (form.controls.phone.invalid && form.controls.phone.touched) { <mat-error>{{ 'Enter a valid phone number' | t }}</mat-error> }
             </mat-form-field>
-            <mat-form-field class="span-2"><mat-label>Address</mat-label><input matInput formControlName="addressLine" autocomplete="street-address" /></mat-form-field>
-            <mat-form-field><mat-label>City</mat-label><input matInput formControlName="city" autocomplete="address-level2" /></mat-form-field>
-            <mat-form-field><mat-label>Postal code</mat-label><input matInput formControlName="postalCode" autocomplete="postal-code" /></mat-form-field>
-            <mat-form-field class="span-2"><mat-label>Country</mat-label><input matInput formControlName="country" autocomplete="country-name" /></mat-form-field>
+            <mat-form-field class="span-2"><mat-label>{{ 'Address' | t }}</mat-label><input matInput formControlName="addressLine" autocomplete="street-address" /></mat-form-field>
+            <mat-form-field><mat-label>{{ 'City' | t }}</mat-label><input matInput formControlName="city" autocomplete="address-level2" /></mat-form-field>
+            <mat-form-field><mat-label>{{ 'Postal code' | t }}</mat-label><input matInput formControlName="postalCode" autocomplete="postal-code" /></mat-form-field>
+            <mat-form-field class="span-2"><mat-label>{{ 'Country' | t }}</mat-label><input matInput formControlName="country" autocomplete="country-name" /></mat-form-field>
           </div>
         </section>
 
         <section class="panel">
-          <h2><mat-icon>payments</mat-icon> Payment method</h2>
+          <h2><mat-icon>payments</mat-icon> {{ 'Payment method' | t }}</h2>
           <mat-radio-group formControlName="paymentMethod" class="methods">
             <label class="method" [class.on]="form.controls.paymentMethod.value === 'COD'">
               <mat-radio-button value="COD" />
               <mat-icon>savings</mat-icon>
-              <div><strong>Cash on delivery</strong><span>Pay the courier when your parcel arrives</span></div>
+              <div><strong>{{ 'Cash on delivery' | t }}</strong><span>{{ 'Pay the courier when your parcel arrives' | t }}</span></div>
             </label>
             <label class="method" [class.on]="form.controls.paymentMethod.value === 'CARD'">
               <mat-radio-button value="CARD" />
               <mat-icon>credit_card</mat-icon>
-              <div><strong>Credit / debit card</strong><span>Secure payment by Stripe</span></div>
+              <div><strong>{{ 'Credit / debit card' | t }}</strong><span>{{ 'Secure payment by Stripe' | t }}</span></div>
             </label>
           </mat-radio-group>
         </section>
       </div>
 
       <aside class="panel summary">
-        <h2>Summary</h2>
+        <h2>{{ 'Summary' | t }}</h2>
         @for (item of cart.cart().items; track item.productId) {
           <div class="item"><span>{{ item.quantity }} × {{ item.productName }}</span><span>{{ item.lineTotal | money }}</span></div>
         }
-        <div class="sum"><span>Subtotal</span><span>{{ cart.cart().subtotal | money }}</span></div>
-        <div class="sum"><span>Shipping</span><span>{{ cart.cart().shippingFee ? (cart.cart().shippingFee | money) : 'Free' }}</span></div>
-        <div class="sum total"><span>Total</span><span>{{ cart.cart().total | money }}</span></div>
+        <app-coupon-field class="coupon" />
+        <div class="sum"><span>{{ 'Subtotal' | t }}</span><span>{{ cart.cart().subtotal | money }}</span></div>
+        @if (cart.cart().discount > 0) {
+          <div class="sum discount"><span>{{ 'Discount ({code})' | t: { code: cart.cart().coupon?.code } }}</span><span>−{{ cart.cart().discount | money }}</span></div>
+        }
+        <div class="sum"><span>{{ 'Shipping' | t }}</span><span>{{ cart.cart().shippingFee ? (cart.cart().shippingFee | money) : ('Free' | t) }}</span></div>
+        <div class="sum total"><span>{{ 'Total' | t }}</span><span>{{ cart.cart().total | money }}</span></div>
         <button mat-flat-button class="place btn-ink" [disabled]="placing() || cart.isEmpty()">
           @if (placing()) { <mat-spinner diameter="20" /> } @else {
-            {{ form.controls.paymentMethod.value === 'COD' ? 'Place order' : 'Continue to payment' }}
+            {{ (form.controls.paymentMethod.value === 'COD' ? 'Place order' : 'Continue to payment') | t }}
           }
         </button>
-        <a mat-button routerLink="/cart" class="full-width">Back to cart</a>
+        <a mat-button routerLink="/cart" class="full-width">{{ 'Back to cart' | t }}</a>
       </aside>
     </form>
   } @else if (checkout(); as result) {
     <div class="grid-2">
       <section class="panel">
-        <h2><mat-icon>lock</mat-icon> Pay {{ result.payment!.amount | money }}</h2>
-        <p class="muted">Order {{ result.order.reference }} is reserved for you. Complete the payment to send it to the sellers.</p>
+        <h2><mat-icon>lock</mat-icon> {{ 'Pay {amount}' | t: { amount: (result.payment!.amount | money) } }}</h2>
+        <p class="muted">{{ 'Order {ref} is reserved for you. Complete the payment to send it to the sellers.' | t: { ref: result.order.reference } }}</p>
 
         @if (result.payment!.provider === 'STRIPE') {
           <div #stripeHost class="stripe"></div>
           @if (paymentError()) { <div class="error">{{ paymentError() }}</div> }
-          <p class="muted small">Test mode: use card 4242 4242 4242 4242, any future date and any CVC.</p>
+          <p class="muted small">{{ 'Test mode: use card 4242 4242 4242 4242, any future date and any CVC.' | t }}</p>
           <button mat-flat-button class="place btn-ink" (click)="payWithStripe()" [disabled]="paying()">
-            @if (paying()) { <mat-spinner diameter="20" /> } @else { Pay now }
+            @if (paying()) { <mat-spinner diameter="20" /> } @else { {{ 'Pay now' | t }} }
           </button>
         } @else {
           <div class="simulated">
             <mat-icon>science</mat-icon>
             <div>
-              <strong>Payment simulator</strong>
-              <p>No Stripe key is configured on this server, so card payments are simulated and no card details are requested.
-                Add <code>STRIPE_SECRET_KEY</code> / <code>STRIPE_PUBLISHABLE_KEY</code> test keys to use the real Stripe form.</p>
+              <strong>{{ 'Payment simulator' | t }}</strong>
+              <p>{{ 'No Stripe key is configured on this server, so card payments are simulated and no card details are requested. Add STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY test keys to use the real Stripe form.' | t }}</p>
             </div>
           </div>
           <div class="row actions">
             <button mat-flat-button class="grow btn-ink" (click)="paySimulated(false)" [disabled]="paying()">
-              @if (paying()) { <mat-spinner diameter="20" /> } @else { Pay {{ result.payment!.amount | money }} }
+              @if (paying()) { <mat-spinner diameter="20" /> } @else { {{ 'Pay {amount}' | t: { amount: (result.payment!.amount | money) } }} }
             </button>
-            <button mat-stroked-button (click)="paySimulated(true)" [disabled]="paying()">Simulate a declined card</button>
+            <button mat-stroked-button (click)="paySimulated(true)" [disabled]="paying()">{{ 'Simulate a declined card' | t }}</button>
           </div>
         }
       </section>
       <aside class="panel summary">
-        <h2>Order {{ result.order.reference }}</h2>
+        <h2>{{ 'Order {ref}' | t: { ref: result.order.reference } }}</h2>
         @for (shopOrder of result.order.shopOrders; track shopOrder.id) {
           <div class="item"><span>{{ shopOrder.shopName }}</span><span>{{ shopOrder.subtotal | money }}</span></div>
         }
-        <div class="sum"><span>Shipping</span><span>{{ result.order.shippingFee | money }}</span></div>
-        <div class="sum total"><span>Total</span><span>{{ result.order.total | money }}</span></div>
+        @if (result.order.discountTotal > 0) {
+          <div class="sum discount"><span>{{ 'Discount' | t }}</span><span>−{{ result.order.discountTotal | money }}</span></div>
+        }
+        <div class="sum"><span>{{ 'Shipping' | t }}</span><span>{{ result.order.shippingFee | money }}</span></div>
+        <div class="sum total"><span>{{ 'Total' | t }}</span><span>{{ result.order.total | money }}</span></div>
       </aside>
     </div>
   }

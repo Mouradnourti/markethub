@@ -25,6 +25,7 @@ import org.springframework.test.context.DynamicPropertySource;
 class AiIntegrationIT extends ApiFixtures {
 
     private static final List<Long> RECOMMENDED = new CopyOnWriteArrayList<>();
+    private static final List<Long> SEARCH_HITS = new CopyOnWriteArrayList<>();
     private static final List<String> REQUESTS = new CopyOnWriteArrayList<>();
     private static final HttpServer FAKE_AI = startFakeAi();
 
@@ -155,6 +156,27 @@ class AiIntegrationIT extends ApiFixtures {
         send(customer, post("/api/seller/products/describe"), java.util.Map.of("name", "Rain Jacket"), 403);
     }
 
+    @Test
+    void smartSearchUsesTheAiIndexAndSellersGetPriceHints() throws Exception {
+        String admin = adminToken();
+        long category = createCategory(admin, "Mugs " + System.nanoTime());
+        String seller = approvedSeller(admin, "Mug Shop");
+        long thermos = createProduct(seller, category, "Steel Thermos", "25.00", 10);
+        SEARCH_HITS.clear();
+        SEARCH_HITS.addAll(List.of(thermos, 999_999L));
+
+        JsonNode result = send(null, get("/api/products/smart-search").param("q", "keep coffee hot"), null, 200);
+        assertThat(result.get("strategy").asText()).isEqualTo("semantic");
+        assertThat(result.get("products")).extracting(p -> p.get("id").asLong()).containsExactly(thermos);
+        assertThat(REQUESTS.getLast()).contains("\"query\":\"keep coffee hot\"");
+
+        JsonNode hint = send(seller, post("/api/seller/products/price-hint"),
+                java.util.Map.of("name", "Travel Mug", "categoryId", category), 200);
+        assertThat(hint.get("suggested").decimalValue()).isEqualByComparingTo("24.99");
+        assertThat(hint.get("comparables")).hasSize(1);
+        assertThat(REQUESTS.getLast()).contains("\"category\":\"Mugs");
+    }
+
     private static HttpServer startFakeAi() {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
@@ -166,6 +188,11 @@ class AiIntegrationIT extends ApiFixtures {
                     {"tagline":"Stay dry.","description":"A great jacket.","highlights":["Waterproof"],
                      "specs":[{"label":"Weight","value":"320 g"}],"suggestedSpecLabels":["Fit"],
                      "categoryProfile":"fashion"}"""));
+            server.createContext("/search", exchange -> respond(exchange, "{\"hits\":" + SEARCH_HITS.stream()
+                    .map(id -> "{\"productId\":" + id + ",\"score\":0.5}").toList() + ",\"model\":\"tfidf+lsa\"}"));
+            server.createContext("/price-hint", exchange -> respond(exchange, """
+                    {"low":20,"typical":25,"high":30,"suggested":24.99,"confidence":"medium",
+                     "comparables":[{"productId":1,"name":"Mug","price":25,"similarity":0.6}]}"""));
             server.createContext("/forecast", exchange -> respond(exchange, """
                     {"model":"Ridge regression","mae":3.1,"baselineMae":4.2,"forecast":[
                      {"date":"2030-01-01","revenue":10,"lower":5,"upper":15},

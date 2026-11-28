@@ -270,6 +270,7 @@ class Copy:
     specs: list[tuple[str, str]]
     suggested_spec_labels: list[str] = field(default_factory=list)
     category_profile: str = "general"
+    engine: str = "rules"
 
 
 def profile_for(category: str | None) -> str:

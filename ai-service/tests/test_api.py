@@ -83,3 +83,24 @@ def test_copywriter_drafts_listing_copy(client):
     assert "Padded laptop sleeve" in body["highlights"]
     assert {"label": "Capacity", "value": "20 L"} in body["specs"]
     assert client.post("/copywriter", headers=HEADERS, json={"name": "x"}).status_code == 422
+
+
+def test_smart_search_and_price_hint(client, products):
+    response = client.post("/search", json={"query": "headphones for music", "limit": 5}, headers=HEADERS)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["model"] == "tfidf+lsa" and body["hits"]
+    names = dict(zip(products["id"], products["name"]))
+    assert "Headphones" in names[body["hits"][0]["productId"]] or "Speaker" in names[body["hits"][0]["productId"]]
+
+    hint = client.post("/price-hint", json={"name": "Pro Headphones", "category": "Electronics"}, headers=HEADERS)
+    assert hint.status_code == 200
+    data = hint.json()
+    assert data["low"] <= data["typical"] <= data["high"] and data["comparables"]
+    assert client.post("/price-hint", json={"name": "zzzz qqqq"},
+                       headers=HEADERS).status_code == 404
+
+
+def test_copywriter_reports_the_rule_engine_without_credentials(client):
+    body = client.post("/copywriter", json={"name": "Desk Lamp", "keywords": ["oak"]}, headers=HEADERS).json()
+    assert body["engine"] == "rules"

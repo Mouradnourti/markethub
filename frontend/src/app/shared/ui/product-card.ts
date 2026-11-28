@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, signal } f
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { AddToCartService } from '../../core/cart/add-to-cart.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ProductSummary } from '../../core/models/api.models';
+import { WishlistButton } from './wishlist-button';
 import { Price, discountPercent } from './price';
 import { RatingStars } from './rating-stars';
 
@@ -11,7 +13,7 @@ export const BESTSELLER_THRESHOLD = 60;
 
 @Component({
   selector: 'app-product-card',
-  imports: [RouterLink, MatIconModule, Price, RatingStars],
+  imports: [RouterLink, MatIconModule, Price, RatingStars, WishlistButton, TranslatePipe],
   template: `
     @let p = product();
     <article class="card" [class.sold-out]="p.stock === 0">
@@ -28,20 +30,21 @@ export const BESTSELLER_THRESHOLD = 60;
         </a>
         <div class="badges">
           @if (p.stock === 0) {
-            <span class="pill dark">Sold out</span>
+            <span class="pill dark">{{ 'Sold out' | t }}</span>
           } @else if (discount()) {
             <span class="pill sale">-{{ discount() }}%</span>
           }
           @if (tag()) {
             <span class="pill accent">{{ tag() }}</span>
           } @else if (p.soldCount >= bestsellerThreshold) {
-            <span class="pill">Best seller</span>
+            <span class="pill">{{ 'Best seller' | t }}</span>
           }
         </div>
+        <app-wishlist-button class="wish" [productId]="p.id" [productName]="p.name" />
         @if (p.stock > 0) {
           <button type="button" class="quick-add" (click)="addToCart()" [disabled]="adding()"
-                  [attr.aria-label]="'Add ' + p.name + ' to cart'">
-            <mat-icon>add_shopping_cart</mat-icon><span>{{ adding() ? 'Adding…' : 'Add to cart' }}</span>
+                  [attr.aria-label]="'Add {name} to cart' | t: { name: p.name }">
+            <mat-icon>add_shopping_cart</mat-icon><span>{{ (adding() ? 'Adding…' : 'Add to cart') | t }}</span>
           </button>
         }
       </div>
@@ -53,7 +56,7 @@ export const BESTSELLER_THRESHOLD = 60;
         }
         <app-price [price]="p.price" [compareAtPrice]="p.compareAtPrice" />
         @if (p.stock > 0 && p.stock < 5) {
-          <span class="urgency"><mat-icon>local_fire_department</mat-icon>Only {{ p.stock }} left</span>
+          <span class="urgency"><mat-icon>local_fire_department</mat-icon>{{ 'Only {count} left' | t: { count: p.stock } }}</span>
         }
       </div>
     </article>

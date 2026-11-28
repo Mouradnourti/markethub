@@ -20,6 +20,10 @@ app:
   ai:
     base-url: http://localhost:1
     timeout: 200ms
+  security:
+    # The suite signs in hundreds of users from 127.0.0.1; AccountSecurityIT tests the limit separately.
+    auth-requests-per-minute: 100000
+    data-key: test-data-key
   notification:
     base-url: http://localhost:1
     timeout: 500ms

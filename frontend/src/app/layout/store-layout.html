@@ -1,31 +1,37 @@
-<div class="announcement" role="region" aria-label="Store benefits">
+<a class="skip-link" href="#main">{{ 'Skip to content' | t }}</a>
+
+<div class="announcement" role="region" [attr.aria-label]="'Store benefits' | t">
   <div class="container announcement-inner">
-    <span [class.on]="announcement() === 0"><mat-icon>local_shipping</mat-icon> Free shipping on orders over {{ config.config().freeShippingThreshold | money }}</span>
-    <span [class.on]="announcement() === 1"><mat-icon>payments</mat-icon> Pay by card or cash on delivery</span>
-    <span [class.on]="announcement() === 2"><mat-icon>autorenew</mat-icon> Free returns within 14 days</span>
+    <span [class.on]="announcement() === 0"><mat-icon>local_shipping</mat-icon> {{ 'Free shipping on orders over {amount}' | t: { amount: (config.config().freeShippingThreshold | money) } }}</span>
+    <span [class.on]="announcement() === 1"><mat-icon>payments</mat-icon> {{ 'Pay by card or cash on delivery' | t }}</span>
+    <span [class.on]="announcement() === 2"><mat-icon>autorenew</mat-icon> {{ 'Free returns within 14 days' | t }}</span>
   </div>
 </div>
 
 <header class="topbar">
   <div class="container bar">
-    <a routerLink="/" class="brand" aria-label="MarketHub home"><app-logo /></a>
+    <a routerLink="/" class="brand" [attr.aria-label]="'MarketHub home' | t"><app-logo /></a>
 
-    <form class="search" (ngSubmit)="search()" role="search">
-      <mat-icon>search</mat-icon>
-      <input name="q" [(ngModel)]="query" placeholder="Search products, brands and shops" aria-label="Search" />
-      <button type="submit" class="search-go" aria-label="Search"><mat-icon>arrow_forward</mat-icon></button>
-    </form>
+    <app-search-box />
 
-    <nav class="actions">
+    <nav class="actions" [attr.aria-label]="'Account' | t">
+      <app-language-picker class="hide-sm" />
       @if (auth.user(); as user) {
         @if (user.role !== 'CUSTOMER') {
-          <a mat-flat-button class="btn-ink compact" [routerLink]="auth.homeFor(user.role)">
-            <mat-icon>dashboard</mat-icon> {{ user.role === 'ADMIN' ? 'Admin console' : 'Seller center' }}
+          <a mat-flat-button class="btn-ink compact hide-sm" [routerLink]="auth.homeFor(user.role)">
+            <mat-icon>dashboard</mat-icon> {{ (user.role === 'ADMIN' ? 'Admin console' : 'Seller center') | t }}
           </a>
         }
-        <button class="icon-action" [matMenuTriggerFor]="account" aria-label="Account">
+        <app-notification-bell />
+        @if (user.role === 'CUSTOMER') {
+          <a class="icon-action" routerLink="/wishlist" [attr.aria-label]="'Wishlist' | t">
+            <mat-icon>favorite</mat-icon>
+            @if (wishlist.count()) { <span class="count soft">{{ wishlist.count() }}</span> }
+          </a>
+        }
+        <button class="icon-action" [matMenuTriggerFor]="account" [attr.aria-label]="'Account' | t">
           <span class="avatar">{{ user.firstName.charAt(0) }}</span>
-          <span class="label hide-sm">Hi, {{ user.firstName }}</span>
+          <span class="label hide-sm">{{ 'Hi, {name}' | t: { name: user.firstName } }}</span>
         </button>
         <mat-menu #account="matMenu" xPosition="before">
           <div class="menu-head">
@@ -34,20 +40,19 @@
           </div>
           <mat-divider />
           @if (user.role === 'CUSTOMER') {
-            <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon>My orders</a>
-            <a mat-menu-item routerLink="/cart"><mat-icon>shopping_bag</mat-icon>My cart</a>
+            <a mat-menu-item routerLink="/orders"><mat-icon>receipt_long</mat-icon>{{ 'My orders' | t }}</a>
+            <a mat-menu-item routerLink="/wishlist"><mat-icon>favorite</mat-icon>{{ 'My wishlist' | t }}</a>
+            <a mat-menu-item routerLink="/cart"><mat-icon>shopping_bag</mat-icon>{{ 'My cart' | t }}</a>
           } @else {
-            <a mat-menu-item [routerLink]="auth.homeFor(user.role)"><mat-icon>dashboard</mat-icon>Dashboard</a>
+            <a mat-menu-item [routerLink]="auth.homeFor(user.role)"><mat-icon>dashboard</mat-icon>{{ 'Dashboard' | t }}</a>
           }
-          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon>Sign out</button>
+          <a mat-menu-item routerLink="/account/security"><mat-icon>shield_lock</mat-icon>{{ 'Sign-in & security' | t }}</a>
+          <button mat-menu-item (click)="auth.logout()"><mat-icon>logout</mat-icon>{{ 'Sign out' | t }}</button>
         </mat-menu>
-        @if (user.role === 'CUSTOMER') {
-          <a class="icon-action hide-sm" routerLink="/orders"><mat-icon>package_2</mat-icon><span class="label">Orders</span></a>
-        }
       } @else {
-        <a class="icon-action" routerLink="/login"><mat-icon>person</mat-icon><span class="label hide-sm">Sign in</span></a>
+        <a class="icon-action" routerLink="/login"><mat-icon>person</mat-icon><span class="label hide-sm">{{ 'Sign in' | t }}</span></a>
       }
-      <button class="icon-action cart-button" (click)="cart.openDrawer()" aria-label="Open cart">
+      <button class="icon-action cart-button" (click)="cart.openDrawer()" [attr.aria-label]="'Open cart' | t">
         <mat-icon>shopping_bag</mat-icon>
         @if (cart.count()) {
           <span class="count">{{ cart.count() }}</span>
@@ -56,31 +61,31 @@
     </nav>
   </div>
 
-  <nav class="categories" aria-label="Categories">
+  <nav class="categories" [attr.aria-label]="'Categories' | t">
     <div class="container cats">
-      <a routerLink="/products" [queryParams]="{}" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Shop all</a>
-      <a routerLink="/products" [queryParams]="{ onSale: true }" class="deals"><mat-icon>sell</mat-icon>Deals</a>
+      <a routerLink="/products" [queryParams]="{}" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'Shop all' | t }}</a>
+      <a routerLink="/products" [queryParams]="{ onSale: true }" class="deals"><mat-icon>sell</mat-icon>{{ 'Deals' | t }}</a>
       @for (category of categories(); track category.id) {
         @if (!category.parentId) {
           <a routerLink="/products" [queryParams]="{ categoryId: category.id }">{{ category.name }}</a>
         }
       }
       <span class="spacer"></span>
-      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }" class="sell hide-sm">Sell on MarketHub</a>
+      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }" class="sell hide-sm">{{ 'Sell on MarketHub' | t }}</a>
     </div>
   </nav>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <router-outlet />
 </main>
 
-<section class="assurance" aria-label="Why shop with us">
+<section class="assurance" [attr.aria-label]="'Why shop with us' | t">
   <div class="container assurance-grid">
-    <div><mat-icon>local_shipping</mat-icon><strong>Free shipping</strong><span>On orders over {{ config.config().freeShippingThreshold | money }}</span></div>
-    <div><mat-icon>payments</mat-icon><strong>Cash on delivery</strong><span>Or secure card payment</span></div>
-    <div><mat-icon>autorenew</mat-icon><strong>14-day returns</strong><span>Changed your mind? Send it back</span></div>
-    <div><mat-icon>verified_user</mat-icon><strong>Verified sellers</strong><span>Every shop is reviewed by our team</span></div>
+    <div><mat-icon>local_shipping</mat-icon><strong>{{ 'Free shipping' | t }}</strong><span>{{ 'On orders over {amount}' | t: { amount: (config.config().freeShippingThreshold | money) } }}</span></div>
+    <div><mat-icon>payments</mat-icon><strong>{{ 'Cash on delivery' | t }}</strong><span>{{ 'Or secure card payment' | t }}</span></div>
+    <div><mat-icon>autorenew</mat-icon><strong>{{ '14-day returns' | t }}</strong><span>{{ 'Changed your mind? Send it back' | t }}</span></div>
+    <div><mat-icon>verified_user</mat-icon><strong>{{ 'Verified sellers' | t }}</strong><span>{{ 'Every shop is reviewed by our team' | t }}</span></div>
   </div>
 </section>
 
@@ -88,30 +93,31 @@
   <div class="container footer-grid">
     <div class="about">
       <app-logo [light]="true" />
-      <p>The marketplace for independent shops. Discover products you'll love and check out once, whoever sells them.</p>
+      <p>{{ 'The marketplace for independent shops. Discover products you will love and check out once, whoever sells them.' | t }}</p>
+      <app-language-picker [light]="true" />
     </div>
     <div>
-      <h4>Shop</h4>
-      <a routerLink="/products">All products</a>
-      <a routerLink="/products" [queryParams]="{ onSale: true }">Deals</a>
-      <a routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">Best sellers</a>
-      <a routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">New arrivals</a>
+      <h4>{{ 'Shop' | t }}</h4>
+      <a routerLink="/products">{{ 'All products' | t }}</a>
+      <a routerLink="/products" [queryParams]="{ onSale: true }">{{ 'Deals' | t }}</a>
+      <a routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">{{ 'Best sellers' | t }}</a>
+      <a routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">{{ 'New arrivals' | t }}</a>
     </div>
     <div>
-      <h4>Sell</h4>
-      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }">Open your shop</a>
-      <a routerLink="/login">Seller center</a>
+      <h4>{{ 'Sell' | t }}</h4>
+      <a routerLink="/register" [queryParams]="{ type: 'SELLER' }">{{ 'Open your shop' | t }}</a>
+      <a routerLink="/login">{{ 'Seller center' | t }}</a>
     </div>
     <div>
-      <h4>Help</h4>
-      <a routerLink="/orders">Track an order</a>
-      <span>Returns within 14 days</span>
-      <span>Card or cash on delivery</span>
+      <h4>{{ 'Help' | t }}</h4>
+      <a routerLink="/orders">{{ 'Track an order' | t }}</a>
+      <span>{{ 'Returns within 14 days' | t }}</span>
+      <span>{{ 'Card or cash on delivery' | t }}</span>
     </div>
   </div>
   <div class="container copyright">
     <span>© 2026 MarketHub</span>
-    <span class="pay"><mat-icon>lock</mat-icon> Secure payments by Stripe · Cash on delivery</span>
+    <span class="pay"><mat-icon>lock</mat-icon> {{ 'Secure payments by Stripe · Cash on delivery' | t }}</span>
   </div>
 </footer>
 

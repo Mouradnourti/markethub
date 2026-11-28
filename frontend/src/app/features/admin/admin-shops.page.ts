@@ -71,7 +71,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
   styles: `
     .filters { margin-bottom: 16px; flex-wrap: wrap; }
     .small { font-size: 12px; }
-    .actions { white-space: nowrap; text-align: right; }
+    .actions { white-space: nowrap; text-align: end; }
     mat-paginator { background: transparent; }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

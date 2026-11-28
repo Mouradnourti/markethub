@@ -4,24 +4,26 @@
       <div class="placed">
         <mat-icon>celebration</mat-icon>
         <div>
-          <strong>Thank you! Your order {{ o.reference }} is confirmed.</strong>
-          <span>A confirmation email with your invoice is on its way.</span>
+          <strong>{{ 'Thank you! Your order {ref} is confirmed.' | t: { ref: o.reference } }}</strong>
+          <span>{{ 'A confirmation email with your invoice is on its way.' | t }}</span>
         </div>
       </div>
     }
 
     <div class="page-title">
       <div>
-        <a routerLink="/orders" class="back"><mat-icon>arrow_back</mat-icon> My orders</a>
-        <h1>Order {{ o.reference }}</h1>
-        <p>Placed on {{ o.createdAt | date: 'medium' }}</p>
+        <a routerLink="/orders" class="back"><mat-icon class="dir-icon">arrow_back</mat-icon> {{ 'My orders' | t }}</a>
+        <h1>{{ 'Order {ref}' | t: { ref: o.reference } }}
+          @if (liveUpdated()) { <span class="pill live"><span class="dot"></span>{{ 'Updated live' | t }}</span> }
+        </h1>
+        <p>{{ 'Placed on {date}' | t: { date: (o.createdAt | date: 'medium') } }}</p>
       </div>
       <div class="row">
         @if (o.paymentStatus !== 'FAILED') {
-          <button mat-stroked-button (click)="downloadInvoice()"><mat-icon>picture_as_pdf</mat-icon> Invoice</button>
+          <button mat-stroked-button (click)="downloadInvoice()"><mat-icon>picture_as_pdf</mat-icon> {{ 'Invoice' | t }}</button>
         }
         @if (cancellable()) {
-          <button mat-stroked-button color="warn" (click)="cancel()" [disabled]="busy()"><mat-icon>cancel</mat-icon> Cancel order</button>
+          <button mat-stroked-button color="warn" (click)="cancel()" [disabled]="busy()"><mat-icon>cancel</mat-icon> {{ 'Cancel order' | t }}</button>
         }
       </div>
     </div>
@@ -32,7 +34,7 @@
           <section class="panel parcel">
             <header>
               <div>
-                <span class="muted">Parcel {{ i + 1 }} of {{ o.shopOrders.length }}</span>
+                <span class="muted">{{ 'Parcel {n} of {total}' | t: { n: i + 1, total: o.shopOrders.length } }}</span>
                 <h2><mat-icon>storefront</mat-icon> {{ parcel.shopName }}</h2>
               </div>
               <app-status-chip [status]="parcel.status" />
@@ -42,13 +44,13 @@
               <ol class="tracker">
                 @for (step of track; track step) {
                   <li [class.reached]="stepReached(parcel, step)">
-                    <span class="dot"></span><span>{{ humanize(step) }}</span>
+                    <span class="dot"></span><span>{{ humanize(step) | t }}</span>
                   </li>
                 }
               </ol>
             }
             @if (parcel.trackingNumber) {
-              <p class="tracking"><mat-icon>local_shipping</mat-icon> Tracking number <strong>{{ parcel.trackingNumber }}</strong></p>
+              <p class="tracking"><mat-icon>local_shipping</mat-icon> {{ 'Tracking number' | t }} <strong>{{ parcel.trackingNumber }}</strong></p>
             }
 
             <table class="items">
@@ -59,10 +61,17 @@
                   <td class="num">{{ item.lineTotal | money }}</td>
                 </tr>
               }
+              @if (parcel.discountAmount > 0) {
+                <tr class="discount">
+                  <td>{{ 'Discount code {code}' | t: { code: parcel.couponCode } }}</td>
+                  <td></td>
+                  <td class="num">−{{ parcel.discountAmount | money }}</td>
+                </tr>
+              }
             </table>
 
             <details class="history">
-              <summary>Status history</summary>
+              <summary>{{ 'Status history' | t }}</summary>
               @for (change of parcel.history; track $index) {
                 <div class="change">
                   <app-status-chip [status]="change.status" />
@@ -74,20 +83,20 @@
 
             @if (parcel.status === 'DELIVERED') {
               @if (parcel.returnRequested) {
-                <div class="notice"><mat-icon>hourglass_top</mat-icon> Return requested — awaiting review by our team.</div>
+                <div class="notice"><mat-icon>hourglass_top</mat-icon> {{ 'Return requested, awaiting review by our team.' | t }}</div>
               } @else if (returnFor() === parcel.id) {
                 <div class="return-form">
                   <mat-form-field class="full-width">
-                    <mat-label>What is wrong with this parcel?</mat-label>
+                    <mat-label>{{ 'What is wrong with this parcel?' | t }}</mat-label>
                     <textarea matInput rows="2" [(ngModel)]="returnReason" maxlength="500"></textarea>
                   </mat-form-field>
                   <div class="row">
-                    <button mat-flat-button (click)="submitReturn(parcel)" [disabled]="busy()">Send return request</button>
-                    <button mat-button (click)="returnFor.set(null)">Cancel</button>
+                    <button mat-flat-button (click)="submitReturn(parcel)" [disabled]="busy()">{{ 'Send return request' | t }}</button>
+                    <button mat-button (click)="returnFor.set(null)">{{ 'Cancel' | t }}</button>
                   </div>
                 </div>
               } @else {
-                <button mat-stroked-button (click)="returnFor.set(parcel.id)"><mat-icon>assignment_return</mat-icon> Return this parcel</button>
+                <button mat-stroked-button (click)="returnFor.set(parcel.id)"><mat-icon>assignment_return</mat-icon> {{ 'Return this parcel' | t }}</button>
               }
             }
           </section>
@@ -96,22 +105,25 @@
 
       <aside class="side">
         <section class="panel">
-          <h3>Payment</h3>
+          <h3>{{ 'Payment' | t }}</h3>
           <div class="row"><mat-icon>{{ o.paymentMethod === 'COD' ? 'savings' : 'credit_card' }}</mat-icon>
-            {{ o.paymentMethod === 'COD' ? 'Cash on delivery' : 'Card' }} <span class="spacer"></span>
-            <app-status-chip [status]="o.paymentStatus" [text]="paymentLabel(o.paymentStatus)" /></div>
-          <div class="sum"><span>Subtotal</span><span>{{ o.subtotal | money }}</span></div>
-          <div class="sum"><span>Shipping</span><span>{{ o.shippingFee ? (o.shippingFee | money) : 'Free' }}</span></div>
-          <div class="sum total"><span>Total</span><span>{{ o.total | money }}</span></div>
+            {{ (o.paymentMethod === 'COD' ? 'Cash on delivery' : 'Card') | t }} <span class="spacer"></span>
+            <app-status-chip [status]="o.paymentStatus" [text]="paymentLabel(o.paymentStatus) | t" /></div>
+          <div class="sum"><span>{{ 'Subtotal' | t }}</span><span>{{ o.subtotal | money }}</span></div>
+          @if (o.discountTotal > 0) {
+            <div class="sum discount"><span>{{ 'Discount' | t }}</span><span>−{{ o.discountTotal | money }}</span></div>
+          }
+          <div class="sum"><span>{{ 'Shipping' | t }}</span><span>{{ o.shippingFee ? (o.shippingFee | money) : ('Free' | t) }}</span></div>
+          <div class="sum total"><span>{{ 'Total' | t }}</span><span>{{ o.total | money }}</span></div>
         </section>
         <section class="panel">
-          <h3>Delivery address</h3>
+          <h3>{{ 'Delivery address' | t }}</h3>
           <address>
             <strong>{{ o.shippingAddress.fullName }}</strong><br />
             {{ o.shippingAddress.addressLine }}<br />
             {{ o.shippingAddress.postalCode }} {{ o.shippingAddress.city }}<br />
             {{ o.shippingAddress.country }}<br />
-            <span class="muted">{{ o.shippingAddress.phone }}</span>
+            <span class="muted" dir="ltr">{{ o.shippingAddress.phone }}</span>
           </address>
         </section>
       </aside>

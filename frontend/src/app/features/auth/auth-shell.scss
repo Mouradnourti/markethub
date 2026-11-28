@@ -14,20 +14,23 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 40px 56px;
-  background: radial-gradient(circle at 20% 20%, #818cf8 0, transparent 45%),
-    radial-gradient(circle at 80% 70%, #c084fc 0, transparent 40%), #312e81;
+  background: radial-gradient(70% 60% at 85% 10%, rgb(124 58 237 / 0.55) 0, transparent 60%),
+    radial-gradient(60% 50% at 0% 100%, rgb(167 139 250 / 0.25) 0, transparent 60%), var(--mh-ink);
   color: #fff;
 
   h1 {
-    max-width: 460px;
-    font-size: 40px;
-    line-height: 1.1;
+    max-width: 480px;
+    font-size: clamp(32px, 3.4vw, 44px);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
   }
 
   p {
     max-width: 420px;
-    color: #c7d2fe;
+    color: #d6d3d1;
     font-size: 17px;
+    line-height: 1.6;
   }
 
   ul {
@@ -39,7 +42,7 @@
       gap: 10px;
       align-items: center;
       margin: 10px 0;
-      color: #e0e7ff;
+      color: #f5f5f4;
     }
   }
 
@@ -60,7 +63,9 @@
 
   h2 {
     margin: 0 0 4px;
-    font-size: 28px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
   > p {
@@ -82,8 +87,12 @@ form {
 }
 
 .submit {
-  height: 48px;
+  --mat-button-filled-container-color: var(--mh-ink);
+  --mat-button-filled-label-text-color: #fff;
+  --mat-button-filled-container-shape: 999px;
+  height: 50px;
   margin-top: 6px;
+  font-weight: 600;
 }
 
 .switch {

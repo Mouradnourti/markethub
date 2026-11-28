@@ -30,9 +30,10 @@ interface CategoryTile {
   icon: string;
 }
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 @Component({
   selector: 'app-home-page',
-  imports: [RouterLink, DecimalPipe, MatButtonModule, MatIconModule, ProductCard, Price],
+  imports: [TranslatePipe, RouterLink, DecimalPipe, MatButtonModule, MatIconModule, ProductCard, Price],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

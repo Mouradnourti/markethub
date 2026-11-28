@@ -29,10 +29,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/register", "/api/auth/login", "/api/auth/refresh",
-            "/api/payments/stripe/webhook",
+            "/api/auth/register", "/api/auth/login", "/api/auth/login/2fa", "/api/auth/refresh",
+            "/api/payments/stripe/webhook", "/api/notifications/stream",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-            "/actuator/health/**", "/actuator/info", "/error"
+            "/actuator/health/**", "/actuator/info", "/actuator/prometheus", "/error"
     };
 
     private static final String[] PUBLIC_READ_ENDPOINTS = {
@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/internal/**").hasRole("INTERNAL")
                         .requestMatchers("/api/seller/**").hasRole("SELLER")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/cart/**", "/api/orders/**", "/api/recommendations/**")
+                        .requestMatchers("/api/cart/**", "/api/orders/**", "/api/recommendations/**", "/api/wishlist/**")
                         .hasRole("CUSTOMER")
                         .anyRequest().authenticated())
                 .addFilterBefore(new InternalApiKeyFilter(properties.internalApiKey()),

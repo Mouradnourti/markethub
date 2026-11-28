@@ -37,7 +37,11 @@ public record AppProperties(
         }
     }
 
-    public record Ai(String baseUrl, Duration timeout) {
+    /** {@code writerTimeout} is longer: with an API key, the description writer calls a language model. */
+    public record Ai(String baseUrl, Duration timeout, Duration writerTimeout) {
+        public Duration writerTimeoutOrDefault() {
+            return writerTimeout == null ? Duration.ofSeconds(30) : writerTimeout;
+        }
     }
 
     public record Notification(String baseUrl, Duration timeout, boolean enabled) {

@@ -1,0 +1,10 @@
+# Scrapes the backend's Prometheus endpoint on the internal management port (not published outside Docker).
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: markethub-backend
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["backend:8081"]

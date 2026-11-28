@@ -1,16 +1,27 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { SILENT_ERRORS } from '../http/error.interceptor';
 import { Injectable, inject } from '@angular/core';
 import { Observable, shareReplay } from 'rxjs';
 import {
   Category,
+  Facets,
+  Offer,
   Page,
   Product,
   ProductQuery,
   ProductSummary,
   Review,
   ReviewEligibility,
+  ReviewSort,
+  ReviewSummary,
   Shop,
+  SmartSearchResult,
+  Suggestions,
 } from '../models/api.models';
+
+function silent(): HttpContext {
+  return new HttpContext().set(SILENT_ERRORS, true);
+}
 
 export function toParams(query: object): HttpParams {
   let params = new HttpParams();
@@ -29,6 +40,23 @@ export class CatalogApi {
 
   search(query: ProductQuery): Observable<Page<ProductSummary>> {
     return this.http.get<Page<ProductSummary>>('/api/products', { params: toParams(query) });
+  }
+
+  suggest(q: string): Observable<Suggestions> {
+    return this.http.get<Suggestions>('/api/products/suggest', { params: { q }, context: silent() });
+  }
+
+  facets(query: ProductQuery): Observable<Facets> {
+    const { sort, page, size, ...filters } = query;
+    return this.http.get<Facets>('/api/products/facets', { params: toParams(filters), context: silent() });
+  }
+
+  smartSearch(q: string, limit = 8): Observable<SmartSearchResult> {
+    return this.http.get<SmartSearchResult>('/api/products/smart-search', { params: { q, limit }, context: silent() });
+  }
+
+  offers(shopId: number): Observable<Offer[]> {
+    return this.http.get<Offer[]>(`/api/shops/${shopId}/offers`, { context: silent() });
   }
 
   product(id: number): Observable<Product> {
@@ -57,8 +85,25 @@ export class CatalogApi {
     return this.http.get<Shop>(`/api/shops/${slug}`);
   }
 
-  reviews(productId: number, page = 0, size = 5): Observable<Page<Review>> {
-    return this.http.get<Page<Review>>(`/api/products/${productId}/reviews`, { params: { page, size } });
+  reviews(productId: number, page = 0, size = 6, sort: ReviewSort = 'HELPFUL', rating?: number): Observable<Page<Review>> {
+    return this.http.get<Page<Review>>(`/api/products/${productId}/reviews`, {
+      params: toParams({ page, size, sort, rating }),
+    });
+  }
+
+  reviewSummary(productId: number): Observable<ReviewSummary> {
+    return this.http.get<ReviewSummary>(`/api/products/${productId}/reviews/summary`, { context: silent() });
+  }
+
+  voteHelpful(productId: number, reviewId: number, helpful: boolean): Observable<Review> {
+    const url = `/api/products/${productId}/reviews/${reviewId}/helpful`;
+    return helpful ? this.http.post<Review>(url, null) : this.http.delete<Review>(url);
+  }
+
+  addReviewPhoto(productId: number, reviewId: number, file: File): Observable<Review> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<Review>(`/api/products/${productId}/reviews/${reviewId}/photos`, form);
   }
 
   reviewEligibility(productId: number): Observable<ReviewEligibility> {

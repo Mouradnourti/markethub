@@ -47,6 +47,8 @@ class AuthServiceTest {
     @Mock JwtService jwtService;
     @Mock RefreshTokenService refreshTokenService;
     @Mock UserMapper userMapper;
+    @Mock LoginAttemptService loginAttempts;
+    @Mock TwoFactorService twoFactor;
     @InjectMocks AuthService authService;
 
     @BeforeEach
@@ -150,7 +152,7 @@ class AuthServiceTest {
     @Test
     void meReturnsProfileOrNotFound() {
         User user = user(true);
-        UserDto dto = new UserDto(1L, "alice@mail.com", "Alice", "A", null, Role.CUSTOMER, true, null);
+        UserDto dto = new UserDto(1L, "alice@mail.com", "Alice", "A", null, Role.CUSTOMER, true, false, null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userMapper.toDto(user)).thenReturn(dto);
 

@@ -13,6 +13,7 @@ RUN addgroup -S app && adduser -S app -G app && mkdir -p /app/uploads && chown -
 COPY --from=build /workspace/target/marketplace-backend-*.jar /app/app.jar
 USER app
 EXPOSE 8080
+# The actuator moves to MANAGEMENT_PORT (8081, internal only) when it is set, as in docker-compose.yml.
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+  CMD wget -qO- http://localhost:${MANAGEMENT_PORT:-8080}/actuator/health || exit 1
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]

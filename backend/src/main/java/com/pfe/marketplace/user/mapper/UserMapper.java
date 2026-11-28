@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface UserMapper {
 
+    @org.mapstruct.Mapping(target = "twoFactorEnabled", source = "totpEnabled")
     UserDto toDto(User user);
 }

@@ -1,10 +1,11 @@
 @use '@angular/material' as mat;
 @use 'material-symbols/outlined.css';
 @use '@fontsource-variable/inter';
+@use '@fontsource-variable/noto-sans-arabic';
 
 :root {
   color-scheme: light;
-  --mh-font: 'Inter Variable', Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --mh-font: 'Inter Variable', 'Noto Sans Arabic Variable', Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --mh-bg: #fafaf9;
   --mh-surface: #ffffff;
   --mh-surface-2: #f5f5f4;
@@ -28,6 +29,8 @@
   --mh-danger-bg: #fee2e2;
   --mh-radius: 16px;
   --mh-shadow: 0 1px 2px rgb(28 25 23 / 0.04), 0 8px 24px -12px rgb(28 25 23 / 0.18);
+  --mh-shadow-lg: 0 2px 4px rgb(28 25 23 / 0.04), 0 24px 48px -24px rgb(28 25 23 / 0.28);
+  --mh-focus: 0 0 0 3px rgb(109 40 217 / 0.35);
 }
 
 html {
@@ -119,7 +122,7 @@ h3 {
 }
 
 .price-was {
-  margin-left: 6px;
+  margin-inline-start: 6px;
   color: var(--mh-text-muted);
   font-weight: 400;
   text-decoration: line-through;
@@ -339,4 +342,72 @@ h3 {
 .snack-success .mat-mdc-snack-bar-label,
 .snack-error .mat-mdc-snack-bar-label {
   color: #fff !important;
+}
+
+.snack-live .mdc-snackbar__surface {
+  border-inline-start: 4px solid #a78bfa;
+  background: var(--mh-ink) !important;
+}
+
+/* ---------- Accessibility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--mh-focus);
+}
+
+a:focus-visible,
+button:focus-visible {
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Polish ---------- */
+::selection {
+  background: #ddd6fe;
+}
+
+.panel {
+  box-shadow: 0 1px 2px rgb(28 25 23 / 0.03);
+}
+
+.page-title h1 {
+  letter-spacing: -0.025em;
+}
+
+/* ---------- Right-to-left (Arabic) ---------- */
+[dir='rtl'] {
+  body {
+    font-family: 'Noto Sans Arabic Variable', var(--mh-font);
+    letter-spacing: 0;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: 0;
+  }
+
+  /* Directional icons point the other way; product images and logos are never mirrored. */
+  .dir-icon,
+  mat-icon.dir-icon {
+    transform: scaleX(-1);
+  }
 }

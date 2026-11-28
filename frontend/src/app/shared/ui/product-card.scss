@@ -45,7 +45,7 @@
 .badges {
   position: absolute;
   top: 10px;
-  left: 10px;
+  inset-inline-start: 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -59,9 +59,9 @@
 
 .quick-add {
   position: absolute;
-  right: 10px;
+  inset-inline-end: 10px;
   bottom: 10px;
-  left: 10px;
+  inset-inline-start: 10px;
   display: flex;
   gap: 6px;
   align-items: center;
@@ -113,7 +113,7 @@
 /* Touch screens have no hover: keep a compact add button visible. */
 @media (hover: none) {
   .quick-add {
-    left: auto;
+    inset-inline-start: auto;
     width: 42px;
     opacity: 1;
     transform: none;
@@ -172,4 +172,11 @@ app-price {
     width: 16px;
     height: 16px;
   }
+}
+
+.wish {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  z-index: 2;
 }

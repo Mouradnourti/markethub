@@ -6,6 +6,8 @@ import pytest
 
 os.environ.setdefault("AI_SYNC_ENABLED", "false")
 os.environ.setdefault("INTERNAL_API_KEY", "test-key")
+# Tests never call the real Claude API; the LLM writer is tested with a fake client.
+os.environ["AI_LLM_ENABLED"] = "false"
 
 
 @pytest.fixture(scope="session")

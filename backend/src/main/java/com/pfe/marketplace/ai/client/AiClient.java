@@ -1,6 +1,10 @@
 package com.pfe.marketplace.ai.client;
 
 import com.pfe.marketplace.ai.dto.AiDtos.AiCopyRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.AiPriceHintRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.AiSearchRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.AiSearchResult;
+import com.pfe.marketplace.ai.dto.AiDtos.PriceHintDto;
 import com.pfe.marketplace.ai.dto.AiDtos.CopyDraft;
 import com.pfe.marketplace.ai.dto.AiDtos.ForecastRequest;
 import com.pfe.marketplace.ai.dto.AiDtos.ForecastResult;
@@ -27,6 +31,7 @@ import org.springframework.web.client.RestClientException;
 public class AiClient {
 
     private final RestClient client;
+    private final RestClient writerClient;
 
     public AiClient(RestClient.Builder builder, AppProperties properties) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -35,6 +40,14 @@ public class AiClient {
         this.client = builder.clone()
                 .baseUrl(properties.ai().baseUrl())
                 .requestFactory(factory)
+                .defaultHeader(InternalApiKeyFilter.HEADER, properties.internalApiKey())
+                .build();
+        SimpleClientHttpRequestFactory writerFactory = new SimpleClientHttpRequestFactory();
+        writerFactory.setConnectTimeout(properties.ai().timeout());
+        writerFactory.setReadTimeout(properties.ai().writerTimeoutOrDefault());
+        this.writerClient = builder.clone()
+                .baseUrl(properties.ai().baseUrl())
+                .requestFactory(writerFactory)
                 .defaultHeader(InternalApiKeyFilter.HEADER, properties.internalApiKey())
                 .build();
     }
@@ -52,10 +65,23 @@ public class AiClient {
     }
 
     public Optional<CopyDraft> writeCopy(AiCopyRequest request) {
-        return call("/copywriter", request, CopyDraft.class);
+        return call(writerClient, "/copywriter", request, CopyDraft.class);
+    }
+
+    public Optional<AiSearchResult> search(AiSearchRequest request) {
+        return call("/search", request, AiSearchResult.class);
+    }
+
+    /** Empty when the service is down or knows no comparable product. */
+    public Optional<PriceHintDto> priceHint(AiPriceHintRequest request) {
+        return call("/price-hint", request, PriceHintDto.class);
     }
 
     private <T> Optional<T> call(String path, Object body, Class<T> type) {
+        return call(client, path, body, type);
+    }
+
+    private <T> Optional<T> call(RestClient client, String path, Object body, Class<T> type) {
         try {
             return Optional.ofNullable(client.post().uri(path).contentType(MediaType.APPLICATION_JSON).body(body)
                     .retrieve().body(type));

@@ -1,5 +1,6 @@
 package com.pfe.marketplace.cart.dto;
 
+import com.pfe.marketplace.promotion.dto.PromotionDtos.AppliedCouponDto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,8 @@ public final class CartDtos {
             List<CartItemDto> items,
             int itemCount,
             BigDecimal subtotal,
+            BigDecimal discount,
+            AppliedCouponDto coupon,
             BigDecimal shippingFee,
             BigDecimal total) {
     }

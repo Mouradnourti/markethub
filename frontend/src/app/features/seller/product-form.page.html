@@ -58,6 +58,28 @@
         <input matInput type="number" min="0" step="1" formControlName="stock" />
         <mat-hint>Under 5 units, shoppers see "Only N left"</mat-hint>
       </mat-form-field>
+      <div class="span-2 price-hint">
+        <button type="button" mat-stroked-button (click)="suggestPrice()" [disabled]="hinting() || !form.controls.name.value">
+          <mat-icon>price_check</mat-icon> {{ hinting() ? 'Comparing…' : 'Suggest a price' }}
+        </button>
+        @if (hint(); as h) {
+          <div class="hint-card">
+            <div class="hint-main">
+              <span>Similar products sell between <strong>{{ h.low | money }}</strong> and <strong>{{ h.high | money }}</strong>
+                (typical {{ h.typical | money }}).</span>
+              <button type="button" mat-button (click)="usePrice(h.suggested)">Use {{ h.suggested | money }}</button>
+            </div>
+            <details>
+              <summary>Based on {{ h.comparables.length }} comparable products · {{ h.confidence }} confidence</summary>
+              <ul>
+                @for (c of h.comparables; track c.productId) { <li>{{ c.name }} · {{ c.price | money }}</li> }
+              </ul>
+            </details>
+          </div>
+        } @else if (hintMessage()) {
+          <span class="muted small">{{ hintMessage() }}</span>
+        }
+      </div>
     </section>
 
     <section class="panel writer" [formGroup]="writer">
@@ -89,6 +111,10 @@
         </button>
       </div>
       @if (writing()) { <mat-progress-bar mode="indeterminate" /> }
+      @if (lastDraft()?.engine; as engine) {
+        <p class="engine muted"><mat-icon>{{ engine === 'rules' ? 'rule' : 'neurology' }}</mat-icon>
+          {{ engine === 'rules' ? 'Written by the built-in rule-based writer.' : 'Written by ' + engine + ', checked against your facts.' }}</p>
+      }
     </section>
 
     <section class="panel fields">

@@ -53,6 +53,18 @@ class DemoDataSeederIT extends ApiFixtures {
         assertThat(send(login(DemoDataSeeder.ADMIN_EMAIL, "Admin123!"), get("/api/admin/stats"), null, 200)
                 .get("grossMerchandiseValue").decimalValue()).isPositive();
 
+        // Engagement data: one featured code per approved shop, realistic conversion, replies and votes.
+        assertThat(jdbc.queryForObject("""
+                select count(*) from coupons c join shops s on s.id = c.shop_id join users u on u.id = s.owner_id
+                where c.featured and u.email like 'seller%@markethub.test'""", Long.class)).isEqualTo(7L);
+        JsonNode analytics = send(seller, get("/api/seller/analytics").param("days", "30"), null, 200);
+        assertThat(analytics.get("views").asLong()).isPositive();
+        assertThat(analytics.get("conversionRate").doubleValue()).isBetween(1.0, 8.0);
+        assertThat(count("wishlist_items")).isPositive();
+        assertThat(jdbc.queryForObject("select count(*) from reviews where seller_reply is not null", Long.class))
+                .isPositive();
+        assertThat(jdbc.queryForObject("select count(*) from reviews where helpful_count > 0", Long.class)).isPositive();
+
         // Sequences were realigned: new rows can still be inserted.
         register(uniqueEmail("after-seed"), "CUSTOMER", null);
     }

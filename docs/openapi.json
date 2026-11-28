@@ -17,6 +17,53 @@
     }
   ],
   "paths": {
+    "/api/wishlist/{productId}": {
+      "put": {
+        "tags": [
+          "Wishlist"
+        ],
+        "summary": "Save a product; you are told when it is back in stock or its price drops",
+        "operationId": "add",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Wishlist"
+        ],
+        "operationId": "remove",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/seller/shop": {
       "get": {
         "tags": [
@@ -58,6 +105,77 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ShopDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/seller/reviews/{id}/reply": {
+      "put": {
+        "tags": [
+          "Seller"
+        ],
+        "summary": "Answer a review publicly (the customer is notified the first time)",
+        "operationId": "reply",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellerReviewDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Seller"
+        ],
+        "operationId": "deleteReply",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellerReviewDto"
                 }
               }
             }
@@ -157,12 +275,75 @@
         }
       }
     },
+    "/api/seller/coupons/{id}": {
+      "put": {
+        "tags": [
+          "Promotions"
+        ],
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CouponRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CouponDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Promotions"
+        ],
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/cart/items/{productId}": {
       "put": {
         "tags": [
           "Cart"
         ],
-        "operationId": "update_1",
+        "operationId": "update_2",
         "parameters": [
           {
             "name": "productId",
@@ -201,7 +382,7 @@
         "tags": [
           "Cart"
         ],
-        "operationId": "remove",
+        "operationId": "remove_1",
         "parameters": [
           {
             "name": "productId",
@@ -458,6 +639,37 @@
         }
       }
     },
+    "/api/seller/products/price-hint": {
+      "post": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Suggested price range from the most similar products in the catalog",
+        "operationId": "priceHint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceHintRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceHintDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/seller/products/describe": {
       "post": {
         "tags": [
@@ -489,12 +701,65 @@
         }
       }
     },
+    "/api/seller/coupons": {
+      "get": {
+        "tags": [
+          "Promotions"
+        ],
+        "operationId": "list",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CouponDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Promotions"
+        ],
+        "summary": "Create a discount code for the seller's shop",
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CouponRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CouponDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/products/{productId}/reviews": {
       "get": {
         "tags": [
           "Reviews"
         ],
-        "operationId": "list",
+        "summary": "Reviews of a product, sortable and filterable by star rating",
+        "operationId": "list_1",
         "parameters": [
           {
             "name": "productId",
@@ -503,6 +768,30 @@
             "schema": {
               "type": "integer",
               "format": "int64"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "RECENT",
+              "enum": [
+                "RECENT",
+                "HELPFUL",
+                "HIGHEST",
+                "LOWEST"
+              ]
+            }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -544,7 +833,7 @@
           "Reviews"
         ],
         "summary": "Review a product the customer has received",
-        "operationId": "create_1",
+        "operationId": "create_2",
         "parameters": [
           {
             "name": "productId",
@@ -569,6 +858,144 @@
         "responses": {
           "201": {
             "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/reviews/{reviewId}/photos": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Add a photo to your own review (JPEG, PNG, WebP, GIF, max 5 MB, 3 photos)",
+        "operationId": "addPhoto",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/reviews/{reviewId}/helpful": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Mark a review as helpful",
+        "operationId": "helpful",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Reviews"
+        ],
+        "operationId": "notHelpful",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "reviewId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "content": {
               "*/*": {
                 "schema": {
@@ -769,12 +1196,77 @@
         }
       }
     },
+    "/api/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "markRead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/stream-ticket": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "One-time ticket (valid 60 s) to open the live event stream",
+        "operationId": "ticket",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamTicketDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/read-all": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "markAllRead",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/cart/items": {
       "post": {
         "tags": [
           "Cart"
         ],
-        "operationId": "add",
+        "operationId": "add_1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -909,6 +1401,119 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login/2fa": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Second sign-in step for accounts with two-factor sign-in",
+        "operationId": "loginTwoFactor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/setup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Start two-factor setup: returns the secret and otpauth URI to scan",
+        "operationId": "twoFactorSetup",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorSetupDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/enable": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Turn two-factor sign-in on with a code from the authenticator app",
+        "operationId": "twoFactorEnable",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "twoFactorDisable",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TwoFactorCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusDto"
                 }
               }
             }
@@ -1197,6 +1802,54 @@
         }
       }
     },
+    "/api/wishlist": {
+      "get": {
+        "tags": [
+          "Wishlist"
+        ],
+        "operationId": "list_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WishlistItemDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/wishlist/ids": {
+      "get": {
+        "tags": [
+          "Wishlist"
+        ],
+        "summary": "Ids of the saved products (to draw the hearts on product cards)",
+        "operationId": "ids",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/shops/{slug}": {
       "get": {
         "tags": [
@@ -1228,6 +1881,41 @@
         }
       }
     },
+    "/api/shops/{shopId}/offers": {
+      "get": {
+        "tags": [
+          "Promotions"
+        ],
+        "summary": "Featured discount codes of a shop that are valid right now",
+        "operationId": "offers",
+        "parameters": [
+          {
+            "name": "shopId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OfferDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/seller/stats": {
       "get": {
         "tags": [
@@ -1241,6 +1929,58 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/SellerStatsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/seller/reviews": {
+      "get": {
+        "tags": [
+          "Seller"
+        ],
+        "summary": "Reviews of the seller's products, newest first",
+        "operationId": "list_3",
+        "parameters": [
+          {
+            "name": "unanswered",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseSellerReviewDto"
                 }
               }
             }
@@ -1371,6 +2111,39 @@
         }
       }
     },
+    "/api/seller/analytics": {
+      "get": {
+        "tags": [
+          "Seller"
+        ],
+        "summary": "Views, conversion, revenue and returns per day and per product over the last N days",
+        "operationId": "analytics",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellerAnalyticsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/recommendations": {
       "get": {
         "tags": [
@@ -1493,7 +2266,8 @@
                 "PRICE_ASC",
                 "PRICE_DESC",
                 "RATING",
-                "POPULAR"
+                "POPULAR",
+                "RELEVANCE"
               ]
             }
           },
@@ -1525,6 +2299,38 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/PageResponseProductSummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/reviews/summary": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Average, star breakdown and number of reviews with photos",
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSummaryDto"
                 }
               }
             }
@@ -1569,7 +2375,7 @@
         "tags": [
           "Catalog (public)"
         ],
-        "summary": "Product details",
+        "summary": "Product details (counts a page view for the seller's analytics)",
         "operationId": "product_1",
         "parameters": [
           {
@@ -1686,12 +2492,183 @@
         }
       }
     },
+    "/api/products/suggest": {
+      "get": {
+        "tags": [
+          "Catalog (public)"
+        ],
+        "summary": "Instant search suggestions (products, typos tolerated, and categories)",
+        "operationId": "suggest",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/smart-search": {
+      "get": {
+        "tags": [
+          "AI"
+        ],
+        "summary": "Search by meaning (AI index), falling back to keyword search when the AI is offline",
+        "operationId": "smartSearch",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SmartSearchDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/facets": {
+      "get": {
+        "tags": [
+          "Catalog (public)"
+        ],
+        "summary": "Filter counts for the same filters as the search",
+        "operationId": "facets",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "shopId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "minRating",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "inStock",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "onSale",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FacetsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/orders": {
       "get": {
         "tags": [
           "Orders (customer)"
         ],
-        "operationId": "list_1",
+        "operationId": "list_4",
         "parameters": [
           {
             "name": "page",
@@ -1792,6 +2769,99 @@
         }
       }
     },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "list_5",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 15
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseNotificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "unread",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnreadCountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/stream": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Server-sent events: 'notification' events for the ticket's user",
+        "operationId": "stream",
+        "parameters": [
+          {
+            "name": "ticket",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/SseEmitter"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/internal/ml/dataset": {
       "get": {
         "tags": [
@@ -1864,7 +2934,18 @@
         "tags": [
           "Cart"
         ],
+        "summary": "The cart; pass a discount code to preview its effect (an invalid code returns 422)",
         "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "coupon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1904,6 +2985,26 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "twoFactorStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TwoFactorStatusDto"
                 }
               }
             }
@@ -2168,6 +3269,69 @@
           }
         }
       },
+      "ReplyRequest": {
+        "type": "object",
+        "properties": {
+          "reply": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "reply"
+        ]
+      },
+      "SellerReviewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "productImageUrl": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "helpfulCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "photoUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sellerReply": {
+            "type": "string"
+          },
+          "sellerRepliedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ProductRequest": {
         "type": "object",
         "properties": {
@@ -2342,6 +3506,125 @@
           }
         }
       },
+      "CouponRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_-]{3,30}$"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PERCENT",
+              "FIXED"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0.01
+          },
+          "minSubtotal": {
+            "type": "number",
+            "minimum": 0
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "maxUses": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "oncePerCustomer": {
+            "type": "boolean"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "type",
+          "value"
+        ]
+      },
+      "CouponDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "PERCENT",
+              "FIXED"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "minSubtotal": {
+            "type": "number"
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "maxUses": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "oncePerCustomer": {
+            "type": "boolean"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SCHEDULED",
+              "EXPIRED",
+              "USED_UP",
+              "PAUSED"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "UpdateCartItemRequest": {
         "type": "object",
         "properties": {
@@ -2350,6 +3633,27 @@
             "format": "int32",
             "maximum": 99,
             "minimum": 1
+          }
+        }
+      },
+      "AppliedCouponDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
           }
         }
       },
@@ -2368,6 +3672,12 @@
           },
           "subtotal": {
             "type": "number"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "coupon": {
+            "$ref": "#/components/schemas/AppliedCouponDto"
           },
           "shippingFee": {
             "type": "number"
@@ -2485,6 +3795,73 @@
           }
         }
       },
+      "PriceHintRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 2
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "Comparable": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "similarity": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "PriceHintDto": {
+        "type": "object",
+        "properties": {
+          "low": {
+            "type": "number"
+          },
+          "typical": {
+            "type": "number"
+          },
+          "high": {
+            "type": "number"
+          },
+          "suggested": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "comparables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Comparable"
+            }
+          }
+        }
+      },
       "CopyDraftRequest": {
         "type": "object",
         "properties": {
@@ -2551,6 +3928,9 @@
           },
           "categoryProfile": {
             "type": "string"
+          },
+          "engine": {
+            "type": "string"
           }
         }
       },
@@ -2588,6 +3968,29 @@
             "type": "string"
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "helpfulCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "votedHelpful": {
+            "type": "boolean"
+          },
+          "mine": {
+            "type": "boolean"
+          },
+          "photoUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sellerReply": {
+            "type": "string"
+          },
+          "sellerRepliedAt": {
             "type": "string",
             "format": "date-time"
           }
@@ -2652,6 +4055,9 @@
             ]
           },
           "subtotal": {
+            "type": "number"
+          },
+          "discountTotal": {
             "type": "number"
           },
           "shippingFee": {
@@ -2771,6 +4177,12 @@
           },
           "subtotal": {
             "type": "number"
+          },
+          "discountAmount": {
+            "type": "number"
+          },
+          "couponCode": {
+            "type": "string"
           },
           "trackingNumber": {
             "type": "string"
@@ -2922,6 +4334,11 @@
           },
           "shippingAddress": {
             "$ref": "#/components/schemas/ShippingAddress"
+          },
+          "couponCode": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 0
           }
         },
         "required": [
@@ -2957,6 +4374,54 @@
           },
           "currency": {
             "type": "string"
+          }
+        }
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ORDER_UPDATE",
+              "NEW_ORDER",
+              "BACK_IN_STOCK",
+              "PRICE_DROP",
+              "REVIEW_REPLY",
+              "CART_REMINDER"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StreamTicketDto": {
+        "type": "object",
+        "properties": {
+          "ticket": {
+            "type": "string"
+          },
+          "expiresInSeconds": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -3047,6 +4512,12 @@
           },
           "user": {
             "$ref": "#/components/schemas/UserDto"
+          },
+          "twoFactorRequired": {
+            "type": "boolean"
+          },
+          "challengeToken": {
+            "type": "string"
           }
         }
       },
@@ -3078,6 +4549,9 @@
             ]
           },
           "enabled": {
+            "type": "boolean"
+          },
+          "twoFactorEnabled": {
             "type": "boolean"
           },
           "createdAt": {
@@ -3114,6 +4588,56 @@
           "email",
           "password"
         ]
+      },
+      "TwoFactorLoginRequest": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\s*\\d{6}\\s*$"
+          }
+        },
+        "required": [
+          "challengeToken",
+          "code"
+        ]
+      },
+      "TwoFactorSetupDto": {
+        "type": "object",
+        "properties": {
+          "secret": {
+            "type": "string"
+          },
+          "otpauthUri": {
+            "type": "string"
+          }
+        }
+      },
+      "TwoFactorCodeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\s*\\d{6}\\s*$"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "TwoFactorStatusDto": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
       },
       "StockUpdateRequest": {
         "type": "object",
@@ -3196,6 +4720,12 @@
           },
           "subtotal": {
             "type": "number"
+          },
+          "discountAmount": {
+            "type": "number"
+          },
+          "couponCode": {
+            "type": "string"
           },
           "commissionAmount": {
             "type": "number"
@@ -3334,6 +4864,98 @@
           "decision"
         ]
       },
+      "ProductSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "compareAtPrice": {
+            "type": "number"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "avgRating": {
+            "type": "number"
+          },
+          "reviewCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "soldCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "hoverImageUrl": {
+            "type": "string"
+          },
+          "shopId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "WishlistItemDto": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "$ref": "#/components/schemas/ProductSummaryDto"
+          },
+          "priceWhenAdded": {
+            "type": "number"
+          },
+          "addedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OfferDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "shopName": {
+            "type": "string"
+          },
+          "minSubtotal": {
+            "type": "number"
+          },
+          "endsAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "LowStockProduct": {
         "type": "object",
         "properties": {
@@ -3452,6 +5074,33 @@
           }
         }
       },
+      "PageResponseSellerReviewDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SellerReviewDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PageResponseProductSummaryDto": {
         "type": "object",
         "properties": {
@@ -3476,62 +5125,6 @@
           "totalPages": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "ProductSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string"
-          },
-          "price": {
-            "type": "number"
-          },
-          "compareAtPrice": {
-            "type": "number"
-          },
-          "stock": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "avgRating": {
-            "type": "number"
-          },
-          "reviewCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "soldCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "imageUrl": {
-            "type": "string"
-          },
-          "hoverImageUrl": {
-            "type": "string"
-          },
-          "shopId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "shopName": {
-            "type": "string"
-          },
-          "categoryId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "categoryName": {
-            "type": "string"
-          },
-          "active": {
-            "type": "boolean"
           }
         }
       },
@@ -3618,6 +5211,122 @@
           }
         }
       },
+      "AnalyticsDay": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orders": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revenue": {
+            "type": "number"
+          }
+        }
+      },
+      "ProductPerformance": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orders": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "units": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "conversionRate": {
+            "type": "number"
+          },
+          "returns": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "returnRate": {
+            "type": "number"
+          }
+        }
+      },
+      "SellerAnalyticsDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "orders": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "units": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "conversionRate": {
+            "type": "number"
+          },
+          "averageOrderValue": {
+            "type": "number"
+          },
+          "returnRate": {
+            "type": "number"
+          },
+          "wishlistSaves": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "daily": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsDay"
+            }
+          },
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductPerformance"
+            }
+          }
+        }
+      },
       "PageResponseReviewDto": {
         "type": "object",
         "properties": {
@@ -3645,6 +5354,29 @@
           }
         }
       },
+      "ReviewSummaryDto": {
+        "type": "object",
+        "properties": {
+          "average": {
+            "type": "number"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "counts": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "withPhotos": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "ReviewEligibilityDto": {
         "type": "object",
         "properties": {
@@ -3653,6 +5385,79 @@
           },
           "reason": {
             "type": "string"
+          }
+        }
+      },
+      "SuggestionsDto": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSummaryDto"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDto"
+            }
+          }
+        }
+      },
+      "SmartSearchDto": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductSummaryDto"
+            }
+          },
+          "strategy": {
+            "type": "string"
+          }
+        }
+      },
+      "FacetCount": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "FacetsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inStock": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "onSale": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "minPrice": {
+            "type": "number"
+          },
+          "maxPrice": {
+            "type": "number"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetCount"
+            }
           }
         }
       },
@@ -3680,6 +5485,51 @@
           "totalPages": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "PageResponseNotificationDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UnreadCountDto": {
+        "type": "object",
+        "properties": {
+          "unread": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SseEmitter": {
+        "type": "object",
+        "properties": {
+          "timeout": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

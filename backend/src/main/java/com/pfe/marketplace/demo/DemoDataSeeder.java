@@ -117,6 +117,7 @@ public class DemoDataSeeder implements ApplicationRunner {
         rows.flush(jdbc);
         refreshAggregates();
         ids.resetSequences(jdbc);
+        seedEngagement();
         log.info("Demo data seeded in {} ms: {} products, {} orders", System.currentTimeMillis() - start,
                 products.size(), rows.orders.size());
     }
@@ -477,6 +478,65 @@ public class DemoDataSeeder implements ApplicationRunner {
                 update products p set review_count = r.cnt, avg_rating = r.avg
                 from (select product_id, count(*) as cnt, round(avg(rating), 2) as avg from reviews group by product_id) r
                 where r.product_id = p.id""");
+    }
+
+    /**
+     * Discount codes, page views (about 2-5 % of views become orders, as in real shops), wishlists, helpful
+     * votes and seller replies. Done in SQL after the orders exist; setseed keeps it reproducible.
+     */
+    private void seedEngagement() {
+        jdbc.execute("select setseed(0.42)");
+        jdbc.update("""
+                insert into coupons (shop_id, code, type, value, min_subtotal, featured, once_per_customer, created_at)
+                select s.id, left(upper(regexp_replace(split_part(s.name, ' ', 1), '[^A-Za-z0-9]', '', 'g')), 12) || '10',
+                       'PERCENT', 10, 30, true, true, s.created_at
+                from shops s where s.status = 'APPROVED'
+                on conflict (code) do nothing""");
+        jdbc.update("""
+                insert into coupons (shop_id, code, type, value, min_subtotal, max_uses, featured, once_per_customer, created_at)
+                select s.id, left(upper(regexp_replace(split_part(s.name, ' ', 1), '[^A-Za-z0-9]', '', 'g')), 12) || '5OFF',
+                       'FIXED', 5, 40, 200, false, false, s.created_at
+                from shops s where s.status = 'APPROVED'
+                on conflict (code) do nothing""");
+        jdbc.update("""
+                insert into coupons (shop_id, code, type, value, starts_at, ends_at, featured, created_at)
+                select s.id, 'SUMMER' || s.id, 'PERCENT', 20, ?, ?, false, ?
+                from shops s where s.status = 'APPROVED'""",
+                ts(now.minus(days(150))), ts(now.minus(days(120))), ts(now.minus(days(160))));
+        jdbc.update("""
+                insert into product_views (product_id, day, views)
+                select p.id, d.day,
+                       round(coalesce(s.units, 0) * (18 + random() * 22) + random() * (3 + p.sold_count / 30.0))::int
+                from products p
+                cross join (select generate_series(?::date - 89, ?::date, interval '1 day')::date as day) d
+                left join (select oi.product_id, (so.created_at at time zone 'UTC')::date as day, sum(oi.quantity) as units
+                           from order_items oi join shop_orders so on so.id = oi.shop_order_id
+                           group by 1, 2) s on s.product_id = p.id and s.day = d.day
+                on conflict do nothing""", LocalDate.ofInstant(now, ZoneOffset.UTC), LocalDate.ofInstant(now, ZoneOffset.UTC));
+        jdbc.update("""
+                insert into wishlist_items (user_id, product_id, price_when_added, created_at)
+                select u.id, p.id, coalesce(p.compare_at_price, p.price), ?
+                from users u join products p on (u.id * 7 + p.id) % 29 = 0
+                where u.role = 'CUSTOMER' and p.active
+                on conflict do nothing""", ts(now.minus(days(10))));
+        jdbc.update("""
+                insert into review_votes (review_id, user_id, created_at)
+                select r.id, u.id, r.created_at from reviews r
+                join users u on u.role = 'CUSTOMER' and u.id <> r.user_id
+                  and (u.id * 31 + r.id * 17) % (case when r.comment is not null and length(r.comment) > 40 then 6 else 14 end) = 0
+                on conflict do nothing""");
+        jdbc.update("""
+                update reviews r set helpful_count = v.cnt
+                from (select review_id, count(*) as cnt from review_votes group by review_id) v where v.review_id = r.id""");
+        jdbc.update("""
+                update reviews r set
+                    seller_reply = case when r.rating <= 3
+                        then 'Thank you for the honest feedback, ' || u.first_name || '. We are sorry it fell short: '
+                             || 'reply from your order page and we will make it right.'
+                        else 'Thank you ' || u.first_name || ', we are really glad you like it!' end,
+                    seller_replied_at = r.created_at + interval '20 hours'
+                from users u
+                where u.id = r.user_id and ((r.rating <= 3 and r.id % 3 <> 0) or (r.rating = 5 and r.id % 7 = 0))""");
     }
 
     // ---------------------------------------------------------------- utils

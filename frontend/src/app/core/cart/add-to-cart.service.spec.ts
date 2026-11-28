@@ -10,7 +10,7 @@ import { Notifier } from '../ui/notifier.service';
 import { AddToCartService } from './add-to-cart.service';
 import { CartService } from './cart.service';
 
-const CART: Cart = { items: [], itemCount: 1, subtotal: 10, shippingFee: 4.99, total: 14.99 };
+const CART: Cart = { items: [], itemCount: 1, subtotal: 10, discount: 0, shippingFee: 4.99, total: 14.99 };
 
 describe('AddToCartService', () => {
   const role = signal<Role | null>('CUSTOMER');

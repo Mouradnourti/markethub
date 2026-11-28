@@ -37,6 +37,18 @@ export const STORE_ROUTES: Routes = [
     loadComponent: () => import('./orders.page').then((m) => m.OrdersPage),
   },
   {
+    path: 'wishlist',
+    canActivate: [authGuard],
+    title: 'Wishlist · MarketHub',
+    loadComponent: () => import('./wishlist.page').then((m) => m.WishlistPage),
+  },
+  {
+    path: 'account/security',
+    canActivate: [authGuard],
+    title: 'Sign-in & security · MarketHub',
+    loadComponent: () => import('../account/security.page').then((m) => m.SecurityPage),
+  },
+  {
     path: 'orders/:id',
     canActivate: [authGuard],
     title: 'Order · MarketHub',

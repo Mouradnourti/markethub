@@ -9,20 +9,26 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 from app.config import get_settings
-from app.ml import copywriter
+from app.ml import copywriter, llm_writer
 from app.ml.forecaster import NotEnoughHistory, forecast
 from app.ml.return_risk import explain
 from app.registry import ModelRegistry
 from app.schemas import (
+    Comparable,
     CopyRequest,
     CopyResponse,
     ForecastPointOut,
     ForecastRequest,
     ForecastResponse,
+    PriceHintRequest,
+    PriceHintResponse,
     RecommendationRequest,
     RecommendationResponse,
     ReturnRiskRequest,
     ReturnRiskResponse,
+    SearchHit,
+    SearchRequest,
+    SearchResponse,
     SpecOut,
 )
 from app.sync import SyncLoop, sync_from_backend
@@ -62,7 +68,8 @@ def require_internal_key(x_internal_key: str | None = Header(default=None)) -> N
 @app.get("/health")
 def health() -> dict:
     return {"status": "UP", "recommender": registry.recommender.trained_from,
-            "returnRisk": registry.return_risk.source}
+            "returnRisk": registry.return_risk.source, "catalog": registry.catalog.trained_from,
+            "llmWriter": llm_writer.model_name() if llm_writer.is_enabled() else "off"}
 
 
 @app.get("/models", dependencies=[Depends(require_internal_key)])
@@ -106,11 +113,43 @@ def return_risk(request: ReturnRiskRequest) -> ReturnRiskResponse:
 @app.post("/copywriter", response_model=CopyResponse, response_model_by_alias=True,
           dependencies=[Depends(require_internal_key)])
 def write_copy(request: CopyRequest) -> CopyResponse:
-    """Drafts a tagline, description and key benefits from the seller's product name and keywords."""
-    copy = copywriter.write(request.name, request.category, request.keywords, request.tone, request.variant)
+    """Drafts a tagline, description and key benefits from the seller's product name and keywords.
+
+    With an Anthropic API key configured, Claude writes the text (engine "auto" or "llm"); the rule-based writer
+    is used otherwise and whenever Claude fails or mentions a number the seller did not give."""
+    copy = None
+    if request.engine != "rules" and llm_writer.is_enabled():
+        copy = llm_writer.write(request.name, request.category, request.keywords, request.tone, request.variant)
+    if copy is None:
+        copy = copywriter.write(request.name, request.category, request.keywords, request.tone, request.variant)
     return CopyResponse(tagline=copy.tagline, description=copy.description, highlights=copy.highlights,
                         specs=[SpecOut(label=label, value=value) for label, value in copy.specs],
-                        suggested_spec_labels=copy.suggested_spec_labels, category_profile=copy.category_profile)
+                        suggested_spec_labels=copy.suggested_spec_labels, category_profile=copy.category_profile,
+                        engine=copy.engine)
+
+
+@app.post("/search", response_model=SearchResponse, response_model_by_alias=True,
+          dependencies=[Depends(require_internal_key)])
+def smart_search(request: SearchRequest) -> SearchResponse:
+    """Meaning-based product search (TF-IDF + latent semantic analysis + intent synonyms)."""
+    if registry.catalog.trained_from != "backend":
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Catalog index not built from the live catalog yet")
+    hits = registry.catalog.search(request.query, request.limit)
+    return SearchResponse(hits=[SearchHit(product_id=pid, score=score) for pid, score in hits],
+                          model="tfidf+lsa")
+
+
+@app.post("/price-hint", response_model=PriceHintResponse, response_model_by_alias=True,
+          dependencies=[Depends(require_internal_key)])
+def price_hint(request: PriceHintRequest) -> PriceHintResponse:
+    """Price range of the most similar products in the catalog, weighted by similarity."""
+    if registry.catalog.trained_from != "backend":
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Catalog index not built from the live catalog yet")
+    hint = registry.catalog.price_hint(request.name, request.category, request.description)
+    if hint is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No comparable product in the catalog")
+    return PriceHintResponse(low=hint.low, typical=hint.typical, high=hint.high, suggested=hint.suggested,
+                             confidence=hint.confidence, comparables=[Comparable(**c) for c in hint.comparables])
 
 
 @app.post("/train", dependencies=[Depends(require_internal_key)])

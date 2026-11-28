@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { I18nService } from '../../core/i18n/i18n.service';
 import { humanize, statusTone } from '../status';
 
 @Component({
@@ -28,5 +29,6 @@ export class StatusChip {
   readonly status = input.required<string>();
   readonly text = input<string>();
   protected readonly tone = computed(() => statusTone(this.status()));
-  protected readonly label = computed(() => this.text() ?? humanize(this.status()));
+  private readonly i18n = inject(I18nService);
+  protected readonly label = computed(() => this.text() ?? this.i18n.t(humanize(this.status())));
 }

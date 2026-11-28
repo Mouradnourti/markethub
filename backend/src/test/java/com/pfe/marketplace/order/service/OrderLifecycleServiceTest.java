@@ -34,6 +34,7 @@ class OrderLifecycleServiceTest {
     @Mock ApplicationEventPublisher events;
     @Mock CacheManager cacheManager;
     @Mock Cache cache;
+    @Mock com.pfe.marketplace.promotion.service.CouponService couponService;
     @InjectMocks OrderLifecycleService service;
 
     Product product = Fixtures.product(11, Fixtures.shop(1, ShopStatus.APPROVED), "5.00", 3);

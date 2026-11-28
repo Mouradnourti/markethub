@@ -14,10 +14,13 @@ Architecture and decisions: `docs/architecture.md`. Schema: `docs/erd.md`.
 | `e2e/` | Browser journey test + README screenshots | puppeteer-core + installed Chrome/Edge |
 | `docs/` | ERD, UML, API contract, test report | Mermaid / Markdown |
 | `scripts/` | Dev helpers (`export-api-contract.mjs`) | Node |
+| `monitoring/` | Prometheus scrape config, provisioned Grafana dashboard | YAML / JSON |
+| `render.yaml` | Render Blueprint (see `docs/deploy.md`) | YAML |
 
 ## Commands
 
 Whole stack: `cp .env.example .env && docker compose up --build` → http://localhost:4200
+(monitoring: `docker compose --profile monitoring up` → Grafana :3000, Prometheus :9090)
 
 Backend (`cd backend`):
 - Build + all tests + coverage: `mvn verify` (JaCoCo report in `target/site/jacoco/index.html`)
@@ -55,6 +58,13 @@ API contract (backend running): `node scripts/export-api-contract.mjs` → `docs
   Vitest specs (Jest/Jasmine-style API) for Angular guards, interceptors, cart and auth services.
 - **Frontend**: standalone components, one lazy route tree per role (`store`, `seller`, `admin`),
   signals for state, `authInterceptor` adds the JWT and refreshes on 401, guards per role.
+- **Translations**: every storefront string goes through the `t` pipe (`{{ 'Add to cart' | t }}`,
+  placeholders `{{ 'Hi, {name}' | t: { name } }}`) or `I18nService.t()`. English text is the key; add the French and
+  Arabic entries to `core/i18n/fr.ts` and `ar.ts` (a unit test checks both have the same keys and placeholders).
+  Use CSS logical properties (`margin-inline-start`, `inset-inline-end`, `text-align: start`) so Arabic mirrors.
+- **Live updates**: in-app notifications are created with `InboxService.notify(...)`; they are stored and pushed over
+  SSE. Long-lived requests must tolerate the open stream (E2E waits use `networkidle2` / `concurrency: 1`).
+- **AI**: the Claude writer is used only when `ANTHROPIC_API_KEY` is set; tests never call it (fake client).
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `test:`, `docs:`, `chore:`, `ci:`), one per phase.
 - **Demo content**: product copy (tagline, description, benefits, specs, sale price, illustration) lives in
   `backend/src/main/resources/demo/copy-*.txt`, co-purchase pairs in `demo/pairings.txt`; `DemoCopyTest` checks

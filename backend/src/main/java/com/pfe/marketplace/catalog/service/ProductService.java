@@ -5,12 +5,26 @@ import static com.pfe.marketplace.catalog.repository.ProductSpecifications.inSho
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.inStock;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.matchesText;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.onSale;
+import static com.pfe.marketplace.catalog.repository.ProductSpecifications.orderedByRelevance;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.priceAtLeast;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.priceAtMost;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.ratingAtLeast;
 import static com.pfe.marketplace.catalog.repository.ProductSpecifications.visibleInCatalog;
 
+import com.pfe.marketplace.catalog.dto.CatalogDtos.CategoryDto;
+import com.pfe.marketplace.catalog.dto.CatalogDtos.FacetCount;
+import com.pfe.marketplace.catalog.dto.CatalogDtos.FacetsDto;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductDto;
+import com.pfe.marketplace.catalog.dto.CatalogDtos.SuggestionsDto;
+import com.pfe.marketplace.catalog.repository.CategoryRepository;
+import com.pfe.marketplace.catalog.repository.ProductSpecifications;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.math.BigDecimal;
+import java.util.Locale;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSearchCriteria;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSort;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSummaryDto;
@@ -45,21 +59,80 @@ public class ProductService {
 
     private final ProductRepository repository;
     private final CatalogMapper mapper;
+    private final CategoryRepository categoryRepository;
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public PageResponse<ProductSummaryDto> search(ProductSearchCriteria criteria, int page, int size) {
-        Specification<Product> spec = Specification.allOf(
+        boolean byRelevance = criteria.sort() == ProductSort.RELEVANCE && criteria.q() != null && !criteria.q().isBlank();
+        Specification<Product> spec = Specification.allOf(filters(criteria, true),
+                byRelevance ? orderedByRelevance(criteria.q()) : null);
+        Sort sort = byRelevance ? Sort.unsorted() : sortOf(criteria.sort());
+        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), sort);
+        return PageResponse.of(repository.findAll(spec, pageable), mapper::toSummary);
+    }
+
+    /** Instant results while typing: up to {@code limit} products (typos tolerated) and three categories. */
+    @Transactional(readOnly = true)
+    public SuggestionsDto suggest(String query, int limit) {
+        String q = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        if (q.length() < 2) {
+            return new SuggestionsDto(List.of(), List.of());
+        }
+        String escaped = ProductSpecifications.escapeLike(q);
+        List<Long> ids = repository.suggestIds(q, "%" + escaped + "%", escaped + "%",
+                ProductSpecifications.FUZZY_THRESHOLD - 0.05, limit);
+        List<CategoryDto> categories = categoryRepository.findAll().stream()
+                .filter(c -> c.getName().toLowerCase(Locale.ROOT).contains(q))
+                .limit(3)
+                .map(mapper::toDto)
+                .toList();
+        return new SuggestionsDto(findVisibleByIds(ids), categories);
+    }
+
+    /** Counts for the catalog filter sidebar, consistent with {@link #search}. */
+    @Transactional(readOnly = true)
+    public FacetsDto facets(ProductSearchCriteria criteria) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+
+        CriteriaQuery<Object[]> byCategory = cb.createQuery(Object[].class);
+        Root<Product> root = byCategory.from(Product.class);
+        Predicate withoutCategory = filters(criteria, false).toPredicate(root, byCategory, cb);
+        var categoryId = root.get("category").get("id");
+        byCategory.multiselect(categoryId, cb.count(root)).where(withoutCategory).groupBy(categoryId);
+        List<FacetCount> categories = entityManager.createQuery(byCategory).getResultList().stream()
+                .map(row -> new FacetCount((Long) row[0], (Long) row[1]))
+                .toList();
+
+        CriteriaQuery<Object[]> totals = cb.createQuery(Object[].class);
+        Root<Product> all = totals.from(Product.class);
+        Predicate everything = filters(criteria, true).toPredicate(all, totals, cb);
+        totals.multiselect(
+                cb.count(all),
+                cb.sum(cb.<Integer>selectCase().when(cb.greaterThan(all.get("stock"), 0), 1).otherwise(0)),
+                cb.sum(cb.<Integer>selectCase().when(cb.isNotNull(all.get("compareAtPrice")), 1).otherwise(0)),
+                cb.min(all.get("price")),
+                cb.max(all.get("price"))).where(everything);
+        Object[] row = entityManager.createQuery(totals).getSingleResult();
+        return new FacetsDto(toLong(row[0]), toLong(row[1]), toLong(row[2]), (BigDecimal) row[3], (BigDecimal) row[4],
+                categories);
+    }
+
+    private static long toLong(Object value) {
+        return value == null ? 0 : ((Number) value).longValue();
+    }
+
+    private static Specification<Product> filters(ProductSearchCriteria criteria, boolean withCategory) {
+        return Specification.allOf(
                 visibleInCatalog(),
                 matchesText(criteria.q()),
-                inCategory(criteria.categoryId()),
+                withCategory ? inCategory(criteria.categoryId()) : null,
                 inShop(criteria.shopId()),
                 priceAtLeast(criteria.minPrice()),
                 priceAtMost(criteria.maxPrice()),
                 ratingAtLeast(criteria.minRating()),
                 inStock(criteria.inStock()),
                 onSale(criteria.onSale()));
-        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), sortOf(criteria.sort()));
-        return PageResponse.of(repository.findAll(spec, pageable), mapper::toSummary);
     }
 
     @Cacheable(value = PRODUCT_CACHE, key = "#id")
@@ -138,7 +211,7 @@ public class ProductService {
             case PRICE_DESC -> Sort.by("price").descending().and(Sort.by("id"));
             case RATING -> Sort.by("avgRating").descending().and(Sort.by("reviewCount").descending());
             case POPULAR -> Sort.by("soldCount").descending().and(Sort.by("id"));
-            case NEWEST -> Sort.by("createdAt").descending().and(Sort.by("id").descending());
+            case NEWEST, RELEVANCE -> Sort.by("createdAt").descending().and(Sort.by("id").descending());
         };
     }
 }

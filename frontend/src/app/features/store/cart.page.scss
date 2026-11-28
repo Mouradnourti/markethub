@@ -79,7 +79,7 @@
 }
 
 .total {
-  text-align: right;
+  text-align: end;
 }
 
 .summary {
@@ -132,4 +132,13 @@
 .small {
   font-size: 12px;
   text-align: center;
+}
+
+.coupon {
+  margin-bottom: 14px;
+}
+
+.discount {
+  color: var(--mh-success);
+  font-weight: 600;
 }

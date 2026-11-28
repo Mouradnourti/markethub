@@ -3,24 +3,23 @@
     <div class="hero-copy">
       @if (bestDiscount() > 0) {
         <a class="eyebrow" routerLink="/products" [queryParams]="{ onSale: true }">
-          <span class="pill sale">Up to -{{ bestDiscount() }}%</span> {{ dealCount() }} deals live now
-          <mat-icon>arrow_forward</mat-icon>
+          <span class="pill sale">{{ 'Up to -{n}%' | t: { n: bestDiscount() } }}</span> {{ '{count} deals live now' | t: { count: dealCount() } }}
+          <mat-icon class="dir-icon">arrow_forward</mat-icon>
         </a>
       }
-      <h1>Independent shops.<br />One easy checkout.</h1>
+      <h1>{{ 'Independent shops.' | t }}<br />{{ 'One easy checkout.' | t }}</h1>
       <p class="lead">
-        Discover {{ catalogSize() || 'hundreds of' }} products from verified independent sellers, and pay for
-        everything at once, by card or cash on delivery.
+        {{ 'Discover {count} products from verified independent sellers, and pay for everything at once, by card or cash on delivery.' | t: { count: catalogSize() || ('hundreds of' | t) } }}
       </p>
       <div class="ctas">
-        <a mat-flat-button class="btn-ink" routerLink="/products" [queryParams]="{ onSale: true }">Shop the deals</a>
-        <a mat-stroked-button class="btn-ink" routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">Explore best sellers</a>
+        <a mat-flat-button class="btn-ink" routerLink="/products" [queryParams]="{ onSale: true }">{{ 'Shop the deals' | t }}</a>
+        <a mat-stroked-button class="btn-ink" routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">{{ 'Explore best sellers' | t }}</a>
       </div>
       @if (bestSellerRating().reviews) {
         <div class="proof">
           <span class="stars" aria-hidden="true">★★★★★</span>
-          <span><strong>{{ bestSellerRating().rating | number: '1.1-1' }}/5</strong> average rating from
-            {{ bestSellerRating().reviews | number }} verified reviews on our best sellers</span>
+          <span><strong>{{ bestSellerRating().rating | number: '1.1-1' }}/5</strong>
+            {{ 'average rating from {count} verified reviews on our best sellers' | t: { count: (bestSellerRating().reviews | number) } }}</span>
         </div>
       }
     </div>
@@ -45,8 +44,8 @@
   <section class="block">
     <div class="section-head">
       <div>
-        <h2>Shop by category</h2>
-        <p>From everyday essentials to gifts they'll remember</p>
+        <h2>{{ 'Shop by category' | t }}</h2>
+        <p>{{ 'From everyday essentials to gifts they\'ll remember' | t }}</p>
       </div>
     </div>
     <div class="categories">
@@ -69,10 +68,10 @@
     <section class="block">
       <div class="section-head">
         <div>
-          <h2>Deals you'll love</h2>
-          <p>Limited stock at reduced prices, straight from our sellers</p>
+          <h2>{{ 'Deals you\'ll love' | t }}</h2>
+          <p>{{ 'Real reductions, straight from our sellers' | t }}</p>
         </div>
-        <a class="link" routerLink="/products" [queryParams]="{ onSale: true }">See all {{ dealCount() }} deals <mat-icon>arrow_forward</mat-icon></a>
+        <a class="link" routerLink="/products" [queryParams]="{ onSale: true }">{{ 'See all {count} deals' | t: { count: dealCount() } }} <mat-icon class="dir-icon">arrow_forward</mat-icon></a>
       </div>
       <div class="grid-4">
         @for (product of deals(); track product.id) {
@@ -86,8 +85,8 @@
     <section class="block">
       <div class="section-head">
         <div>
-          <h2><mat-icon class="ai">auto_awesome</mat-icon> Recommended for you</h2>
-          <p>Picked by our AI from what you and similar shoppers bought</p>
+          <h2><mat-icon class="ai">auto_awesome</mat-icon> {{ 'Recommended for you' | t }}</h2>
+          <p>{{ 'Picked by our AI from what you and similar shoppers bought' | t }}</p>
         </div>
       </div>
       <div class="grid-4">
@@ -101,10 +100,10 @@
   <section class="block">
     <div class="section-head">
       <div>
-        <h2>Best sellers</h2>
-        <p>What other customers are buying right now</p>
+        <h2>{{ 'Best sellers' | t }}</h2>
+        <p>{{ 'What other customers are buying right now' | t }}</p>
       </div>
-      <a class="link" routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">Shop all best sellers <mat-icon>arrow_forward</mat-icon></a>
+      <a class="link" routerLink="/products" [queryParams]="{ sort: 'POPULAR' }">{{ 'Shop all best sellers' | t }} <mat-icon class="dir-icon">arrow_forward</mat-icon></a>
     </div>
     <div class="grid-4">
       @for (product of popular(); track product.id) {
@@ -115,21 +114,20 @@
 
   <section class="block seller-banner">
     <div>
-      <span class="pill accent">For sellers</span>
-      <h2>Turn your shop into a business that sells every day</h2>
-      <p>List your products in minutes, get paid by card or cash on delivery, and let our AI forecast your sales and
-        flag risky orders before you ship.</p>
+      <span class="pill accent">{{ 'For sellers' | t }}</span>
+      <h2>{{ 'Turn your shop into a business that sells every day' | t }}</h2>
+      <p>{{ 'List your products in minutes, get paid by card or cash on delivery, and let our AI forecast your sales and flag risky orders before you ship.' | t }}</p>
       <ul>
-        <li><mat-icon>check</mat-icon> No monthly fee, a commission only when you sell</li>
-        <li><mat-icon>check</mat-icon> AI-written product descriptions</li>
-        <li><mat-icon>check</mat-icon> Sales forecast and return-risk alerts</li>
+        <li><mat-icon>check</mat-icon> {{ 'No monthly fee, a commission only when you sell' | t }}</li>
+        <li><mat-icon>check</mat-icon> {{ 'AI-written product descriptions' | t }}</li>
+        <li><mat-icon>check</mat-icon> {{ 'Discount codes, analytics and live order alerts' | t }}</li>
       </ul>
-      <a mat-flat-button class="btn-light" routerLink="/register" [queryParams]="{ type: 'SELLER' }">Open your shop</a>
+      <a mat-flat-button class="btn-light" routerLink="/register" [queryParams]="{ type: 'SELLER' }">{{ 'Open your shop' | t }}</a>
     </div>
     <div class="banner-art" aria-hidden="true">
-      <div class="stat"><mat-icon>trending_up</mat-icon><strong>Sales forecast</strong><span>Next 30 days, updated daily</span></div>
-      <div class="stat"><mat-icon>shield</mat-icon><strong>Return-risk score</strong><span>On every cash-on-delivery order</span></div>
-      <div class="stat"><mat-icon>edit_note</mat-icon><strong>Description writer</strong><span>Product copy in one click</span></div>
+      <div class="stat"><mat-icon>trending_up</mat-icon><strong>{{ 'Sales forecast' | t }}</strong><span>{{ 'Next 30 days, updated daily' | t }}</span></div>
+      <div class="stat"><mat-icon>shield</mat-icon><strong>{{ 'Return-risk score' | t }}</strong><span>{{ 'On every cash-on-delivery order' | t }}</span></div>
+      <div class="stat"><mat-icon>edit_note</mat-icon><strong>{{ 'Description writer' | t }}</strong><span>{{ 'Product copy in one click' | t }}</span></div>
     </div>
   </section>
 
@@ -137,14 +135,14 @@
     <section class="block">
       <div class="section-head">
         <div>
-          <h2>New arrivals</h2>
-          <p>Fresh from our sellers' workshops and warehouses</p>
+          <h2>{{ 'New arrivals' | t }}</h2>
+          <p>{{ 'Fresh from our sellers\' workshops and warehouses' | t }}</p>
         </div>
-        <a class="link" routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">See what's new <mat-icon>arrow_forward</mat-icon></a>
+        <a class="link" routerLink="/products" [queryParams]="{ sort: 'NEWEST' }">{{ 'See what\'s new' | t }} <mat-icon class="dir-icon">arrow_forward</mat-icon></a>
       </div>
       <div class="grid-4">
         @for (product of newest(); track product.id) {
-          <app-product-card [product]="product" tag="New" />
+          <app-product-card [product]="product" [tag]="'New' | t" />
         }
       </div>
     </section>
@@ -154,8 +152,8 @@
     <section class="block">
       <div class="section-head">
         <div>
-          <h2>Recently viewed</h2>
-          <p>Pick up where you left off</p>
+          <h2>{{ 'Recently viewed' | t }}</h2>
+          <p>{{ 'Pick up where you left off' | t }}</p>
         </div>
       </div>
       <div class="grid-4">

@@ -23,6 +23,14 @@ erDiagram
     SHOP_ORDERS ||--|{ ORDER_ITEMS : contains
     SHOP_ORDERS ||--o{ ORDER_STATUS_HISTORY : tracks
     SHOP_ORDERS ||--o{ DISPUTES : "subject of"
+    SHOPS ||--o{ COUPONS : offers
+    COUPONS ||--o{ SHOP_ORDERS : "used on"
+    USERS ||--o{ WISHLIST_ITEMS : saves
+    PRODUCTS ||--o{ WISHLIST_ITEMS : "saved as"
+    USERS ||--o{ USER_NOTIFICATIONS : receives
+    REVIEWS ||--o{ REVIEW_VOTES : "voted helpful"
+    USERS ||--o{ REVIEW_VOTES : casts
+    PRODUCTS ||--o{ PRODUCT_VIEWS : "viewed per day"
 
     USERS {
         bigint id PK
@@ -33,6 +41,11 @@ erDiagram
         varchar phone
         varchar role "CUSTOMER | SELLER | ADMIN"
         boolean enabled
+        int failed_login_count "V7"
+        timestamptz locked_until "V7"
+        varchar totp_secret "V7, AES-GCM encrypted"
+        boolean totp_enabled "V7"
+        timestamptz cart_reminder_sent_at "V4"
         timestamptz created_at
         timestamptz updated_at
     }
@@ -102,6 +115,7 @@ erDiagram
         varchar payment_method "COD | CARD"
         varchar payment_status "PENDING | PAID | FAILED | REFUNDED"
         numeric subtotal
+        numeric discount_total "V3"
         numeric shipping_fee
         numeric total
         varchar shipping_full_name
@@ -119,7 +133,10 @@ erDiagram
         bigint order_id FK
         bigint shop_id FK
         varchar status
-        numeric subtotal
+        numeric subtotal "net of discount"
+        bigint coupon_id FK "V3"
+        varchar coupon_code "V3, snapshot"
+        numeric discount_amount "V3"
         numeric commission_rate
         numeric commission_amount
         varchar tracking_number
@@ -160,7 +177,54 @@ erDiagram
         bigint user_id FK
         smallint rating "1..5"
         text comment
+        int helpful_count "V5"
+        jsonb photo_urls "V5"
+        text seller_reply "V5"
+        timestamptz seller_replied_at "V5"
         timestamptz created_at
+    }
+    REVIEW_VOTES {
+        bigint review_id PK,FK
+        bigint user_id PK,FK
+        timestamptz created_at
+    }
+    COUPONS {
+        bigint id PK
+        bigint shop_id FK
+        varchar code UK
+        varchar type "PERCENT | FIXED"
+        numeric value
+        numeric min_subtotal
+        timestamptz starts_at
+        timestamptz ends_at
+        int max_uses
+        int used_count
+        boolean once_per_customer
+        boolean featured
+        boolean active
+    }
+    WISHLIST_ITEMS {
+        bigint id PK
+        bigint user_id FK
+        bigint product_id FK
+        numeric price_when_added
+        numeric last_alert_price
+        timestamptz created_at
+    }
+    USER_NOTIFICATIONS {
+        bigint id PK
+        bigint user_id FK
+        varchar type
+        varchar title
+        varchar body
+        varchar link
+        timestamptz read_at
+        timestamptz created_at
+    }
+    PRODUCT_VIEWS {
+        bigint product_id PK,FK
+        date day PK
+        int views
     }
     DISPUTES {
         bigint id PK
@@ -185,6 +249,12 @@ erDiagram
 |---|---|---|
 | products | `(category_id)`, `(shop_id)`, `(active, created_at)`, `(price)`, `lower(name)` | Catalog filters and sorting |
 | products | `(sold_count desc) where compare_at_price is not null` (V2) | Deals listing |
+| products | GIN `lower(name) gin_trgm_ops` (V6) | Typo-tolerant search and suggestions |
+| coupons | unique `(code)`, `(shop_id)`; shop_orders `(coupon_id)` (V3) | Code lookup, seller list, once-per-customer check |
+| wishlist_items | unique `(user_id, product_id)`, `(product_id)` (V4) | One save per product, alerts fan-out |
+| user_notifications | `(user_id, created_at desc)`, partial `(user_id) where read_at is null` (V4) | Bell list and unread count |
+| reviews | `(product_id, helpful_count desc, created_at desc)` (V5) | "Most helpful" sort |
+| product_views | PK `(product_id, day)`, `(day)` (V6) | Daily upsert and period analytics |
 | cart_items | unique `(user_id, product_id)` | One line per product |
 | orders | `(customer_id, created_at desc)` | Order history |
 | shop_orders | `(shop_id, status)`, `(order_id)` | Seller inbox |

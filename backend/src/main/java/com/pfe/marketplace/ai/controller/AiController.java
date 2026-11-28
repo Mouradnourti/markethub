@@ -2,6 +2,10 @@ package com.pfe.marketplace.ai.controller;
 
 import com.pfe.marketplace.ai.dto.AiDtos.CopyDraft;
 import com.pfe.marketplace.ai.dto.AiDtos.CopyDraftRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.PriceHintDto;
+import com.pfe.marketplace.ai.dto.AiDtos.PriceHintRequest;
+import com.pfe.marketplace.ai.dto.AiDtos.SmartSearchDto;
+import com.pfe.marketplace.ai.service.AiCatalogService;
 import com.pfe.marketplace.ai.dto.AiDtos.SalesForecastDto;
 import com.pfe.marketplace.ai.service.MlDatasetService;
 import com.pfe.marketplace.ai.service.ProductCopyService;
@@ -31,6 +35,19 @@ public class AiController {
     private final SalesForecastService forecastService;
     private final MlDatasetService datasetService;
     private final ProductCopyService copyService;
+    private final AiCatalogService catalogService;
+
+    @Operation(summary = "Search by meaning (AI index), falling back to keyword search when the AI is offline")
+    @GetMapping("/api/products/smart-search")
+    public SmartSearchDto smartSearch(@RequestParam String q, @RequestParam(defaultValue = "12") int limit) {
+        return catalogService.search(q, Math.clamp(limit, 1, 48));
+    }
+
+    @Operation(summary = "Suggested price range from the most similar products in the catalog")
+    @PostMapping("/api/seller/products/price-hint")
+    public PriceHintDto priceHint(@Valid @RequestBody PriceHintRequest request) {
+        return catalogService.priceHint(request);
+    }
 
     @Operation(summary = "Personalised product recommendations for the signed-in customer")
     @GetMapping("/api/recommendations")

@@ -8,17 +8,20 @@ import { CartItem } from '../../core/models/api.models';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { EmptyState } from '../../shared/ui/empty-state';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { CouponField } from '../../shared/ui/coupon-field';
+
 @Component({
   selector: 'app-cart-page',
-  imports: [RouterLink, MatButtonModule, MatIconModule, MoneyPipe, EmptyState],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MoneyPipe, EmptyState, CouponField, TranslatePipe],
   template: `
     <div class="container page">
-      <div class="page-title"><div><h1>Your cart</h1><p>{{ cart.count() }} item(s)</p></div></div>
+      <div class="page-title"><div><h1>{{ 'Your cart' | t }}</h1><p>{{ '{count} item(s)' | t: { count: cart.count() } }}</p></div></div>
 
       @if (cart.isEmpty()) {
         <div class="panel">
-          <app-empty-state icon="shopping_cart" title="Your cart is empty" message="Browse the catalog and add products you like.">
-            <a mat-flat-button class="btn-ink" routerLink="/products">Start shopping</a>
+          <app-empty-state icon="shopping_cart" [title]="'Your cart is empty' | t" [message]="'Browse the catalog and add products you like.' | t">
+            <a mat-flat-button class="btn-ink" routerLink="/products">{{ 'Start shopping' | t }}</a>
           </app-empty-state>
         </div>
       } @else {
@@ -34,18 +37,18 @@ import { EmptyState } from '../../shared/ui/empty-state';
                     </a>
                     <div class="details">
                       <a [routerLink]="['/products', item.productId]" class="name">{{ item.productName }}</a>
-                      <span class="muted">{{ item.unitPrice | money }} each</span>
+                      <span class="muted">{{ '{price} each' | t: { price: (item.unitPrice | money) } }}</span>
                       @if (!item.available) {
-                        <span class="warn">Only {{ item.availableStock }} left — reduce the quantity</span>
+                        <span class="warn">{{ 'Only {count} left, reduce the quantity' | t: { count: item.availableStock } }}</span>
                       }
                     </div>
                     <div class="qty">
-                      <button mat-icon-button (click)="update(item, item.quantity - 1)" [disabled]="item.quantity <= 1" aria-label="Decrease"><mat-icon>remove</mat-icon></button>
+                      <button mat-icon-button (click)="update(item, item.quantity - 1)" [disabled]="item.quantity <= 1" [attr.aria-label]="'Decrease quantity' | t"><mat-icon>remove</mat-icon></button>
                       <span>{{ item.quantity }}</span>
-                      <button mat-icon-button (click)="update(item, item.quantity + 1)" [disabled]="item.quantity >= item.availableStock" aria-label="Increase"><mat-icon>add</mat-icon></button>
+                      <button mat-icon-button (click)="update(item, item.quantity + 1)" [disabled]="item.quantity >= item.availableStock" [attr.aria-label]="'Increase quantity' | t"><mat-icon>add</mat-icon></button>
                     </div>
                     <strong class="total">{{ item.lineTotal | money }}</strong>
-                    <button mat-icon-button (click)="remove(item)" aria-label="Remove"><mat-icon>delete</mat-icon></button>
+                    <button mat-icon-button (click)="remove(item)" [attr.aria-label]="'Remove' | t"><mat-icon>delete</mat-icon></button>
                   </div>
                 }
               </div>
@@ -53,17 +56,21 @@ import { EmptyState } from '../../shared/ui/empty-state';
           </section>
 
           <aside class="panel summary">
-            <h2>Order summary</h2>
-            <div class="sum"><span>Subtotal</span><span>{{ cart.cart().subtotal | money }}</span></div>
-            <div class="sum"><span>Shipping</span><span>{{ cart.cart().shippingFee ? (cart.cart().shippingFee | money) : 'Free' }}</span></div>
-            @if (missingForFree() > 0) {
-              <div class="hint"><mat-icon>local_shipping</mat-icon> Add {{ missingForFree() | money }} for free shipping</div>
+            <h2>{{ 'Order summary' | t }}</h2>
+            <app-coupon-field class="coupon" />
+            <div class="sum"><span>{{ 'Subtotal' | t }}</span><span>{{ cart.cart().subtotal | money }}</span></div>
+            @if (cart.cart().discount > 0) {
+              <div class="sum discount"><span>{{ 'Discount ({code})' | t: { code: cart.cart().coupon?.code } }}</span><span>−{{ cart.cart().discount | money }}</span></div>
             }
-            <div class="sum total-line"><span>Total</span><span>{{ cart.cart().total | money }}</span></div>
+            <div class="sum"><span>{{ 'Shipping' | t }}</span><span>{{ cart.cart().shippingFee ? (cart.cart().shippingFee | money) : ('Free' | t) }}</span></div>
+            @if (missingForFree() > 0) {
+              <div class="hint"><mat-icon>local_shipping</mat-icon> {{ 'Add {amount} for free shipping' | t: { amount: (missingForFree() | money) } }}</div>
+            }
+            <div class="sum total-line"><span>{{ 'Total' | t }}</span><span>{{ cart.cart().total | money }}</span></div>
             <a mat-flat-button routerLink="/checkout" class="checkout btn-ink" [class.disabled]="hasUnavailable()"
-               [attr.aria-disabled]="hasUnavailable()">Proceed to checkout</a>
-            <a mat-button routerLink="/products" class="full-width">Continue shopping</a>
-            <p class="muted small">Items from {{ groups().length }} shop(s) ship separately, one checkout.</p>
+               [attr.aria-disabled]="hasUnavailable()">{{ 'Proceed to checkout' | t }}</a>
+            <a mat-button routerLink="/products" class="full-width">{{ 'Continue shopping' | t }}</a>
+            <p class="muted small">{{ 'Items from {count} shop(s) ship separately, one checkout.' | t: { count: groups().length } }}</p>
           </aside>
         </div>
       }

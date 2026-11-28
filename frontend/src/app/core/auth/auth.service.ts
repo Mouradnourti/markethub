@@ -2,8 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, firstValueFrom, map, of, shareReplay, tap } from 'rxjs';
-import { AuthResponse, RegisterRequest, Role, User } from '../models/api.models';
+import { AuthResponse, RegisterRequest, Role, TwoFactorSetup, User } from '../models/api.models';
 import { TokenStorage } from './token-storage';
+
+/** Either signed in, or a second step is needed with a code from the authenticator app. */
+export type LoginResult = { user: User; challengeToken?: undefined } | { user?: undefined; challengeToken: string };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -34,10 +37,31 @@ export class AuthService {
     );
   }
 
-  login(email: string, password: string): Observable<User> {
+  /** Signs in, or returns a challenge when the account uses two-factor sign-in. */
+  login(email: string, password: string): Observable<LoginResult> {
+    return this.http.post<AuthResponse>('/api/auth/login', { email, password }).pipe(
+      map((response): LoginResult =>
+        response.twoFactorRequired && response.challengeToken
+          ? { challengeToken: response.challengeToken }
+          : { user: this.handleAuth(response) },
+      ),
+    );
+  }
+
+  completeTwoFactor(challengeToken: string, code: string): Observable<User> {
     return this.http
-      .post<AuthResponse>('/api/auth/login', { email, password })
+      .post<AuthResponse>('/api/auth/login/2fa', { challengeToken, code })
       .pipe(map((response) => this.handleAuth(response)));
+  }
+
+  twoFactorSetup(): Observable<TwoFactorSetup> {
+    return this.http.post<TwoFactorSetup>('/api/auth/2fa/setup', null);
+  }
+
+  setTwoFactor(enabled: boolean, code: string): Observable<{ enabled: boolean }> {
+    return this.http
+      .post<{ enabled: boolean }>(`/api/auth/2fa/${enabled ? 'enable' : 'disable'}`, { code })
+      .pipe(tap((r) => this.currentUser.update((u) => (u ? { ...u, twoFactorEnabled: r.enabled } : u))));
   }
 
   register(request: RegisterRequest): Observable<User> {

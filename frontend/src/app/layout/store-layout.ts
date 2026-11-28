@@ -5,8 +5,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CatalogApi } from '../core/api/catalog.api';
+import { TranslatePipe } from '../core/i18n/translate.pipe';
+import { WishlistService } from '../core/wishlist/wishlist.service';
+import { LanguagePicker } from './language-picker';
+import { NotificationBell } from './notification-bell';
+import { SearchBox } from './search-box';
 import { AuthService } from '../core/auth/auth.service';
 import { CartService } from '../core/cart/cart.service';
 import { ConfigService } from '../core/config/config.service';
@@ -30,6 +35,10 @@ const ANNOUNCEMENT_INTERVAL_MS = 5000;
     MoneyPipe,
     Logo,
     CartDrawer,
+    SearchBox,
+    NotificationBell,
+    LanguagePicker,
+    TranslatePipe,
   ],
   templateUrl: './store-layout.html',
   styleUrl: './store-layout.scss',
@@ -39,7 +48,7 @@ export class StoreLayout {
   protected readonly auth = inject(AuthService);
   protected readonly cart = inject(CartService);
   protected readonly config = inject(ConfigService);
-  private readonly router = inject(Router);
+  protected readonly wishlist = inject(WishlistService);
   protected readonly categories = toSignal(inject(CatalogApi).categories(), { initialValue: [] });
   /** Index of the benefit shown in the announcement bar on small screens. */
   protected readonly announcement = signal(0);
@@ -50,7 +59,4 @@ export class StoreLayout {
     inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
-  protected search(): void {
-    void this.router.navigate(['/products'], { queryParams: { q: this.query.trim() || null } });
-  }
 }

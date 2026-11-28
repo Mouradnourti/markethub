@@ -29,12 +29,16 @@ public class ImageStorageService {
     }
 
     public String storeProductImage(MultipartFile file) {
+        return storeImage("products", file);
+    }
+
+    public String storeImage(String folder, MultipartFile file) {
         String extension = EXTENSIONS.get(file.getContentType());
         if (file.isEmpty() || extension == null) {
             throw new BusinessException("Only non-empty JPEG, PNG, WebP or GIF images are accepted");
         }
         try (InputStream in = file.getInputStream()) {
-            return store("products", extension, in);
+            return store(folder, extension, in);
         } catch (IOException e) {
             throw new UncheckedIOException("Could not store image", e);
         }

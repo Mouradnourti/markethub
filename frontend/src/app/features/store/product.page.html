@@ -1,14 +1,14 @@
 <div class="container page">
   @if (notFound()) {
     <div class="panel missing">
-      <h2>This product is not available</h2>
-      <p class="muted">It may have been removed by the seller.</p>
-      <a mat-flat-button class="btn-ink" routerLink="/products">Back to the catalog</a>
+      <h2>{{ 'This product is not available' | t }}</h2>
+      <p class="muted">{{ 'It may have been removed by the seller.' | t }}</p>
+      <a mat-flat-button class="btn-ink" routerLink="/products">{{ 'Back to the catalog' | t }}</a>
     </div>
   } @else if (product(); as p) {
-    <nav class="crumbs" aria-label="Breadcrumb">
-      <a routerLink="/">Home</a><mat-icon>chevron_right</mat-icon>
-      <a routerLink="/products" [queryParams]="{ categoryId: p.categoryId }">{{ p.categoryName }}</a><mat-icon>chevron_right</mat-icon>
+    <nav class="crumbs" [attr.aria-label]="'Breadcrumb' | t">
+      <a routerLink="/">{{ 'Home' | t }}</a><mat-icon class="dir-icon">chevron_right</mat-icon>
+      <a routerLink="/products" [queryParams]="{ categoryId: p.categoryId }">{{ p.categoryName }}</a><mat-icon class="dir-icon">chevron_right</mat-icon>
       <span>{{ p.name }}</span>
     </nav>
 
@@ -17,7 +17,7 @@
         @if (p.images.length > 1) {
           <div class="thumbs">
             @for (src of p.images; track src; let i = $index) {
-              <button [class.on]="i === activeImage()" (click)="activeImage.set(i)" [attr.aria-label]="'Show image ' + (i + 1)">
+              <button [class.on]="i === activeImage()" (click)="activeImage.set(i)" [attr.aria-label]="'Show image {n}' | t: { n: i + 1 }">
                 <img [src]="src" alt="" />
               </button>
             }
@@ -30,28 +30,29 @@
           @if (discount()) {
             <span class="pill sale corner">-{{ discount() }}%</span>
           }
+          <app-wishlist-button class="corner-heart" [productId]="p.id" [productName]="p.name" />
         </div>
       </div>
 
       <div class="info">
         <a class="shop" [routerLink]="['/shops', p.shopSlug]">
           <mat-icon>storefront</mat-icon> {{ p.shopName }}
-          <span class="verified"><mat-icon>verified</mat-icon> Verified seller</span>
+          <span class="verified"><mat-icon>verified</mat-icon> {{ 'Verified seller' | t }}</span>
         </a>
         <h1>{{ p.name }}</h1>
 
         <a class="rating" href="#reviews" (click)="$event.preventDefault(); reviewsSection.scrollIntoView({ behavior: 'smooth' })">
           <app-rating-stars [value]="p.avgRating" />
           @if (p.reviewCount) {
-            <span><strong>{{ p.avgRating | number: '1.1-1' }}</strong> · {{ p.reviewCount }} reviews</span>
+            <span><strong>{{ p.avgRating | number: '1.1-1' }}</strong> · {{ '{count} reviews' | t: { count: p.reviewCount } }}</span>
           } @else {
-            <span>No reviews yet</span>
+            <span>{{ 'No reviews yet' | t }}</span>
           }
           @if (p.soldCount) {
-            <span class="muted">· {{ p.soldCount }} sold</span>
+            <span class="muted">· {{ '{count} sold' | t: { count: p.soldCount } }}</span>
           }
           @if (bestseller()) {
-            <span class="pill">Best seller</span>
+            <span class="pill">{{ 'Best seller' | t }}</span>
           }
         </a>
 
@@ -62,10 +63,30 @@
         <div class="price-block">
           <app-price [price]="p.price" [compareAtPrice]="p.compareAtPrice" />
           @if (savings() > 0) {
-            <span class="pill sale">Save {{ savings() | money }}</span>
+            <span class="pill sale">{{ 'Save {amount}' | t: { amount: (savings() | money) } }}</span>
           }
         </div>
-        <p class="tax muted">Free shipping on orders over {{ config.config().freeShippingThreshold | money }}.</p>
+        <p class="tax muted">{{ 'Free shipping on orders over {amount}.' | t: { amount: (config.config().freeShippingThreshold | money) } }}</p>
+
+        @for (offer of offers().slice(0, 1); track offer.code) {
+          <div class="offer">
+            <mat-icon>sell</mat-icon>
+            <div>
+              <strong>{{ '{label} at {shop}' | t: { label: offer.label, shop: offer.shopName } }}</strong>
+              <span>
+                @if (offer.minSubtotal) {
+                  {{ 'On orders over {amount} from this shop.' | t: { amount: (offer.minSubtotal | money) } }}
+                } @else {
+                  {{ 'On everything from this shop.' | t }}
+                }
+                @if (offer.endsAt) { {{ 'Until {date}.' | t: { date: (offer.endsAt | date: 'd MMM') } }} }
+              </span>
+            </div>
+            <button type="button" class="code" (click)="copyCode(offer.code)" [attr.aria-label]="'Copy code {code}' | t: { code: offer.code }">
+              {{ offer.code }} <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        }
 
         @if (p.highlights.length) {
           <ul class="highlights">
@@ -77,24 +98,28 @@
 
         <div class="buy-box" #buyBox>
           @if (p.stock === 0) {
-            <div class="stock out"><mat-icon>block</mat-icon> Sold out. Check back soon or browse similar products below.</div>
+            <div class="stock out"><mat-icon>block</mat-icon> {{ 'Sold out. Save it to your wishlist and we will tell you when it is back.' | t }}</div>
+            <app-wishlist-button variant="outline" [productId]="p.id" [productName]="p.name" />
           } @else {
             @if (p.stock < 5) {
-              <div class="stock low"><span class="dot"></span> Only {{ p.stock }} left in stock, order soon</div>
+              <div class="stock low"><span class="dot"></span> {{ 'Only {count} left in stock, order soon' | t: { count: p.stock } }}</div>
             } @else {
-              <div class="stock in"><span class="dot"></span> In stock, ready to ship</div>
+              <div class="stock in"><span class="dot"></span> {{ 'In stock, ready to ship' | t }}</div>
             }
             <div class="buy">
-              <div class="qty" aria-label="Quantity">
-                <button (click)="changeQuantity(-1)" [disabled]="quantity() <= 1" aria-label="Decrease quantity"><mat-icon>remove</mat-icon></button>
+              <div class="qty" [attr.aria-label]="'Quantity' | t">
+                <button (click)="changeQuantity(-1)" [disabled]="quantity() <= 1" [attr.aria-label]="'Decrease quantity' | t"><mat-icon>remove</mat-icon></button>
                 <span>{{ quantity() }}</span>
-                <button (click)="changeQuantity(1)" [disabled]="quantity() >= maxQuantity()" aria-label="Increase quantity"><mat-icon>add</mat-icon></button>
+                <button (click)="changeQuantity(1)" [disabled]="quantity() >= maxQuantity()" [attr.aria-label]="'Increase quantity' | t"><mat-icon>add</mat-icon></button>
               </div>
               <button mat-flat-button class="btn-ink add-to-cart" (click)="addToCart()" [disabled]="adding()">
-                Add to cart · {{ p.price * quantity() | money }}
+                {{ 'Add to cart' | t }} · {{ p.price * quantity() | money }}
               </button>
             </div>
-            <button mat-stroked-button class="btn-ink buy-now" (click)="addToCart(true)" [disabled]="adding()">Buy it now</button>
+            <div class="buy secondary">
+              <button mat-stroked-button class="btn-ink buy-now" (click)="addToCart(true)" [disabled]="adding()">{{ 'Buy it now' | t }}</button>
+              <app-wishlist-button variant="outline" [productId]="p.id" [productName]="p.name" />
+            </div>
           }
         </div>
 
@@ -102,32 +127,32 @@
           <li>
             <mat-icon>local_shipping</mat-icon>
             <div>
-              <strong>Get it {{ delivery.from | date: 'EEE d MMM' }} – {{ delivery.to | date: 'EEE d MMM' }}</strong>
-              <span>Shipped by {{ p.shopName }} with tracking</span>
+              <strong>{{ 'Get it {from} – {to}' | t: { from: (delivery.from | date: 'EEE d MMM'), to: (delivery.to | date: 'EEE d MMM') } }}</strong>
+              <span>{{ 'Shipped by {shop} with tracking' | t: { shop: p.shopName } }}</span>
             </div>
           </li>
           <li>
             <mat-icon>payments</mat-icon>
-            <div><strong>Pay your way</strong><span>Secure card payment or cash on delivery</span></div>
+            <div><strong>{{ 'Pay your way' | t }}</strong><span>{{ 'Secure card payment or cash on delivery' | t }}</span></div>
           </li>
           <li>
             <mat-icon>autorenew</mat-icon>
-            <div><strong>14-day free returns</strong><span>Not right? Send it back for a refund</span></div>
+            <div><strong>{{ '14-day free returns' | t }}</strong><span>{{ 'Not right? Send it back for a refund' | t }}</span></div>
           </li>
         </ul>
 
         <mat-accordion class="details" displayMode="flat" multi>
           <mat-expansion-panel [expanded]="true">
-            <mat-expansion-panel-header><mat-panel-title>Description</mat-panel-title></mat-expansion-panel-header>
+            <mat-expansion-panel-header><mat-panel-title>{{ 'Description' | t }}</mat-panel-title></mat-expansion-panel-header>
             @for (paragraph of paragraphs(); track $index) {
               <p class="description">{{ paragraph }}</p>
             } @empty {
-              <p class="muted">The seller has not added a description yet.</p>
+              <p class="muted">{{ 'The seller has not added a description yet.' | t }}</p>
             }
           </mat-expansion-panel>
           @if (p.specs.length) {
             <mat-expansion-panel>
-              <mat-expansion-panel-header><mat-panel-title>Specifications</mat-panel-title></mat-expansion-panel-header>
+              <mat-expansion-panel-header><mat-panel-title>{{ 'Specifications' | t }}</mat-panel-title></mat-expansion-panel-header>
               <table class="specs">
                 @for (spec of p.specs; track spec.label) {
                   <tr><th scope="row">{{ spec.label }}</th><td>{{ spec.value }}</td></tr>
@@ -136,15 +161,12 @@
             </mat-expansion-panel>
           }
           <mat-expansion-panel>
-            <mat-expansion-panel-header><mat-panel-title>Shipping &amp; returns</mat-panel-title></mat-expansion-panel-header>
+            <mat-expansion-panel-header><mat-panel-title>{{ 'Shipping & returns' | t }}</mat-panel-title></mat-expansion-panel-header>
             <p class="description">
-              Shipping costs {{ config.config().shippingFlatFee | money }} per order and is free from
-              {{ config.config().freeShippingThreshold | money }}, even when your cart mixes several shops. Each shop
-              ships its own parcel with a tracking number, usually within one or two business days.
+              {{ 'Shipping costs {fee} per order and is free from {threshold}, even when your cart mixes several shops. Each shop ships its own parcel with a tracking number, usually within one or two business days.'
+                 | t: { fee: (config.config().shippingFlatFee | money), threshold: (config.config().freeShippingThreshold | money) } }}
             </p>
-            <p class="description">
-              You can return a delivered parcel within 14 days. Once the return is approved, the product is refunded.
-            </p>
+            <p class="description">{{ 'You can return a delivered parcel within 14 days. Once the return is approved, the product is refunded.' | t }}</p>
           </mat-expansion-panel>
         </mat-accordion>
       </div>
@@ -152,7 +174,7 @@
 
     @if (together().length) {
       <section class="bundle panel">
-        <h2>Frequently bought together</h2>
+        <h2>{{ 'Frequently bought together' | t }}</h2>
         <div class="bundle-body">
           <div class="bundle-items">
             <div class="bundle-item">
@@ -166,16 +188,16 @@
             }
           </div>
           <div class="bundle-list">
-            <div class="this-item"><mat-icon>check_box</mat-icon><span><strong>This item:</strong> {{ p.name }} · {{ p.price | money }}</span></div>
+            <div class="this-item"><mat-icon>check_box</mat-icon><span><strong>{{ 'This item:' | t }}</strong> {{ p.name }} · {{ p.price | money }}</span></div>
             @for (item of together(); track item.id) {
               <mat-checkbox [checked]="bundleSelection().has(item.id)" (change)="toggleBundle(item.id, $event.checked)">
                 {{ item.name }} · {{ item.price | money }}
               </mat-checkbox>
             }
             <div class="bundle-total">
-              <span>Total: <strong>{{ bundleTotal() | money }}</strong></span>
+              <span>{{ 'Total:' | t }} <strong>{{ bundleTotal() | money }}</strong></span>
               <button mat-flat-button class="btn-ink" (click)="addBundle()" [disabled]="bundleAdding() || p.stock === 0">
-                Add {{ bundleItems().length + 1 }} to cart
+                {{ 'Add {count} to cart' | t: { count: bundleItems().length + 1 } }}
               </button>
             </div>
           </div>
@@ -184,53 +206,12 @@
     }
 
     <section class="reviews" id="reviews" #reviewsSection>
-      <div class="reviews-summary">
-        <h2>Customer reviews</h2>
-        <div class="score">{{ p.avgRating | number: '1.1-1' }}</div>
-        <app-rating-stars [value]="p.avgRating" />
-        <p class="muted">Based on {{ reviewTotal() }} reviews. Only customers who received this product can review it.</p>
-
-        @if (eligibility(); as e) {
-          @if (e.canReview) {
-            <form class="review-form" (ngSubmit)="submitReview()">
-              <strong>Share your opinion</strong>
-              <app-rating-stars [editable]="true" [(value)]="newRating" />
-              <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Your review (optional)</mat-label>
-                <textarea matInput rows="3" name="comment" [(ngModel)]="newComment" maxlength="2000"></textarea>
-              </mat-form-field>
-              <button mat-flat-button class="btn-ink" [disabled]="submitting()">Publish review</button>
-            </form>
-          }
-        }
-      </div>
-
-      <div class="review-list">
-        @for (review of reviews(); track review.id) {
-          <article class="review">
-            <div class="review-head">
-              <span class="avatar">{{ review.authorName.charAt(0) }}</span>
-              <div>
-                <strong>{{ review.authorName }}</strong>
-                <div class="verified-buyer"><mat-icon>verified</mat-icon> Verified purchase</div>
-              </div>
-              <span class="spacer"></span>
-              <span class="muted small">{{ review.createdAt | date: 'mediumDate' }}</span>
-            </div>
-            <app-rating-stars [value]="review.rating" />
-            @if (review.comment) {
-              <p>{{ review.comment }}</p>
-            }
-          </article>
-        } @empty {
-          <p class="muted">No reviews yet. Be the first to share your experience after delivery.</p>
-        }
-      </div>
+      <app-product-reviews [productId]="p.id" [shopName]="p.shopName" />
     </section>
 
     @if (similar().length) {
       <section class="more">
-        <div class="section-head"><div><h2>You may also like</h2></div></div>
+        <div class="section-head"><div><h2>{{ 'You may also like' | t }}</h2></div></div>
         <div class="grid-4">
           @for (item of similar(); track item.id) {
             <app-product-card [product]="item" />
@@ -241,7 +222,7 @@
 
     @if (recentlyViewed().length) {
       <section class="more">
-        <div class="section-head"><div><h2>Recently viewed</h2></div></div>
+        <div class="section-head"><div><h2>{{ 'Recently viewed' | t }}</h2></div></div>
         <div class="grid-4">
           @for (item of recentlyViewed(); track item.id) {
             <app-product-card [product]="item" />
@@ -259,7 +240,7 @@
             <app-price [price]="p.price" [compareAtPrice]="p.compareAtPrice" />
           </div>
           <button mat-flat-button class="btn-ink" (click)="addToCart()" [disabled]="adding()" [attr.tabindex]="showStickyBar() ? 0 : -1">
-            Add to cart
+            {{ 'Add to cart' | t }}
           </button>
         </div>
       </div>

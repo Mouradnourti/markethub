@@ -33,6 +33,10 @@ services:
     env_file: .env
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker,demo}
+      # Actuator (health + Prometheus metrics) on an internal port that is not published.
+      MANAGEMENT_PORT: "8081"
+      ACTUATOR_ENDPOINTS: health,info,prometheus
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:4200}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -72,6 +76,8 @@ services:
       BACKEND_URL: http://backend:8080
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
       AI_SYNC_INTERVAL: "3600"
+      # Optional: with a key, the description writer uses Claude; without one, the built-in writer.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "8000:8000"
 
@@ -87,6 +93,32 @@ services:
       - "4200:80"
     depends_on:
       - backend
+
+  # Monitoring, started with: docker compose --profile monitoring up
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["monitoring"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["monitoring"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-change-me-grafana}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
 
 volumes:
   postgres-data:

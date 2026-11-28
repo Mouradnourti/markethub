@@ -75,6 +75,8 @@ class CopyRequest(ApiModel):
     keywords: list[str] = Field(default_factory=list, max_length=20)
     tone: Literal["friendly", "premium", "technical"] = "friendly"
     variant: int = Field(default=0, ge=0, le=1000)
+    # auto: Claude when an API key is configured, otherwise the rule-based writer.
+    engine: Literal["auto", "rules", "llm"] = "auto"
 
 
 class SpecOut(ApiModel):
@@ -89,3 +91,41 @@ class CopyResponse(ApiModel):
     specs: list[SpecOut]
     suggested_spec_labels: list[str]
     category_profile: str
+    engine: str
+
+
+class SearchRequest(ApiModel):
+    query: str = Field(min_length=1, max_length=200)
+    limit: int = Field(default=12, ge=1, le=48)
+
+
+class SearchHit(ApiModel):
+    product_id: int
+    score: float
+
+
+class SearchResponse(ApiModel):
+    hits: list[SearchHit]
+    model: str
+
+
+class PriceHintRequest(ApiModel):
+    name: str = Field(min_length=2, max_length=200)
+    category: str | None = Field(default=None, max_length=120)
+    description: str | None = Field(default=None, max_length=5000)
+
+
+class Comparable(ApiModel):
+    product_id: int
+    name: str
+    price: float
+    similarity: float
+
+
+class PriceHintResponse(ApiModel):
+    low: float
+    typical: float
+    high: float
+    suggested: float
+    confidence: Literal["low", "medium", "high"]
+    comparables: list[Comparable]

@@ -58,6 +58,7 @@ class CheckoutServiceTest {
     @Mock SettingsService settingsService;
     @Mock PaymentService paymentService;
     @Mock ReturnRiskService returnRiskService;
+    @Mock com.pfe.marketplace.promotion.service.CouponService couponService;
     @Mock OrderLifecycleService lifecycle;
     @Mock OrderMapper orderMapper;
     @Mock ApplicationEventPublisher events;
@@ -69,7 +70,7 @@ class CheckoutServiceTest {
     @BeforeEach
     void setUp() {
         service = new CheckoutService(cartItemRepository, productRepository, orderRepository, userRepository,
-                settingsService, paymentService, returnRiskService, lifecycle, orderMapper, events,
+                settingsService, paymentService, returnRiskService, couponService, lifecycle, orderMapper, events,
                 Clock.fixed(Instant.parse("2026-03-15T10:00:00Z"), ZoneOffset.UTC));
         when(userRepository.getReferenceById(7L)).thenReturn(Fixtures.user(7, Role.CUSTOMER));
         when(settingsService.get()).thenReturn(new PlatformSettingsDto(new BigDecimal("10"), new BigDecimal("4.99"),

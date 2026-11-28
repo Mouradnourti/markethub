@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 public class JwtService {
 
     private static final String ISSUER = "markethub";
+    private static final String CHALLENGE_ISSUER = "markethub-2fa";
+    private static final Duration CHALLENGE_TTL = Duration.ofMinutes(5);
 
     private final SecretKey key;
     private final Duration accessTokenTtl;
@@ -41,6 +43,33 @@ public class JwtService {
                 .expiration(Date.from(now.plus(accessTokenTtl)))
                 .signWith(key)
                 .compact();
+    }
+
+    /**
+     * Proof that the password was right, valid five minutes, to exchange with a two-factor code. Its issuer
+     * differs from access tokens, so it can never be used to call the API.
+     */
+    public String generateChallengeToken(User user) {
+        Instant now = clock.instant();
+        return Jwts.builder()
+                .issuer(CHALLENGE_ISSUER)
+                .subject(String.valueOf(user.getId()))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(CHALLENGE_TTL)))
+                .signWith(key)
+                .compact();
+    }
+
+    /** @throws JwtException if the challenge is invalid or expired. */
+    public Long parseChallengeToken(String token) {
+        return Long.valueOf(Jwts.parser()
+                .verifyWith(key)
+                .requireIssuer(CHALLENGE_ISSUER)
+                .clock(() -> Date.from(clock.instant()))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject());
     }
 
     public long accessTokenTtlSeconds() {

@@ -14,8 +14,9 @@ import { startWith } from 'rxjs';
 import { CatalogApi } from '../../core/api/catalog.api';
 import { SellerApi } from '../../core/api/seller.api';
 import { ConfigService } from '../../core/config/config.service';
-import { CopyDraft, CopyTone, Product, ProductRequest, ProductSpec } from '../../core/models/api.models';
+import { CopyDraft, CopyTone, PriceHint, Product, ProductRequest, ProductSpec } from '../../core/models/api.models';
 import { Notifier } from '../../core/ui/notifier.service';
+import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { discountPercent } from '../../shared/ui/price';
 import { listingQuality } from './listing-quality';
 
@@ -37,6 +38,7 @@ type SpecGroup = FormGroup<{ label: FormControl<string>; value: FormControl<stri
     MatButtonToggleModule,
     MatIconModule,
     MatProgressBarModule,
+    MoneyPipe,
   ],
   templateUrl: './product-form.page.html',
   styleUrl: './product-form.page.scss',
@@ -56,6 +58,9 @@ export class ProductFormPage implements OnInit {
   protected readonly writing = signal(false);
   protected readonly draftVariant = signal(0);
   protected readonly lastDraft = signal<CopyDraft | null>(null);
+  protected readonly hint = signal<PriceHint | null>(null);
+  protected readonly hinting = signal(false);
+  protected readonly hintMessage = signal<string | null>(null);
   protected readonly isEdit = computed(() => !!this.id());
   protected readonly currency = inject(ConfigService).currencyCode;
   protected readonly maxHighlights = MAX_HIGHLIGHTS;
@@ -139,6 +144,29 @@ export class ProductFormPage implements OnInit {
         }),
       );
     }
+  }
+
+  /** Price range of the most similar catalog products, from the AI index. */
+  protected suggestPrice(): void {
+    const { name, categoryId, description } = this.form.getRawValue();
+    this.hinting.set(true);
+    this.hint.set(null);
+    this.hintMessage.set(null);
+    this.api.priceHint({ name, categoryId: categoryId || undefined, description: description || undefined }).subscribe({
+      next: (hint) => {
+        this.hint.set(hint);
+        this.hinting.set(false);
+      },
+      error: () => {
+        this.hinting.set(false);
+        this.hintMessage.set('No comparable product yet, or the assistant is offline. Set the price you need.');
+      },
+    });
+  }
+
+  protected usePrice(price: number): void {
+    this.form.controls.price.setValue(price);
+    this.form.controls.price.markAsDirty();
   }
 
   /** Asks the AI writer for a draft and fills the page content; the seller reviews it before saving. */

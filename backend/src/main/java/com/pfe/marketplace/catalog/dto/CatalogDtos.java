@@ -94,7 +94,22 @@ public final class CatalogDtos {
     }
 
     public enum ProductSort {
-        NEWEST, PRICE_ASC, PRICE_DESC, RATING, POPULAR
+        NEWEST, PRICE_ASC, PRICE_DESC, RATING, POPULAR, RELEVANCE
+    }
+
+    /** Instant search results shown while typing. */
+    public record SuggestionsDto(List<ProductSummaryDto> products, List<CategoryDto> categories) {
+    }
+
+    public record FacetCount(Long id, long count) {
+    }
+
+    /**
+     * Counts for the filter sidebar. Category counts ignore the selected category (so other categories stay
+     * reachable); the other numbers apply every filter.
+     */
+    public record FacetsDto(long total, long inStock, long onSale, BigDecimal minPrice, BigDecimal maxPrice,
+                            List<FacetCount> categories) {
     }
 
     public record ProductSearchCriteria(

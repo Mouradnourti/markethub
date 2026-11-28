@@ -73,12 +73,21 @@
                 <td class="num">{{ $money($item['lineTotal']) }}</td>
             </tr>
         @endforeach
+        @if ((float) ($shopOrder['discountAmount'] ?? 0) > 0)
+            <tr>
+                <td colspan="3">Discount code {{ $shopOrder['couponCode'] }}</td>
+                <td class="num">−{{ $money($shopOrder['discountAmount']) }}</td>
+            </tr>
+        @endif
     @endforeach
     </tbody>
 </table>
 
 <table class="totals">
     <tr><td class="muted">Subtotal</td><td class="num">{{ $money($order['subtotal']) }}</td></tr>
+    @if ((float) ($order['discountTotal'] ?? 0) > 0)
+        <tr><td class="muted">Discount</td><td class="num">−{{ $money($order['discountTotal']) }}</td></tr>
+    @endif
     <tr><td class="muted">Shipping</td><td class="num">{{ $money($order['shippingFee']) }}</td></tr>
     <tr class="grand"><td>Total</td><td class="num">{{ $money($order['total']) }}</td></tr>
     <tr><td class="muted">Payment</td><td class="num">

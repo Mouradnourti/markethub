@@ -55,6 +55,10 @@ public class Order {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
+    /** Sum of the coupon discounts of the parcels. Total = subtotal - discountTotal + shippingFee. */
+    @Column(name = "discount_total", nullable = false, precision = 12, scale = 2)
+    private BigDecimal discountTotal = BigDecimal.ZERO;
+
     @Column(name = "shipping_fee", nullable = false, precision = 12, scale = 2)
     private BigDecimal shippingFee;
 

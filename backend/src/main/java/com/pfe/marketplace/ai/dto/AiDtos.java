@@ -69,7 +69,36 @@ public final class AiDtos {
     public record AiCopyRequest(String name, String category, List<String> keywords, String tone, int variant) {
     }
 
+    /** {@code engine} is "rules" or the language model that wrote the text. */
     public record CopyDraft(String tagline, String description, List<String> highlights, List<ProductSpecDto> specs,
-                            List<String> suggestedSpecLabels, String categoryProfile) {
+                            List<String> suggestedSpecLabels, String categoryProfile, String engine) {
+    }
+
+    public record AiSearchRequest(String query, int limit) {
+    }
+
+    public record AiSearchHit(Long productId, double score) {
+    }
+
+    public record AiSearchResult(List<AiSearchHit> hits, String model) {
+    }
+
+    /** {@code strategy} is "semantic" (AI index) or "keyword" (database search, when the AI service is down). */
+    public record SmartSearchDto(List<com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSummaryDto> products,
+                                 String strategy) {
+    }
+
+    public record PriceHintRequest(@NotBlank @Size(min = 2, max = 200) String name, Long categoryId,
+                                   @Size(max = 5000) String description) {
+    }
+
+    public record AiPriceHintRequest(String name, String category, String description) {
+    }
+
+    public record Comparable(Long productId, String name, BigDecimal price, double similarity) {
+    }
+
+    public record PriceHintDto(BigDecimal low, BigDecimal typical, BigDecimal high, BigDecimal suggested,
+                               String confidence, List<Comparable> comparables) {
     }
 }

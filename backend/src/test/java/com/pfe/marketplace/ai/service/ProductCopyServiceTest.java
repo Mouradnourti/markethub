@@ -36,7 +36,7 @@ class ProductCopyServiceTest {
         kitchen.setName("Kitchen");
         kitchen.setParent(parent);
         when(categoryRepository.findById(7L)).thenReturn(Optional.of(kitchen));
-        CopyDraft draft = new CopyDraft("t", "d", List.of(), List.of(), List.of(), "home");
+        CopyDraft draft = new CopyDraft("t", "d", List.of(), List.of(), List.of(), "home", "rules");
         when(aiClient.writeCopy(any())).thenReturn(Optional.of(draft));
 
         assertThat(service.draft(new CopyDraftRequest(" Kettle ", 7L, null, null, null))).isEqualTo(draft);

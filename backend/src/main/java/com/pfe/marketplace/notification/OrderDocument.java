@@ -14,6 +14,7 @@ public record OrderDocument(
         String paymentStatus,
         String currency,
         BigDecimal subtotal,
+        BigDecimal discountTotal,
         BigDecimal shippingFee,
         BigDecimal total,
         Address shippingAddress,
@@ -23,7 +24,9 @@ public record OrderDocument(
                           String country) {
     }
 
-    public record Parcel(String shopName, String status, BigDecimal subtotal, String trackingNumber, List<Line> items) {
+    /** {@code subtotal} is what the customer pays for the parcel's items, after {@code discountAmount}. */
+    public record Parcel(String shopName, String status, BigDecimal subtotal, BigDecimal discountAmount,
+                         String couponCode, String trackingNumber, List<Line> items) {
     }
 
     public record Line(String name, int quantity, BigDecimal unitPrice, BigDecimal lineTotal) {
@@ -34,7 +37,7 @@ public record OrderDocument(
 
     public static OrderDocument of(Order order, String currency) {
         return new OrderDocument(order.getReference(), order.getCreatedAt(), order.getPaymentMethod().name(),
-                order.getPaymentStatus().name(), currency, order.getSubtotal(), order.getShippingFee(), order.getTotal(),
+                order.getPaymentStatus().name(), currency, order.getSubtotal(), order.getDiscountTotal(), order.getShippingFee(), order.getTotal(),
                 new Address(order.getShippingFullName(), order.getShippingPhone(), order.getShippingAddressLine(),
                         order.getShippingCity(), order.getShippingPostalCode(), order.getShippingCountry()),
                 order.getShopOrders().stream().map(OrderDocument::parcel).toList());
@@ -42,7 +45,7 @@ public record OrderDocument(
 
     private static Parcel parcel(ShopOrder shopOrder) {
         return new Parcel(shopOrder.getShop().getName(), shopOrder.getStatus().name(), shopOrder.getSubtotal(),
-                shopOrder.getTrackingNumber(), shopOrder.getItems().stream()
+                shopOrder.getDiscountAmount(), shopOrder.getCouponCode(), shopOrder.getTrackingNumber(), shopOrder.getItems().stream()
                 .map(i -> new Line(i.getProductName(), i.getQuantity(), i.getUnitPrice(), i.getLineTotal()))
                 .toList());
     }

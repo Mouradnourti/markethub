@@ -4,7 +4,10 @@ import com.pfe.marketplace.catalog.dto.CatalogDtos.CategoryDto;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductDto;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSearchCriteria;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSort;
+import com.pfe.marketplace.catalog.dto.CatalogDtos.FacetsDto;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSummaryDto;
+import com.pfe.marketplace.catalog.dto.CatalogDtos.SuggestionsDto;
+import com.pfe.marketplace.stats.service.ProductViewService;
 import com.pfe.marketplace.catalog.service.CategoryService;
 import com.pfe.marketplace.catalog.service.ProductService;
 import com.pfe.marketplace.common.dto.PageResponse;
@@ -33,6 +36,7 @@ public class CatalogController {
     private final CategoryService categoryService;
     private final ShopService shopService;
     private final SettingsService settingsService;
+    private final ProductViewService productViewService;
 
     @Operation(summary = "Search the catalog with filters, sorting and pagination")
     @GetMapping("/products")
@@ -52,10 +56,32 @@ public class CatalogController {
         return productService.search(criteria, page, size);
     }
 
-    @Operation(summary = "Product details")
+    @Operation(summary = "Instant search suggestions (products, typos tolerated, and categories)")
+    @GetMapping("/products/suggest")
+    public SuggestionsDto suggest(@RequestParam String q, @RequestParam(defaultValue = "5") int limit) {
+        return productService.suggest(q, Math.clamp(limit, 1, 10));
+    }
+
+    @Operation(summary = "Filter counts for the same filters as the search")
+    @GetMapping("/products/facets")
+    public FacetsDto facets(@RequestParam(required = false) String q,
+                            @RequestParam(required = false) Long categoryId,
+                            @RequestParam(required = false) Long shopId,
+                            @RequestParam(required = false) BigDecimal minPrice,
+                            @RequestParam(required = false) BigDecimal maxPrice,
+                            @RequestParam(required = false) BigDecimal minRating,
+                            @RequestParam(required = false) Boolean inStock,
+                            @RequestParam(required = false) Boolean onSale) {
+        return productService.facets(new ProductSearchCriteria(q, categoryId, shopId, minPrice, maxPrice, minRating,
+                inStock, onSale, null));
+    }
+
+    @Operation(summary = "Product details (counts a page view for the seller's analytics)")
     @GetMapping("/products/{id}")
     public ProductDto product(@PathVariable Long id) {
-        return productService.getVisible(id);
+        ProductDto product = productService.getVisible(id);
+        productViewService.record(id);
+        return product;
     }
 
     @Operation(summary = "Products similar to this one (same category, best sellers)")

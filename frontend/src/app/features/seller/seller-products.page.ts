@@ -107,7 +107,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
     .stock.low { background: var(--mh-warning-bg); color: var(--mh-warning); }
     .stock-edit { display: inline-flex; align-items: center; }
     .stock-edit input { width: 70px; padding: 4px 6px; border: 1px solid var(--mh-border); border-radius: 6px; font: inherit; }
-    .actions { white-space: nowrap; text-align: right; }
+    .actions { white-space: nowrap; text-align: end; }
     mat-paginator { background: transparent; }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

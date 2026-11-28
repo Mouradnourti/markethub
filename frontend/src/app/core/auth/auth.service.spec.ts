@@ -30,6 +30,20 @@ describe('AuthService', () => {
     expect(service.homeFor(service.role())).toBe('/seller');
   });
 
+  it('asks for a second step when the account uses two-factor sign-in', () => {
+    let result: unknown;
+    service.login('a@b.c', 'secret').subscribe((r) => (result = r));
+    backend.expectOne('/api/auth/login').flush({ twoFactorRequired: true, challengeToken: 'challenge' });
+    expect(result).toEqual({ challengeToken: 'challenge' });
+    expect(service.isLoggedIn()).toBe(false);
+
+    service.completeTwoFactor('challenge', '123456').subscribe();
+    const second = backend.expectOne('/api/auth/login/2fa');
+    expect(second.request.body).toEqual({ challengeToken: 'challenge', code: '123456' });
+    second.flush({ accessToken: 'at', refreshToken: 'rt', expiresIn: 900, user: USER });
+    expect(service.isLoggedIn()).toBe(true);
+  });
+
   it('restores the session from storage at startup', async () => {
     TestBed.inject(TokenStorage).save('at', 'rt');
     const init = service.init();

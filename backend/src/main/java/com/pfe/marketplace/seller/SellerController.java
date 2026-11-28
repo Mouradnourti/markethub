@@ -14,7 +14,9 @@ import com.pfe.marketplace.security.AuthUser;
 import com.pfe.marketplace.shop.dto.ShopDtos.ShopDto;
 import com.pfe.marketplace.shop.dto.ShopDtos.UpdateShopRequest;
 import com.pfe.marketplace.shop.service.ShopService;
+import com.pfe.marketplace.stats.dto.StatsDtos.SellerAnalyticsDto;
 import com.pfe.marketplace.stats.dto.StatsDtos.SellerStatsDto;
+import com.pfe.marketplace.stats.service.SellerAnalyticsService;
 import com.pfe.marketplace.stats.service.SellerStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,6 +50,7 @@ public class SellerController {
     private final SellerProductService productService;
     private final SellerOrderService orderService;
     private final SellerStatsService statsService;
+    private final SellerAnalyticsService analyticsService;
 
     @GetMapping("/shop")
     public ShopDto shop(@AuthenticationPrincipal AuthUser user) {
@@ -120,6 +123,13 @@ public class SellerController {
     public SellerOrderDto updateOrderStatus(@AuthenticationPrincipal AuthUser user, @PathVariable Long id,
                                             @Valid @RequestBody UpdateShopOrderStatusRequest request) {
         return orderService.updateStatus(user.id(), id, request);
+    }
+
+    @Operation(summary = "Views, conversion, revenue and returns per day and per product over the last N days")
+    @GetMapping("/analytics")
+    public SellerAnalyticsDto analytics(@AuthenticationPrincipal AuthUser user,
+                                        @RequestParam(defaultValue = "30") int days) {
+        return analyticsService.forSeller(user.id(), days);
     }
 
     @GetMapping("/stats")

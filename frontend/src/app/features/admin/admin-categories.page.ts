@@ -58,7 +58,7 @@ import { Notifier } from '../../core/ui/notifier.service';
     .layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; align-items: start; }
     @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
     .cat { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--mh-border); }
-    .cat.child { padding-left: 24px; }
+    .cat.child { padding-inline-start: 24px; }
     .name { display: flex; gap: 8px; align-items: center; flex: 1; font-weight: 600; }
     .child .name { font-weight: 400; }
     .slug { font-size: 12px; }

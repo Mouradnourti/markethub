@@ -128,9 +128,9 @@ h1 {
 
 .tag {
   position: absolute;
-  right: 12px;
+  inset-inline-end: 12px;
   bottom: 12px;
-  left: 12px;
+  inset-inline-start: 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;

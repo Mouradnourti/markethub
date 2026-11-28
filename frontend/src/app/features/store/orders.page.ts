@@ -10,12 +10,15 @@ import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { StatusChip } from '../../shared/ui/status-chip';
 
+import { paymentLabel } from '../../shared/status';
+
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 @Component({
   selector: 'app-orders-page',
-  imports: [RouterLink, DatePipe, MatButtonModule, MatIconModule, MatPaginatorModule, MoneyPipe, StatusChip, EmptyState],
+  imports: [TranslatePipe, RouterLink, DatePipe, MatButtonModule, MatIconModule, MatPaginatorModule, MoneyPipe, StatusChip, EmptyState],
   template: `
     <div class="container page">
-      <div class="page-title"><div><h1>My orders</h1><p>Track your parcels, request returns and download invoices.</p></div></div>
+      <div class="page-title"><div><h1>{{ 'My orders' | t }}</h1><p>{{ 'Track your parcels, request returns and download invoices.' | t }}</p></div></div>
       @if (orders(); as page) {
         @for (order of page.content; track order.id) {
           <a class="panel order" [routerLink]="['/orders', order.id]">
@@ -25,7 +28,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
                 <span class="muted">{{ order.createdAt | date: 'medium' }}</span>
               </div>
               <div class="right">
-                <app-status-chip [status]="order.paymentStatus" [text]="order.paymentMethod === 'COD' ? 'COD · ' + order.paymentStatus.toLowerCase() : 'Card · ' + order.paymentStatus.toLowerCase()" />
+                <app-status-chip [status]="order.paymentStatus" [text]="((order.paymentMethod === 'COD' ? 'Cash on delivery' : 'Card') | t) + ' · ' + (paymentLabel(order.paymentStatus) | t)" />
                 <strong class="total">{{ order.total | money }}</strong>
               </div>
             </div>
@@ -34,7 +37,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
                 <div class="parcel">
                   <mat-icon>inventory_2</mat-icon>
                   <span class="shop">{{ parcel.shopName }}</span>
-                  <span class="muted">{{ parcel.items.length }} item(s)</span>
+                  <span class="muted">{{ '{count} item(s)' | t: { count: parcel.items.length } }}</span>
                   <span class="spacer"></span>
                   <app-status-chip [status]="parcel.status" />
                 </div>
@@ -43,8 +46,8 @@ import { StatusChip } from '../../shared/ui/status-chip';
           </a>
         } @empty {
           <div class="panel">
-            <app-empty-state icon="receipt_long" title="No orders yet" message="Your orders will appear here.">
-              <a mat-flat-button routerLink="/products">Start shopping</a>
+            <app-empty-state icon="receipt_long" [title]="'No orders yet' | t" [message]="'Your orders will appear here.' | t">
+              <a mat-flat-button class="btn-ink" routerLink="/products">{{ 'Start shopping' | t }}</a>
             </app-empty-state>
           </div>
         }
@@ -71,6 +74,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrdersPage {
+  protected readonly paymentLabel = paymentLabel;
   private readonly api = inject(OrderApi);
   protected readonly orders = signal<Page<Order> | null>(null);
 

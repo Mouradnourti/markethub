@@ -28,6 +28,7 @@ flowchart LR
 | `postgres` | PostgreSQL 16 | 5432 | Main database |
 | `redis` | Redis 7 | 6379 | Catalog / category / recommendation cache |
 | `mailpit` | Mailpit | 8025 (UI), 1025 (SMTP) | Captures every email for the demo |
+| `prometheus` + `grafana` (profile `monitoring`) | Prometheus 2, Grafana 11 | 9090, 3000 | Scrape `/actuator/prometheus` on the backend's internal port 8081; provisioned dashboard |
 
 ## 2. Key architecture decisions
 
@@ -49,6 +50,15 @@ flowchart LR
 | 14 | **"Frequently bought together" is computed from real orders** (products in at least 2 of the same checkouts), padded with similar best sellers. | Data-driven cross-selling with no extra model; the minimum support of 2 keeps one-off coincidences out. |
 | 15 | **The AI description writer is rule-based NLG that never invents facts.** It extracts attributes (capacity, power, size, material…) from the name and the seller's keywords and writes in a chosen tone; specs it cannot read are only suggested as empty labels. | Sellers get a complete page in one click while every claim stays theirs: invented specs would cause returns and legal risk. No external LLM account is needed for the demo. |
 | 16 | **Conversion patterns on the storefront**: cart drawer with free-shipping progress and pairings, sale badges, stock urgency only from real stock, delivery window, verified-purchase reviews, sticky buy bar, recently viewed (browser storage). | Each pattern answers a buying objection (cost, trust, timing) using real data only: no fake countdowns or fake scarcity. |
+| 17 | **Discount codes belong to one shop** (V3) and the parcel subtotal is stored net of the discount; the code is copied onto the parcel. Redemption is an atomic `UPDATE … WHERE used_count < max_uses`; a cancelled parcel gives the use back. | In a multi-vendor cart each seller funds their own promotion, so commission and payout must follow the price actually paid; the copy keeps history intact if the code is deleted. |
+| 18 | **In-app notifications are stored, then pushed with server-sent events** (V4). The browser opens the stream with a 60-second, single-use ticket obtained with its JWT. | SSE is one-way and works through plain HTTP proxies (no WebSocket upgrade); the ticket keeps the JWT out of URLs and logs. Connections live in memory: several instances would need a Redis pub/sub relay. |
+| 19 | **Wishlist alerts and the cart reminder react to facts**: a `ProductChangedEvent` after a seller's change (back in stock, price below the last announced price), and a scheduled job for carts untouched for 24 h, sent once per cart. | Retention messages customers find useful, never spam: each alert fires once per real change. |
+| 20 | **Typo-tolerant search with PostgreSQL `pg_trgm`** (V6: `word_similarity` on names, GIN index) plus facet counts computed with the same JPA specifications as the search. | Good search without a separate search engine to run; counts always agree with the results. |
+| 21 | **Page views are aggregated per product and day** (`product_views`, upsert off the request thread). | Enough for conversion analytics (views → orders) with no personal data and a bounded table size. |
+| 22 | **Account protection**: per-account lockout after 5 failures (15 min), per-IP rate limit on auth endpoints, optional TOTP two-step sign-in with the secret encrypted (AES-GCM) and a separate short-lived challenge token. | Stops online password guessing from one or many IPs; a leaked database does not reveal 2FA seeds; the challenge token cannot call the API. |
+| 23 | **The LLM writer is optional and guarded**: Claude writes tagline, description and benefits as structured JSON; specs still come from the parser, and any number not present in the seller's input sends the request back to the rule-based writer. | Better copy when a key is configured, without giving up the "never invent facts" rule or the offline demo. |
+| 24 | **Interface translations are client-side dictionaries keyed by the English text**, one lazy chunk per language; changing language reloads the app; layouts use CSS logical properties. | Simple to extend and review, English as safe fallback, Arabic right-to-left handled by the browser and Material without per-component code. Seller content stays in the seller's language. |
+| 25 | **Metrics on an internal management port** (8081 in Docker) with business counters (orders, codes redeemed, sign-in failures, live connections). | Operators get latency, errors and business health without exposing metrics publicly. |
 
 ## 3. Backend layering
 
@@ -91,14 +101,16 @@ Full contract: Swagger UI at `http://localhost:8080/swagger-ui.html`, exported t
 
 | Area | Endpoints |
 |---|---|
-| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` |
-| Catalog (public) | `GET /products` (q, categoryId, shopId, minPrice, maxPrice, minRating, inStock, onSale, sort, page, size), `GET /products/{id}`, `GET /products/{id}/similar`, `GET /products/{id}/bought-together`, `GET /categories`, `GET /shops/{slug}` |
-| Reviews | `GET /products/{id}/reviews`, `POST /products/{id}/reviews` (customer who received the product) |
-| Cart | `GET /cart`, `POST /cart/items`, `PUT /cart/items/{productId}`, `DELETE /cart/items/{productId}`, `DELETE /cart` |
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/login/2fa`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me`, `GET /auth/2fa`, `POST /auth/2fa/setup`, `POST /auth/2fa/enable`, `POST /auth/2fa/disable` |
+| Catalog (public) | `GET /products` (q, categoryId, shopId, minPrice, maxPrice, minRating, inStock, onSale, sort, page, size), `GET /products/{id}`, `GET /products/{id}/similar`, `GET /products/{id}/bought-together`, `GET /products/suggest`, `GET /products/facets`, `GET /products/smart-search`, `GET /categories`, `GET /shops/{slug}`, `GET /shops/{shopId}/offers` |
+| Reviews | `GET /products/{id}/reviews` (sort, rating), `GET /products/{id}/reviews/summary`, `POST /products/{id}/reviews` (customer who received the product), `POST/DELETE /products/{id}/reviews/{reviewId}/helpful`, `POST /products/{id}/reviews/{reviewId}/photos` |
+| Wishlist | `GET /wishlist`, `GET /wishlist/ids`, `PUT /wishlist/{productId}`, `DELETE /wishlist/{productId}` |
+| Notifications | `GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/{id}/read`, `POST /notifications/read-all`, `POST /notifications/stream-ticket`, `GET /notifications/stream` (SSE) |
+| Cart | `GET /cart` (`?coupon=` previews a discount code), `POST /cart/items`, `PUT /cart/items/{productId}`, `DELETE /cart/items/{productId}`, `DELETE /cart` |
 | Orders | `POST /orders/checkout`, `GET /orders`, `GET /orders/{id}`, `POST /orders/{id}/cancel`, `GET /orders/{id}/invoice`, `POST /orders/shop-orders/{id}/return-request` |
 | Payments | `POST /payments/{orderId}/confirm`, `POST /payments/stripe/webhook` |
 | Recommendations | `GET /recommendations` |
-| Seller | `GET/PUT /seller/shop`, `GET/POST/PUT/DELETE /seller/products`, `POST /seller/products/describe` (AI writer), `POST /seller/products/{id}/images`, `PATCH /seller/products/{id}/stock`, `GET /seller/orders`, `PATCH /seller/orders/{id}/status`, `GET /seller/stats`, `GET /seller/forecast` |
+| Seller | `GET/PUT /seller/shop`, `GET/POST/PUT/DELETE /seller/products`, `POST /seller/products/describe` (AI writer), `POST /seller/products/{id}/images`, `PATCH /seller/products/{id}/stock`, `POST /seller/products/price-hint`, `GET /seller/orders`, `PATCH /seller/orders/{id}/status`, `GET /seller/stats`, `GET /seller/analytics`, `GET /seller/forecast`, `GET/POST/PUT/DELETE /seller/coupons`, `GET /seller/reviews`, `PUT/DELETE /seller/reviews/{id}/reply` |
 | Admin | `GET /admin/users`, `PATCH /admin/users/{id}/enabled`, `GET /admin/shops`, `PATCH /admin/shops/{id}/status`, `PATCH /admin/shops/{id}/commission`, `POST/PUT/DELETE /admin/categories`, `GET/PUT /admin/settings`, `GET /admin/stats`, `GET /admin/disputes`, `PATCH /admin/disputes/{id}` |
 | Internal | `GET /internal/ml/dataset` (header `X-Internal-Key`) |
 
@@ -116,4 +128,5 @@ Notification service: `POST /api/notifications/order-event`, `POST /api/invoices
 | 4 | Laravel notifications + PDF invoices, Stripe test mode, COD flow | Emails visible in Mailpit |
 | 5 | AI service, dataset generator, training, backend + UI integration | `pytest` green, UI shows AI blocks |
 | 6 | E2E journey test, demo seed, README, Swagger export, CI | `docker compose up` = full demo |
+| 8 | Discount codes, wishlist and alerts, live notifications (SSE), cart reminders, fuzzy search and facets, review engagement, seller analytics, 2FA/lockout/rate limit, optional Claude writer, smart search, price hints, EN/FR/AR with RTL, monitoring, deployment blueprint | All suites green, E2E journey (17 steps) green |
 | 7 | Conversion-focused storefront redesign, rich product content (V2), deals, bundles, cart drawer, AI description writer, listing quality score, illustrated demo catalog | E2E journey (10 steps) green, all suites green |

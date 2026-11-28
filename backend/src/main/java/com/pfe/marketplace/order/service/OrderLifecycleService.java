@@ -6,6 +6,7 @@ import com.pfe.marketplace.order.entity.OrderItem;
 import com.pfe.marketplace.order.entity.OrderStatus;
 import com.pfe.marketplace.order.entity.ShopOrder;
 import com.pfe.marketplace.order.event.OrderEvent;
+import com.pfe.marketplace.promotion.service.CouponService;
 import com.pfe.marketplace.user.entity.User;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,7 @@ public class OrderLifecycleService {
     private final ProductRepository productRepository;
     private final ApplicationEventPublisher events;
     private final CacheManager cacheManager;
+    private final CouponService couponService;
 
     @Transactional(propagation = Propagation.MANDATORY)
     public void transition(ShopOrder shopOrder, OrderStatus next, String note, User actor) {
@@ -42,6 +44,9 @@ public class OrderLifecycleService {
         shopOrder.getOrder().recomputePaymentStatus();
         if (next.releasesStock()) {
             shopOrder.getItems().forEach(this::releaseStock);
+        }
+        if (next == OrderStatus.CANCELLED) {
+            couponService.release(shopOrder.getCouponId());
         }
         Optional.ofNullable(EVENTS.get(next)).ifPresent(type ->
                 events.publishEvent(new OrderEvent(type, shopOrder.getOrder().getId(), shopOrder.getId())));

@@ -11,6 +11,7 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
+from app.ml.catalog_index import CatalogIndex
 from app.ml.recommender import Recommender, evaluate_hit_rate
 from app.ml.return_risk import ReturnRiskModel
 
@@ -22,13 +23,14 @@ class ModelRegistry:
         self.model_dir = model_dir
         self.recommender = Recommender()
         self.return_risk = ReturnRiskModel()
+        self.catalog = CatalogIndex()
         self.metrics: dict = {}
         self._lock = threading.Lock()
 
     # ------------------------------------------------------------------ persistence
 
     def load(self) -> None:
-        for name in ("recommender", "return_risk"):
+        for name in ("recommender", "return_risk", "catalog"):
             path = self.model_dir / f"{name}.joblib"
             if path.exists():
                 setattr(self, name, joblib.load(path))
@@ -41,6 +43,7 @@ class ModelRegistry:
         self.model_dir.mkdir(parents=True, exist_ok=True)
         joblib.dump(self.recommender, self.model_dir / "recommender.joblib")
         joblib.dump(self.return_risk, self.model_dir / "return_risk.joblib")
+        joblib.dump(self.catalog, self.model_dir / "catalog.joblib")
         (self.model_dir / "metrics.json").write_text(json.dumps(self.metrics, indent=2, default=str))
 
     # ------------------------------------------------------------------ training
@@ -48,7 +51,11 @@ class ModelRegistry:
     def train(self, products: pd.DataFrame, interactions: pd.DataFrame | None, cod_orders: pd.DataFrame | None,
               source: str) -> dict:
         """Trains what the data allows. A model that cannot be trained keeps its previous version."""
-        recommender, risk, metrics = self.recommender, self.return_risk, dict(self.metrics)
+        recommender, risk, catalog, metrics = self.recommender, self.return_risk, self.catalog, dict(self.metrics)
+        if products is not None and len(products):
+            catalog = CatalogIndex().fit(products, source=source)
+            metrics["catalog"] = {"source": source, "products": int(len(catalog.product_ids)),
+                                  "latentDimensions": int(catalog.svd.n_components)}
         if interactions is not None and len(interactions):
             recommender = Recommender().fit(products, interactions, source=source)
             metrics["recommender"] = {"source": source, "products": int(len(products)),
@@ -62,7 +69,7 @@ class ModelRegistry:
                 log.warning("Return-risk model not retrained from %s: %s", source, error)
         metrics["trained_at"] = datetime.now(timezone.utc).isoformat()
         with self._lock:
-            self.recommender, self.return_risk, self.metrics = recommender, risk, metrics
+            self.recommender, self.return_risk, self.catalog, self.metrics = recommender, risk, catalog, metrics
             self._save()
         return metrics
 

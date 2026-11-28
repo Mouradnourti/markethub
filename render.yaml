@@ -1,0 +1,123 @@
+# Render Blueprint: deploys the whole MarketHub stack from this repository.
+# Render dashboard → New → Blueprint → select the repository. Secrets marked "sync: false" are asked for once.
+# See docs/deploy.md for the steps, plan choices and what to check after the first deploy.
+
+databases:
+  - name: markethub-db
+    databaseName: markethub
+    user: markethub
+    plan: basic-256mb
+
+services:
+  # Public storefront: nginx serves the Angular app and proxies /api and /uploads to the backend.
+  - type: web
+    name: markethub-web
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: "80"
+      - key: BACKEND_HOSTPORT
+        fromService:
+          type: pserv
+          name: markethub-api
+          property: hostport
+
+  - type: pserv
+    name: markethub-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: demo
+      - key: SERVER_PORT
+        value: "8080"
+      - key: PORT
+        value: "8080"
+      - key: UPLOADS_DIR
+        value: /app/uploads
+      - key: DB_HOST
+        fromDatabase: { name: markethub-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: markethub-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: markethub-db, property: database }
+      - key: DB_USERNAME
+        fromDatabase: { name: markethub-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: markethub-db, property: password }
+      - key: REDIS_HOST
+        fromService: { type: keyvalue, name: markethub-cache, property: host }
+      - key: REDIS_PORT
+        fromService: { type: keyvalue, name: markethub-cache, property: port }
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATA_ENCRYPTION_KEY
+        generateValue: true
+      - fromGroup: markethub-shared
+      - key: AI_SERVICE_HOSTPORT
+        fromService: { type: pserv, name: markethub-ai, property: hostport }
+      - key: NOTIFICATION_SERVICE_HOSTPORT
+        fromService: { type: pserv, name: markethub-mail, property: hostport }
+      - key: STOREFRONT_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+
+  - type: pserv
+    name: markethub-ai
+    runtime: docker
+    rootDir: ai-service
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "8000"
+      - fromGroup: markethub-shared
+      - key: BACKEND_HOSTPORT
+        fromService: { type: pserv, name: markethub-api, property: hostport }
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+  - type: pserv
+    name: markethub-mail
+    runtime: docker
+    rootDir: notification-service
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "8001"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - fromGroup: markethub-shared
+      # "log" writes e-mails to the service logs; set smtp + MAIL_HOST/MAIL_PORT/... to really send them.
+      - key: MAIL_MAILER
+        value: log
+
+  - type: keyvalue
+    name: markethub-cache
+    plan: free
+    ipAllowList: []
+
+envVarGroups:
+  - name: markethub-shared
+    envVars:
+      - key: INTERNAL_API_KEY
+        generateValue: true

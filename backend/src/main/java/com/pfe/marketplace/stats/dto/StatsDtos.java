@@ -42,6 +42,39 @@ public final class StatsDtos {
             List<LowStockProduct> lowStock) {
     }
 
+    public record AnalyticsDay(LocalDate date, long views, long orders, BigDecimal revenue) {
+    }
+
+    /** One product's funnel over the period: page views, orders, units, revenue and returns. */
+    public record ProductPerformance(
+            Long productId,
+            String name,
+            String imageUrl,
+            int stock,
+            BigDecimal rating,
+            long views,
+            long orders,
+            long units,
+            BigDecimal revenue,
+            BigDecimal conversionRate,
+            long returns,
+            BigDecimal returnRate) {
+    }
+
+    public record SellerAnalyticsDto(
+            int days,
+            long views,
+            long orders,
+            long units,
+            BigDecimal revenue,
+            BigDecimal conversionRate,
+            BigDecimal averageOrderValue,
+            BigDecimal returnRate,
+            long wishlistSaves,
+            List<AnalyticsDay> daily,
+            List<ProductPerformance> products) {
+    }
+
     public record AdminStatsDto(
             Map<String, Long> usersByRole,
             Map<String, Long> shopsByStatus,

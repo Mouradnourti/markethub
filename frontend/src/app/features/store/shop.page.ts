@@ -7,9 +7,10 @@ import { Page, ProductSummary, Shop } from '../../core/models/api.models';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { ProductCard } from '../../shared/ui/product-card';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 @Component({
   selector: 'app-shop-page',
-  imports: [MatIconModule, MatPaginatorModule, DatePipe, ProductCard, EmptyState],
+  imports: [TranslatePipe, MatIconModule, MatPaginatorModule, DatePipe, ProductCard, EmptyState],
   template: `
     @if (shop(); as s) {
       <section class="banner">
@@ -18,13 +19,13 @@ import { ProductCard } from '../../shared/ui/product-card';
           <div>
             <h1>{{ s.name }}</h1>
             <p>{{ s.description }}</p>
-            <span class="since"><mat-icon>verified</mat-icon> Verified seller since {{ s.createdAt | date: 'MMMM yyyy' }}</span>
+            <span class="since"><mat-icon>verified</mat-icon> {{ 'Verified seller since {date}' | t: { date: (s.createdAt | date: 'MMMM yyyy') } }}</span>
           </div>
         </div>
       </section>
       <div class="container page">
         @if (products(); as page) {
-          <h2>{{ page.totalElements }} products</h2>
+          <h2>{{ '{count} products' | t: { count: page.totalElements } }}</h2>
           <div class="grid-products">
             @for (product of page.content; track product.id) {
               <app-product-card [product]="product" />
@@ -38,7 +39,7 @@ import { ProductCard } from '../../shared/ui/product-card';
       </div>
     } @else if (missing()) {
       <div class="container page">
-        <app-empty-state icon="storefront" title="Shop not found" message="This shop does not exist or is not open yet." />
+        <app-empty-state icon="storefront" [title]="'Shop not found' | t" [message]="'This shop does not exist or is not open yet.' | t" />
       </div>
     }
   `,

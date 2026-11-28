@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -11,13 +12,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -26,18 +24,21 @@ import { AuthService } from '../../core/auth/auth.service';
 import { AddToCartService } from '../../core/cart/add-to-cart.service';
 import { ConfigService } from '../../core/config/config.service';
 import { RecentlyViewedService } from '../../core/history/recently-viewed.service';
-import { Product, ProductSummary, Review, ReviewEligibility } from '../../core/models/api.models';
+import { I18nService } from '../../core/i18n/i18n.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { Offer, Product, ProductSummary } from '../../core/models/api.models';
 import { Notifier } from '../../core/ui/notifier.service';
 import { deliveryWindow } from '../../shared/delivery';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { Price, discountPercent } from '../../shared/ui/price';
 import { BESTSELLER_THRESHOLD, ProductCard } from '../../shared/ui/product-card';
 import { RatingStars } from '../../shared/ui/rating-stars';
+import { WishlistButton } from '../../shared/ui/wishlist-button';
+import { ProductReviews } from './product-reviews';
 
 @Component({
   selector: 'app-product-page',
   imports: [
-    FormsModule,
     RouterLink,
     DatePipe,
     DecimalPipe,
@@ -45,13 +46,14 @@ import { RatingStars } from '../../shared/ui/rating-stars';
     MatCheckboxModule,
     MatExpansionModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatProgressSpinnerModule,
     MoneyPipe,
     Price,
     RatingStars,
     ProductCard,
+    ProductReviews,
+    WishlistButton,
+    TranslatePipe,
   ],
   templateUrl: './product.page.html',
   styleUrl: './product.page.scss',
@@ -66,6 +68,8 @@ export class ProductPage {
   private readonly history = inject(RecentlyViewedService);
   protected readonly config = inject(ConfigService);
   protected readonly auth = inject(AuthService);
+  private readonly clipboard = inject(Clipboard);
+  private readonly i18n = inject(I18nService);
 
   protected readonly product = signal<Product | null>(null);
   protected readonly notFound = signal(false);
@@ -77,12 +81,8 @@ export class ProductPage {
   /** Ids of the "frequently bought together" products the shopper kept ticked. */
   protected readonly bundleSelection = signal<Set<number>>(new Set());
   protected readonly bundleAdding = signal(false);
-  protected readonly reviews = signal<Review[]>([]);
-  protected readonly reviewTotal = signal(0);
-  protected readonly eligibility = signal<ReviewEligibility | null>(null);
-  protected readonly newRating = signal(5);
-  protected newComment = '';
-  protected readonly submitting = signal(false);
+  /** Featured discount codes of the seller, shown under the price. */
+  protected readonly offers = signal<Offer[]>([]);
   /** True once the main buy button has scrolled out of view, to show the sticky buy bar. */
   protected readonly showStickyBar = signal(false);
   protected readonly delivery = deliveryWindow();
@@ -171,21 +171,9 @@ export class ProductPage {
     });
   }
 
-  protected submitReview(): void {
-    const product = this.product();
-    if (!product) {
-      return;
-    }
-    this.submitting.set(true);
-    this.catalog.addReview(product.id, this.newRating(), this.newComment.trim()).subscribe({
-      next: () => {
-        this.notifier.success('Thank you for your review!');
-        this.newComment = '';
-        this.submitting.set(false);
-        this.load(product.id);
-      },
-      error: () => this.submitting.set(false),
-    });
+  protected copyCode(code: string): void {
+    this.clipboard.copy(code);
+    this.notifier.success(this.i18n.t('Code {code} copied. Paste it in your cart.', { code }));
   }
 
   private load(id: number): void {
@@ -196,6 +184,7 @@ export class ProductPage {
       next: (product) => {
         this.product.set(product);
         this.history.track(product);
+        this.catalog.offers(product.shopId).subscribe({ next: (offers) => this.offers.set(offers), error: () => undefined });
       },
       error: () => this.notFound.set(true),
     });
@@ -208,12 +197,5 @@ export class ProductPage {
         this.together.set(inStock);
         this.bundleSelection.set(new Set(inStock.map((p) => p.id)));
       });
-    this.catalog.reviews(id, 0, 6).subscribe((page) => {
-      this.reviews.set(page.content);
-      this.reviewTotal.set(page.totalElements);
-    });
-    if (this.auth.role() === 'CUSTOMER') {
-      this.catalog.reviewEligibility(id).subscribe((e) => this.eligibility.set(e));
-    }
   }
 }

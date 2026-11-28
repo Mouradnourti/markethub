@@ -42,6 +42,9 @@
 
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin-top:16px;">
                     <tr><td style="padding:4px 0;color:#64748b;">Subtotal</td><td style="text-align:right;">{{ $money($order['subtotal']) }}</td></tr>
+                    @if ((float) ($order['discountTotal'] ?? 0) > 0)
+                        <tr><td style="padding:4px 0;color:#15803d;">Discount</td><td style="text-align:right;color:#15803d;">−{{ $money($order['discountTotal']) }}</td></tr>
+                    @endif
                     <tr><td style="padding:4px 0;color:#64748b;">Shipping</td><td style="text-align:right;">{{ (float) $order['shippingFee'] > 0 ? $money($order['shippingFee']) : 'Free' }}</td></tr>
                     <tr><td style="padding:8px 0;font-weight:700;font-size:16px;border-top:1px solid #e2e8f0;">Total</td>
                         <td style="padding:8px 0;font-weight:700;font-size:16px;text-align:right;border-top:1px solid #e2e8f0;">{{ $money($order['total']) }}</td></tr>

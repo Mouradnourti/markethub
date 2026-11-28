@@ -84,64 +84,16 @@ mat-icon {
   text-decoration: none;
 }
 
-.search {
-  display: flex;
-  flex: 1;
-  gap: 10px;
-  align-items: center;
-  max-width: 620px;
-  height: 46px;
-  padding: 0 5px 0 16px;
-  border: 1.5px solid var(--mh-border);
-  border-radius: 999px;
-  background: var(--mh-surface-2);
-  color: var(--mh-text-muted);
-  transition: border-color 0.15s ease, background 0.15s ease;
-
-  &:focus-within {
-    border-color: var(--mh-ink);
-    background: #fff;
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    font: inherit;
-    color: var(--mh-text);
-  }
-}
-
-.search-go {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--mh-ink);
-  color: #fff;
-  cursor: pointer;
-
-  mat-icon {
-    width: 20px;
-    height: 20px;
-    font-size: 20px;
-  }
-}
-
 .actions {
   display: flex;
   gap: 4px;
   align-items: center;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .compact {
   --mat-button-filled-container-height: 40px;
-  margin-right: 8px;
+  margin-inline-end: 4px;
 }
 
 .icon-action {
@@ -178,7 +130,7 @@ mat-icon {
 .cart-button .count {
   position: absolute;
   top: 3px;
-  right: 1px;
+  inset-inline-end: 1px;
   display: grid;
   place-items: center;
   min-width: 19px;
@@ -187,6 +139,26 @@ mat-icon {
   border: 2px solid #fff;
   border-radius: 999px;
   background: var(--mh-sale);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+
+  &.soft {
+    background: var(--mh-ink);
+  }
+}
+
+.icon-action .count {
+  position: absolute;
+  top: 3px;
+  inset-inline-end: 1px;
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border: 2px solid #fff;
+  border-radius: 999px;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -319,6 +291,11 @@ mat-icon {
     font-size: 14px;
   }
 
+  .about app-language-picker {
+    display: inline-block;
+    margin-top: 4px;
+  }
+
   .about p {
     max-width: 320px;
     font-size: 14px;
@@ -377,9 +354,30 @@ mat-icon {
     padding-bottom: 10px;
   }
 
-  .search {
+  app-search-box {
     flex-basis: 100%;
     order: 3;
     max-width: none;
   }
+}
+
+.skip-link {
+  position: absolute;
+  top: -48px;
+  inset-inline-start: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--mh-ink);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:focus {
+    top: 12px;
+  }
+}
+
+main:focus {
+  outline: none;
 }

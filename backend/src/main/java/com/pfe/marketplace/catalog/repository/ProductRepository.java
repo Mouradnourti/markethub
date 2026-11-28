@@ -45,6 +45,18 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     long countByShopIdAndStockLessThan(Long shopId, int threshold);
 
+    /** Visible products whose name contains the query or is a close typo of it, best match first. */
+    @Query(value = """
+            select p.id from products p join shops s on s.id = p.shop_id
+            where p.active and s.status = 'APPROVED'
+              and (lower(p.name) like :contains escape '!' or word_similarity(:q, lower(p.name)) > :threshold)
+            order by (lower(p.name) like :prefix escape '!') desc, word_similarity(:q, lower(p.name)) desc,
+                     p.sold_count desc, p.id
+            limit :limit
+            """, nativeQuery = true)
+    List<Long> suggestIds(@Param("q") String q, @Param("contains") String contains, @Param("prefix") String prefix,
+                          @Param("threshold") double threshold, @Param("limit") int limit);
+
     /**
      * Atomically reserves stock. Returns 0 when not enough stock is left, so concurrent checkouts can never
      * oversell. The version is bumped so stale seller edits fail with an optimistic-lock error.

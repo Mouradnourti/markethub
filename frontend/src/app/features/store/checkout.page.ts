@@ -13,7 +13,9 @@ import { AuthService } from '../../core/auth/auth.service';
 import { CartService } from '../../core/cart/cart.service';
 import { CheckoutResponse, PaymentMethod } from '../../core/models/api.models';
 import { Notifier } from '../../core/ui/notifier.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
+import { CouponField } from '../../shared/ui/coupon-field';
 
 type Step = 'details' | 'payment';
 
@@ -29,6 +31,8 @@ type Step = 'details' | 'payment';
     MatIconModule,
     MatProgressSpinnerModule,
     MoneyPipe,
+    CouponField,
+    TranslatePipe,
   ],
   templateUrl: './checkout.page.html',
   styleUrl: './checkout.page.scss',
@@ -78,7 +82,7 @@ export class CheckoutPage {
     }
     const { paymentMethod, ...address } = this.form.getRawValue();
     this.placing.set(true);
-    this.orders.checkout(paymentMethod, address).subscribe({
+    this.orders.checkout(paymentMethod, address, this.cart.couponCode()).subscribe({
       next: (response) => {
         this.cart.reset();
         this.checkout.set(response);

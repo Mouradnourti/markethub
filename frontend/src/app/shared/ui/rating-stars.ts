@@ -27,7 +27,7 @@ import { ChangeDetectionStrategy, Component, computed, input, model } from '@ang
     .editable .star { cursor: pointer; }
     .editable .material-symbols-outlined { font-size: 28px; color: #d6d3d1; }
     .editable .material-symbols-outlined.filled { color: #f59e0b; font-variation-settings: 'FILL' 1; }
-    .count { margin-left: 4px; font-size: 12px; color: var(--mh-text-muted); }
+    .count { margin-inline-start: 4px; font-size: 12px; color: var(--mh-text-muted); }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -7,6 +7,7 @@ import com.pfe.marketplace.auth.dto.RegisterRequest;
 import com.pfe.marketplace.common.exception.BusinessException;
 import com.pfe.marketplace.common.exception.ConflictException;
 import com.pfe.marketplace.common.exception.NotFoundException;
+import com.pfe.marketplace.common.exception.TooManyRequestsException;
 import com.pfe.marketplace.common.exception.UnauthorizedException;
 import com.pfe.marketplace.common.util.Slugs;
 import com.pfe.marketplace.security.JwtService;
@@ -34,6 +35,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
+    private final LoginAttemptService loginAttempts;
+    private final TwoFactorService twoFactor;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -61,15 +64,55 @@ public class AuthService {
         return issueTokens(user);
     }
 
-    @Transactional
+    /**
+     * Checks the password. Consecutive failures lock the account for a while; with two-factor sign-in on,
+     * a correct password only returns a challenge to complete with {@link #completeTwoFactorLogin}.
+     */
+    @Transactional(noRollbackFor = {UnauthorizedException.class, TooManyRequestsException.class})
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(normalizeEmail(request.email()))
-                .filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()))
                 .orElseThrow(() -> new UnauthorizedException("Invalid email or password"));
+        loginAttempts.ensureNotLocked(user);
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            failed(user);
+            throw new UnauthorizedException("Invalid email or password");
+        }
         if (!user.isEnabled()) {
             throw new UnauthorizedException("This account has been disabled");
         }
+        if (twoFactor.isEnabled(user)) {
+            return AuthResponse.challenge(jwtService.generateChallengeToken(user));
+        }
+        loginAttempts.recordSuccess(user);
         return issueTokens(user);
+    }
+
+    @Transactional(noRollbackFor = {UnauthorizedException.class, TooManyRequestsException.class})
+    public AuthResponse completeTwoFactorLogin(String challengeToken, String code) {
+        Long userId;
+        try {
+            userId = jwtService.parseChallengeToken(challengeToken);
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            throw new UnauthorizedException("This sign-in attempt expired, please enter your password again");
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("Invalid sign-in attempt"));
+        loginAttempts.ensureNotLocked(user);
+        if (!user.isEnabled()) {
+            throw new UnauthorizedException("This account has been disabled");
+        }
+        if (!twoFactor.verify(user, code)) {
+            failed(user);
+            throw new UnauthorizedException("This code is not valid");
+        }
+        loginAttempts.recordSuccess(user);
+        return issueTokens(user);
+    }
+
+    private void failed(User user) {
+        if (loginAttempts.recordFailure(user)) {
+            loginAttempts.ensureNotLocked(user);
+        }
     }
 
     @Transactional(noRollbackFor = UnauthorizedException.class)

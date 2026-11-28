@@ -7,7 +7,8 @@ spring:
   application:
     name: markethub-backend
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/markethub}
+    # DB_URL wins; otherwise built from DB_HOST/DB_PORT/DB_NAME (what hosting platforms such as Render provide).
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:markethub}}
     username: ${DB_USERNAME:markethub}
     password: ${DB_PASSWORD:markethub}
     hikari:
@@ -44,10 +45,19 @@ spring:
       write-dates-as-timestamps: false
 
 management:
+  server:
+    # In Docker the actuator listens on 8081, which is not published: Prometheus scrapes it on the internal network.
+    port: ${MANAGEMENT_PORT:${SERVER_PORT:8080}}
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: ${ACTUATOR_ENDPOINTS:health,info}
+  metrics:
+    tags:
+      application: markethub-backend
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
   health:
     redis:
       enabled: ${REDIS_HEALTH:true}
@@ -77,12 +87,22 @@ app:
     publishable-key: ${STRIPE_PUBLISHABLE_KEY:}
     webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
   ai:
-    base-url: ${AI_SERVICE_URL:http://localhost:8000}
+    base-url: ${AI_SERVICE_URL:http://${AI_SERVICE_HOSTPORT:localhost:8000}}
     timeout: 3s
+    writer-timeout: 30s
   notification:
-    base-url: ${NOTIFICATION_SERVICE_URL:http://localhost:8001}
+    base-url: ${NOTIFICATION_SERVICE_URL:http://${NOTIFICATION_SERVICE_HOSTPORT:localhost:8001}}
     timeout: 10s
     enabled: ${NOTIFICATIONS_ENABLED:true}
+  engagement:
+    storefront-url: ${STOREFRONT_URL:http://localhost:4200}
+    cart-reminder-enabled: ${CART_REMINDER_ENABLED:true}
+    cart-reminder-delay: ${CART_REMINDER_DELAY:PT24H}
+  security:
+    auth-requests-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:30}
+    max-failed-logins: 5
+    lockout-duration: PT15M
+    data-key: ${DATA_ENCRYPTION_KEY:dev-only-data-key-change-me}
   bootstrap-admin:
     email: ${ADMIN_EMAIL:}
     password: ${ADMIN_PASSWORD:}

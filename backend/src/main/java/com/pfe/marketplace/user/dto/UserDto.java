@@ -11,5 +11,6 @@ public record UserDto(
         String phone,
         Role role,
         boolean enabled,
+        boolean twoFactorEnabled,
         Instant createdAt) {
 }

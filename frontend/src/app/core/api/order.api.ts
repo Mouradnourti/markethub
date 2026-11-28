@@ -18,8 +18,8 @@ import {
 export class OrderApi {
   private readonly http = inject(HttpClient);
 
-  checkout(paymentMethod: PaymentMethod, shippingAddress: ShippingAddress): Observable<CheckoutResponse> {
-    return this.http.post<CheckoutResponse>('/api/orders/checkout', { paymentMethod, shippingAddress });
+  checkout(paymentMethod: PaymentMethod, shippingAddress: ShippingAddress, couponCode?: string | null): Observable<CheckoutResponse> {
+    return this.http.post<CheckoutResponse>('/api/orders/checkout', { paymentMethod, shippingAddress, couponCode });
   }
 
   confirmPayment(orderId: number, simulateDecline = false): Observable<{ paymentStatus: PaymentStatus }> {

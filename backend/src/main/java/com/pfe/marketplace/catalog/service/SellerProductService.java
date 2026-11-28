@@ -4,6 +4,7 @@ import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductDto;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductRequest;
 import com.pfe.marketplace.catalog.dto.CatalogDtos.ProductSummaryDto;
 import com.pfe.marketplace.catalog.entity.Product;
+import com.pfe.marketplace.catalog.event.ProductChangedEvent;
 import com.pfe.marketplace.catalog.mapper.CatalogMapper;
 import com.pfe.marketplace.catalog.repository.CategoryRepository;
 import com.pfe.marketplace.catalog.repository.ProductRepository;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -38,6 +40,7 @@ public class SellerProductService {
     private final ShopService shopService;
     private final ImageStorageService imageStorage;
     private final CatalogMapper mapper;
+    private final ApplicationEventPublisher events;
 
     @Transactional(readOnly = true)
     public PageResponse<ProductSummaryDto> list(Long sellerId, int page, int size) {
@@ -64,7 +67,10 @@ public class SellerProductService {
     @Transactional
     public ProductDto update(Long sellerId, Long productId, ProductRequest request) {
         Product product = findOwned(sellerId, productId);
+        int previousStock = product.getStock();
+        BigDecimal previousPrice = product.getPrice();
         apply(product, request);
+        publishChange(product, previousStock, previousPrice);
         return mapper.toDto(product);
     }
 
@@ -72,7 +78,9 @@ public class SellerProductService {
     @Transactional
     public ProductDto updateStock(Long sellerId, Long productId, int stock) {
         Product product = findOwned(sellerId, productId);
+        int previousStock = product.getStock();
         product.setStock(stock);
+        publishChange(product, previousStock, product.getPrice());
         return mapper.toDto(product);
     }
 
@@ -104,6 +112,14 @@ public class SellerProductService {
         Shop shop = shopService.requireApprovedShop(sellerId);
         return productRepository.findByIdAndShopId(productId, shop.getId())
                 .orElseThrow(() -> new NotFoundException("Product", productId));
+    }
+
+    private void publishChange(Product product, int previousStock, BigDecimal previousPrice) {
+        var event = new ProductChangedEvent(product.getId(), previousStock, product.getStock(), previousPrice,
+                product.getPrice());
+        if (product.isActive() && (event.backInStock() || event.priceDropped())) {
+            events.publishEvent(event);
+        }
     }
 
     private static String blankToNull(String value) {

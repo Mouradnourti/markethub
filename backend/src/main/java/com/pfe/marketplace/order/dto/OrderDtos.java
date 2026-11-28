@@ -26,7 +26,11 @@ public final class OrderDtos {
             @NotBlank @Size(max = 80) String country) {
     }
 
-    public record CheckoutRequest(@NotNull PaymentMethod paymentMethod, @NotNull @Valid ShippingAddress shippingAddress) {
+    public record CheckoutRequest(@NotNull PaymentMethod paymentMethod, @NotNull @Valid ShippingAddress shippingAddress,
+                                  @Size(max = 30) String couponCode) {
+        public CheckoutRequest(PaymentMethod paymentMethod, ShippingAddress shippingAddress) {
+            this(paymentMethod, shippingAddress, null);
+        }
     }
 
     /** Client-side payment data for CARD orders (null for COD). */
@@ -50,6 +54,8 @@ public final class OrderDtos {
             String shopName,
             OrderStatus status,
             BigDecimal subtotal,
+            BigDecimal discountAmount,
+            String couponCode,
             String trackingNumber,
             List<OrderItemDto> items,
             List<StatusChangeDto> history,
@@ -63,6 +69,7 @@ public final class OrderDtos {
             PaymentMethod paymentMethod,
             PaymentStatus paymentStatus,
             BigDecimal subtotal,
+            BigDecimal discountTotal,
             BigDecimal shippingFee,
             BigDecimal total,
             ShippingAddress shippingAddress,
@@ -79,6 +86,8 @@ public final class OrderDtos {
             PaymentMethod paymentMethod,
             PaymentStatus paymentStatus,
             BigDecimal subtotal,
+            BigDecimal discountAmount,
+            String couponCode,
             BigDecimal commissionAmount,
             BigDecimal netAmount,
             String trackingNumber,

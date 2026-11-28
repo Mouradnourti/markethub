@@ -21,6 +21,7 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'users', title: 'Admin · Users', loadComponent: () => import('./admin-users.page').then((m) => m.AdminUsersPage) },
       { path: 'disputes', title: 'Admin · Disputes', loadComponent: () => import('./admin-disputes.page').then((m) => m.AdminDisputesPage) },
       { path: 'categories', title: 'Admin · Categories', loadComponent: () => import('./admin-categories.page').then((m) => m.AdminCategoriesPage) },
+      { path: 'security', title: 'Sign-in & security', loadComponent: () => import('../account/security.page').then((m) => m.SecurityPage) },
       { path: 'settings', title: 'Admin · Settings', loadComponent: () => import('./admin-settings.page').then((m) => m.AdminSettingsPage) },
     ],
   },

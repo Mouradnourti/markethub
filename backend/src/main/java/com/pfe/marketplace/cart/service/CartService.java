@@ -9,6 +9,8 @@ import com.pfe.marketplace.catalog.entity.Product;
 import com.pfe.marketplace.catalog.repository.ProductRepository;
 import com.pfe.marketplace.common.exception.BusinessException;
 import com.pfe.marketplace.common.exception.NotFoundException;
+import com.pfe.marketplace.promotion.dto.PromotionDtos.AppliedCouponDto;
+import com.pfe.marketplace.promotion.service.CouponService;
 import com.pfe.marketplace.settings.service.SettingsService;
 import com.pfe.marketplace.user.repository.UserRepository;
 import java.math.BigDecimal;
@@ -27,15 +29,29 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SettingsService settingsService;
+    private final CouponService couponService;
 
     @Transactional(readOnly = true)
     public CartDto get(Long userId) {
+        return get(userId, null);
+    }
+
+    /** The cart, with the discount of {@code couponCode} applied when given (an invalid code is a 422). */
+    @Transactional(readOnly = true)
+    public CartDto get(Long userId, String couponCode) {
         List<CartItemDto> items = cartItemRepository.findByUserIdWithProduct(userId).stream().map(CartService::toDto).toList();
         BigDecimal subtotal = items.stream().filter(CartItemDto::available)
                 .map(CartItemDto::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal shipping = settingsService.shippingFeeFor(subtotal);
         int count = items.stream().mapToInt(CartItemDto::quantity).sum();
-        return new CartDto(items, count, subtotal, shipping, subtotal.add(shipping));
+        AppliedCouponDto coupon = null;
+        if (couponCode != null && !couponCode.isBlank() && !items.isEmpty()) {
+            List<CouponService.Line> lines = items.stream().filter(CartItemDto::available)
+                    .map(i -> new CouponService.Line(i.shopId(), i.lineTotal())).toList();
+            coupon = couponService.quote(couponCode, userId, lines).toDto(couponService.currencySymbol());
+        }
+        BigDecimal discount = coupon == null ? BigDecimal.ZERO : coupon.discount();
+        return new CartDto(items, count, subtotal, discount, coupon, shipping, subtotal.subtract(discount).add(shipping));
     }
 
     /** Adds to the existing line if the product is already in the cart. */

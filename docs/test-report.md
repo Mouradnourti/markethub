@@ -1,6 +1,6 @@
 # Test report
 
-Run on 2026-11-24 on Windows 11 (JDK 21.0.13, Node 24, Python 3.15 locally / 3.11 in Docker and CI, PHP 8.3).
+Run on 2026-11-28 on Windows 11 (JDK 21.0.13, Node 24, Python 3.15 locally / 3.11 in Docker and CI, PHP 8.3).
 CI runs the same suites on every push (`.github/workflows/ci.yml`) and builds every Docker image; the latest run
 on `main` is green.
 
@@ -8,21 +8,21 @@ on `main` is green.
 
 | Suite | Tool | Tests | Result | Notes |
 |---|---|---|---|---|
-| Backend unit | JUnit 5 + Mockito | 83 | ✅ pass | services, order rules, JWT, refresh tokens, AI writer client, demo content |
-| Backend integration | Spring Boot Test + PostgreSQL 16 | 26 | ✅ pass | Testcontainers in CI, embedded PostgreSQL locally |
-| Frontend | Vitest (Angular unit-test builder) | 36 | ✅ pass | auth interceptor, guards, auth, cart and add-to-cart services, recently viewed, discounts, free-shipping progress, delivery dates, listing score, pipes, risk badge |
-| AI service | pytest | 24 | ✅ pass | models, synthetic data, description writer, API contract |
-| Notification service | PHPUnit (Laravel) | 8 | ✅ pass | auth, validation, e-mail with PDF attachment, invoice |
-| End-to-end | puppeteer-core + Chrome/Edge | 1 journey (10 steps) | ✅ pass | full customer → seller → admin journey in the real UI |
-| **Total** | | **177 + E2E** | ✅ | |
+| Backend unit | JUnit 5 + Mockito | 84 | ✅ pass | services, order rules, JWT, refresh tokens, AI writer client, demo content, auth rate limit |
+| Backend integration | Spring Boot Test + PostgreSQL 16 | 44 | ✅ pass | Testcontainers in CI, embedded PostgreSQL locally |
+| Frontend | Vitest (Angular unit-test builder) | 47 | ✅ pass | auth (incl. two-step sign-in), interceptor, guards, cart and discount codes, add-to-cart, wishlist, translations, recently viewed, merchandising helpers, pipes |
+| AI service | pytest | 35 | ✅ pass | models, synthetic data, description writer, Claude writer (fake client), catalog index (smart search, price hints), API contract |
+| Notification service | PHPUnit (Laravel) | 11 | ✅ pass | auth, validation, order e-mail with PDF, invoice, product alerts, cart reminder |
+| End-to-end | puppeteer-core + Chrome/Edge | 1 journey (17 steps) | ✅ pass | full customer → seller → admin journey in the real UI, plus Arabic |
+| **Total** | | **221 + E2E** | ✅ | |
 
 ## Backend coverage (JaCoCo, unit + integration)
 
 | Scope | Line coverage | Target |
 |---|---|---|
-| `*.service` packages | **88.6 %** | ≥ 70 % (enforced by `mvn verify`) |
-| Whole backend | 91.6 % | — |
-| Branches (whole backend) | 81.6 % | — |
+| `*.service` packages | **89.9 %** | ≥ 70 % (enforced by `mvn verify`) |
+| Whole backend | 91.7 % | — |
+| Branches (whole backend) | 79.7 % | — |
 
 Report: `backend/target/site/jacoco/index.html` after `mvn verify`.
 
@@ -35,7 +35,13 @@ Report: `backend/target/site/jacoco/index.html` after `mvn verify`.
 | `PaymentWebhookAndExpiryIT` | Stripe webhook refused without secret, unpaid card order expired and restocked, invoice returns 503 when the invoice service is down |
 | `AiIntegrationIT` | contract with a fake AI server: risk score stored at COD checkout and shown to sellers, backfill job, recommendations (owned products excluded, best-seller padding), seller forecast, AI description writer (category path, keywords, tone, validation, seller-only), internal dataset secured by the internal key |
 | `MerchandisingIT` | sale (compare-at) price, tagline, benefits and specs saved and served; validation (compare-at above price, list sizes, blank specs); deals filter; ending a sale; "frequently bought together" from order history with similar-product padding |
-| `DemoDataSeederIT` | the demo seed is consistent, idempotent, loadable through JPA, sequences are realigned, and every demo product has complete copy (about half on sale) |
+| `DemoDataSeederIT` | the demo seed is consistent, idempotent, loadable through JPA, sequences are realigned, every demo product has complete copy (about half on sale), and engagement data is realistic (one featured code per shop, conversion between 1 and 8 %, replies and votes) |
+| `CouponIT` | a code discounts only its shop; commission and payout follow the net price; refusals explain themselves (unknown, minimum spend, expired, other shop); unique codes, percentage cap; once per customer and usage limit under the atomic redemption; cancellation gives the use back; featured offers and seller ownership |
+| `EngagementIT` | wishlist save/list/remove; back-in-stock and price-drop alerts fired once; "new order" for sellers and "parcel shipped" for customers in the bell; read / read-all and ownership; SSE stream only with a fresh single-use ticket; abandoned-cart reminder sent once until the cart changes |
+| `ReviewEngagementIT` | helpful votes (idempotent, not on one's own review), sort by helpful/lowest, star filter, star breakdown, seller replies with one notification, ownership; review photos (author only, max 3) |
+| `SearchAndAnalyticsIT` | typo tolerance ("hedphones"), relevance sort, suggestions, facet counts that ignore the selected category, smart-search fallback to keyword search; seller analytics joining page views and orders (conversion, wishlist saves, daily series) |
+| `AccountSecurityIT` | five wrong passwords lock the account (429 + Retry-After), unlock after the delay; two-step setup (secret encrypted at rest), enable with a valid code, challenge token cannot call the API, wrong/forged codes refused, disable |
+| `MetricsIT` | `/actuator/prometheus` serves HTTP latency histograms, JVM metrics and the marketplace counters |
 
 ## AI model evaluation
 
@@ -68,17 +74,24 @@ Reading the numbers honestly:
 ```
 MarketHub E2E journey on http://localhost:4200
   ✔ 1. Home page shows the catalog highlights
-  ✔ 2. Catalog filters by category and sorts by popularity
-  ✔ 3. Customer signs in and gets AI recommendations
-  ✔ 4. Product page: "Nova X5 Smartphone 128 GB" added; the cart drawer shows free-shipping progress
-  ✔ 5. Cash-on-delivery order MH-261124-… placed
-  ✔ 6. Seller dashboard shows KPIs, charts and the AI sales forecast
-  ✔ 7. Seller drafts the product page with the AI writer and sees the listing quality score
-  ✔ 8. Seller confirms, ships (with tracking number) and delivers the parcel
-  ✔ 9. Customer sees the delivered parcel, its tracking number and can request a return
-  ✔ 10. Admin dashboard and seller validation
+  ✔ 2. Catalog filters by category, sorts by popularity and shows filter counts
+  ✔ 3. Instant search suggestions tolerate typos ("hedphones" finds headphones)
+  ✔ 4. Customer signs in and gets AI recommendations
+  ✔ 5. Product page shows the shop discount code; the product is saved to the wishlist
+  ✔ 6. Product page: "Nova X5 Smartphone 128 GB" added; the cart drawer shows free-shipping progress
+  ✔ 7. Wishlist lists saved products and promises stock and price alerts
+  ✔ 8. Discount code TECHNOVA5OFF applied in the cart
+  ✔ 9. Cash-on-delivery order MH-261128-… placed
+  ✔ 10. Seller dashboard shows KPIs, charts and the AI sales forecast
+  ✔ 11. Seller notification bell announces the new order MH-261128-…
+  ✔ 12. Seller analytics (views, conversion, returns) and discount codes
+  ✔ 13. Seller drafts the product page with the AI writer and sees the listing quality score
+  ✔ 14. Seller confirms, ships (with tracking number) and delivers the parcel
+  ✔ 15. Customer sees the delivered parcel, its tracking number and can request a return
+  ✔ 16. Admin dashboard and seller validation
+  ✔ 17. Arabic interface switches the whole layout to right-to-left
 
-E2E journey passed (10 steps).
+E2E journey passed (17 steps).
 ```
 
 The journey also produces the screenshots in `docs/screenshots/`.
@@ -94,7 +107,12 @@ The journey also produces the screenshots in `docs/screenshots/`.
 
 - Docker was not available on the development machine, so `docker compose up` itself was not run there; every image
   is built in CI (`docker` job, green) and each service was run and tested natively.
-- The AI description writer is rule-based (templates + attribute extraction), not a large language model: its wording
-  is varied but generic, and it relies on the seller's keywords for anything specific. Sellers review every draft.
+- Without `ANTHROPIC_API_KEY` the description writer is rule-based (templates + attribute extraction): varied but
+  generic wording. The Claude path is covered by tests with a fake client; it was not called with a real key during
+  development, so its real output quality is not measured here.
+- Docker Compose monitoring (Prometheus, Grafana) and the Render Blueprint were written but not run on this machine
+  (no Docker, no Render account); the metrics endpoint itself is tested (`MetricsIT`).
+- Live notifications, stream tickets and the sign-in rate limit are kept in memory: the backend runs as one instance.
+- Seller and admin back-office pages translate their navigation; their detailed forms stay in English.
 - Real Stripe test-mode payments need your own test keys (`STRIPE_*` in `.env`); without them the built-in simulator
   is used (also covered by the tests).

@@ -37,6 +37,28 @@ public class NotificationClient {
                 .retrieve().toBodilessEntity();
     }
 
+    /** Back-in-stock or price-drop e-mail for a saved product. */
+    public void sendProductAlert(String type, OrderDocument.Person recipient, ProductAlert product) {
+        client.post().uri("/api/notifications/product-alert").contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("type", type, "recipient", recipient, "product", product))
+                .retrieve().toBodilessEntity();
+    }
+
+    /** Reminder for a cart left untouched. */
+    public void sendCartReminder(OrderDocument.Person recipient, CartReminder cart) {
+        client.post().uri("/api/notifications/cart-reminder").contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("recipient", recipient, "cart", cart))
+                .retrieve().toBodilessEntity();
+    }
+
+    public record ProductAlert(String name, String shopName, String currency, java.math.BigDecimal price,
+                               java.math.BigDecimal previousPrice, String url) {
+    }
+
+    public record CartReminder(String currency, java.math.BigDecimal subtotal, String url,
+                               java.util.List<OrderDocument.Line> items) {
+    }
+
     public byte[] renderInvoice(OrderDocument.Person customer, OrderDocument order) {
         try {
             return client.post().uri("/api/invoices").contentType(MediaType.APPLICATION_JSON)

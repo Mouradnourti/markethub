@@ -14,7 +14,7 @@ export type PaymentMethod = 'COD' | 'CARD';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
 export type DisputeStatus = 'OPEN' | 'APPROVED' | 'REJECTED';
 export type DisputeType = 'RETURN' | 'DISPUTE';
-export type ProductSort = 'NEWEST' | 'PRICE_ASC' | 'PRICE_DESC' | 'RATING' | 'POPULAR';
+export type ProductSort = 'NEWEST' | 'PRICE_ASC' | 'PRICE_DESC' | 'RATING' | 'POPULAR' | 'RELEVANCE';
 
 export interface Page<T> {
   content: T[];
@@ -39,14 +39,23 @@ export interface User {
   phone?: string;
   role: Role;
   enabled: boolean;
+  twoFactorEnabled?: boolean;
   createdAt: string;
 }
 
+/** With two-factor sign-in, the password step only returns {@link challengeToken}. */
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
   user: User;
+  twoFactorRequired?: boolean;
+  challengeToken?: string;
+}
+
+export interface TwoFactorSetup {
+  secret: string;
+  otpauthUri: string;
 }
 
 export interface RegisterRequest {
@@ -155,6 +164,36 @@ export interface CopyDraft {
   specs: ProductSpec[];
   suggestedSpecLabels: string[];
   categoryProfile: string;
+  /** "rules" or the language model that wrote the text. */
+  engine?: string;
+}
+
+export interface PriceHint {
+  low: number;
+  typical: number;
+  high: number;
+  suggested: number;
+  confidence: 'low' | 'medium' | 'high';
+  comparables: { productId: number; name: string; price: number; similarity: number }[];
+}
+
+export interface Suggestions {
+  products: ProductSummary[];
+  categories: Category[];
+}
+
+export interface Facets {
+  total: number;
+  inStock: number;
+  onSale: number;
+  minPrice?: number;
+  maxPrice?: number;
+  categories: { id: number; count: number }[];
+}
+
+export interface SmartSearchResult {
+  products: ProductSummary[];
+  strategy: 'semantic' | 'keyword';
 }
 
 export interface ProductQuery {
@@ -195,12 +234,43 @@ export interface ShopAdmin {
   createdAt: string;
 }
 
+export type ReviewSort = 'RECENT' | 'HELPFUL' | 'HIGHEST' | 'LOWEST';
+
 export interface Review {
   id: number;
   rating: number;
   comment?: string;
   authorName: string;
   createdAt: string;
+  helpfulCount: number;
+  votedHelpful: boolean;
+  mine: boolean;
+  photoUrls: string[];
+  sellerReply?: string;
+  sellerRepliedAt?: string;
+}
+
+/** counts[0] = number of 1-star reviews ... counts[4] = 5-star. */
+export interface ReviewSummary {
+  average: number;
+  total: number;
+  counts: number[];
+  withPhotos: number;
+}
+
+export interface SellerReview {
+  id: number;
+  productId: number;
+  productName: string;
+  productImageUrl?: string;
+  rating: number;
+  comment?: string;
+  authorName: string;
+  createdAt: string;
+  helpfulCount: number;
+  photoUrls: string[];
+  sellerReply?: string;
+  sellerRepliedAt?: string;
 }
 
 export interface ReviewEligibility {
@@ -221,12 +291,88 @@ export interface CartItem {
   lineTotal: number;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  shopId: number;
+  shopName: string;
+  label: string;
+  discount: number;
+}
+
 export interface Cart {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
+  discount: number;
+  coupon?: AppliedCoupon;
   shippingFee: number;
   total: number;
+}
+
+export type CouponType = 'PERCENT' | 'FIXED';
+export type CouponStatus = 'ACTIVE' | 'SCHEDULED' | 'EXPIRED' | 'USED_UP' | 'PAUSED';
+
+export interface Coupon {
+  id: number;
+  code: string;
+  type: CouponType;
+  value: number;
+  minSubtotal?: number;
+  startsAt?: string;
+  endsAt?: string;
+  maxUses?: number;
+  usedCount: number;
+  oncePerCustomer: boolean;
+  featured: boolean;
+  active: boolean;
+  status: CouponStatus;
+  label: string;
+  createdAt: string;
+}
+
+export interface CouponRequest {
+  code: string;
+  type: CouponType;
+  value: number;
+  minSubtotal?: number | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  maxUses?: number | null;
+  oncePerCustomer: boolean;
+  featured: boolean;
+  active: boolean;
+}
+
+export interface Offer {
+  code: string;
+  label: string;
+  shopName: string;
+  minSubtotal?: number;
+  endsAt?: string;
+}
+
+export interface WishlistItem {
+  product: ProductSummary;
+  priceWhenAdded: number;
+  addedAt: string;
+}
+
+export type NotificationType =
+  | 'ORDER_UPDATE'
+  | 'NEW_ORDER'
+  | 'BACK_IN_STOCK'
+  | 'PRICE_DROP'
+  | 'REVIEW_REPLY'
+  | 'CART_REMINDER';
+
+export interface AppNotification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  body?: string;
+  link?: string;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface ShippingAddress {
@@ -257,7 +403,10 @@ export interface ShopOrder {
   shopId: number;
   shopName: string;
   status: OrderStatus;
+  /** What the customer pays for the parcel's items, after {@link discountAmount}. */
   subtotal: number;
+  discountAmount: number;
+  couponCode?: string;
   trackingNumber?: string;
   items: OrderItem[];
   history: StatusChange[];
@@ -271,6 +420,7 @@ export interface Order {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   subtotal: number;
+  discountTotal: number;
   shippingFee: number;
   total: number;
   shippingAddress: ShippingAddress;
@@ -299,6 +449,8 @@ export interface SellerOrder {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   subtotal: number;
+  discountAmount: number;
+  couponCode?: string;
   commissionAmount: number;
   netAmount: number;
   trackingNumber?: string;
@@ -403,4 +555,40 @@ export interface SalesForecast {
   forecast: ForecastPoint[];
   model?: string;
   message?: string;
+}
+
+export interface AnalyticsDay {
+  date: string;
+  views: number;
+  orders: number;
+  revenue: number;
+}
+
+export interface ProductPerformance {
+  productId: number;
+  name: string;
+  imageUrl?: string;
+  stock: number;
+  rating: number;
+  views: number;
+  orders: number;
+  units: number;
+  revenue: number;
+  conversionRate: number;
+  returns: number;
+  returnRate: number;
+}
+
+export interface SellerAnalytics {
+  days: number;
+  views: number;
+  orders: number;
+  units: number;
+  revenue: number;
+  conversionRate: number;
+  averageOrderValue: number;
+  returnRate: number;
+  wishlistSaves: number;
+  daily: AnalyticsDay[];
+  products: ProductPerformance[];
 }

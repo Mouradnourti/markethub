@@ -12,6 +12,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,6 +45,19 @@ public class Review {
 
     @Column(columnDefinition = "text")
     private String comment;
+
+    @Column(name = "helpful_count", nullable = false)
+    private int helpfulCount;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "photo_urls", nullable = false, columnDefinition = "jsonb")
+    private List<String> photoUrls = new ArrayList<>();
+
+    @Column(name = "seller_reply", columnDefinition = "text")
+    private String sellerReply;
+
+    @Column(name = "seller_replied_at")
+    private Instant sellerRepliedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

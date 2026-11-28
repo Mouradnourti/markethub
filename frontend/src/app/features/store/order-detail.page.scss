@@ -66,8 +66,8 @@
     &::before {
       position: absolute;
       top: 7px;
-      right: 50%;
-      left: -50%;
+      inset-inline-end: 50%;
+      inset-inline-start: -50%;
       height: 3px;
       background: var(--mh-border);
       content: '';
@@ -120,7 +120,7 @@
   }
 
   .num {
-    text-align: right;
+    text-align: end;
     font-weight: 600;
   }
 
@@ -184,4 +184,32 @@
 address {
   font-style: normal;
   line-height: 1.6;
+}
+
+.discount td {
+  color: var(--mh-success);
+  font-weight: 600;
+}
+
+.sum.discount {
+  color: var(--mh-success);
+  font-weight: 600;
+}
+
+.pill.live {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-inline-start: 10px;
+  background: var(--mh-success-bg);
+  color: var(--mh-success);
+  font-size: 12px;
+  vertical-align: middle;
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
 }

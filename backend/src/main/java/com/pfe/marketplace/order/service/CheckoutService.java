@@ -20,6 +20,7 @@ import com.pfe.marketplace.order.mapper.OrderMapper;
 import com.pfe.marketplace.order.repository.OrderRepository;
 import com.pfe.marketplace.payment.service.PaymentService;
 import com.pfe.marketplace.ai.service.ReturnRiskService;
+import com.pfe.marketplace.promotion.service.CouponService;
 import com.pfe.marketplace.settings.service.SettingsService;
 import com.pfe.marketplace.shop.entity.Shop;
 import com.pfe.marketplace.user.entity.User;
@@ -56,6 +57,7 @@ public class CheckoutService {
     private final SettingsService settingsService;
     private final PaymentService paymentService;
     private final ReturnRiskService returnRiskService;
+    private final CouponService couponService;
     private final OrderLifecycleService lifecycle;
     private final OrderMapper orderMapper;
     private final ApplicationEventPublisher events;
@@ -75,15 +77,23 @@ public class CheckoutService {
         OrderStatus initialStatus = request.paymentMethod() == PaymentMethod.COD
                 ? OrderStatus.PENDING : OrderStatus.AWAITING_PAYMENT;
         BigDecimal defaultRate = settingsService.get().defaultCommissionRate();
+        CouponService.Quote coupon = quoteCoupon(request.couponCode(), customerId, cart);
 
-        groupByShop(cart).forEach((shop, items) ->
-                order.addShopOrder(buildShopOrder(shop, items, defaultRate, initialStatus, customer)));
-        BigDecimal subtotal = order.getShopOrders().stream().map(ShopOrder::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        order.setSubtotal(subtotal);
-        order.setShippingFee(settingsService.shippingFeeFor(subtotal));
-        order.setTotal(subtotal.add(order.getShippingFee()));
+        groupByShop(cart).forEach((shop, items) -> {
+            CouponService.Quote shopCoupon = coupon != null && coupon.coupon().getShop().getId().equals(shop.getId())
+                    ? coupon : null;
+            order.addShopOrder(buildShopOrder(shop, items, defaultRate, initialStatus, customer, shopCoupon));
+        });
+        BigDecimal gross = cart.stream().map(CheckoutService::lineTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal discount = coupon == null ? BigDecimal.ZERO : coupon.discount();
+        order.setSubtotal(gross);
+        order.setDiscountTotal(discount);
+        order.setShippingFee(settingsService.shippingFeeFor(gross));
+        order.setTotal(gross.subtract(discount).add(order.getShippingFee()));
 
+        if (coupon != null) {
+            couponService.redeem(coupon.coupon());
+        }
         cart.forEach(this::reserveStock);
         if (order.getPaymentMethod() == PaymentMethod.COD) {
             order.setReturnRiskScore(returnRiskService.score(order, customerId));
@@ -113,13 +123,29 @@ public class CheckoutService {
         return order;
     }
 
+    private CouponService.Quote quoteCoupon(String code, Long customerId, List<CartItem> cart) {
+        if (code == null || code.isBlank()) {
+            return null;
+        }
+        List<CouponService.Line> lines = cart.stream()
+                .map(ci -> new CouponService.Line(ci.getProduct().getShop().getId(), lineTotal(ci))).toList();
+        return couponService.quote(code, customerId, lines);
+    }
+
+    /** The parcel subtotal is net of the coupon, so commission and seller payout follow the price actually paid. */
     private static ShopOrder buildShopOrder(Shop shop, List<CartItem> items, BigDecimal defaultRate,
-                                            OrderStatus status, User customer) {
+                                            OrderStatus status, User customer, CouponService.Quote coupon) {
         ShopOrder shopOrder = new ShopOrder();
         shopOrder.setShop(shop);
         items.forEach(ci -> shopOrder.addItem(toOrderItem(ci)));
         BigDecimal subtotal = shopOrder.getItems().stream().map(OrderItem::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        if (coupon != null) {
+            shopOrder.setCouponId(coupon.coupon().getId());
+            shopOrder.setCouponCode(coupon.coupon().getCode());
+            shopOrder.setDiscountAmount(coupon.discount());
+            subtotal = subtotal.subtract(coupon.discount());
+        }
         BigDecimal rate = shop.getCommissionRate() != null ? shop.getCommissionRate() : defaultRate;
         shopOrder.setSubtotal(subtotal);
         shopOrder.setCommissionRate(rate);
@@ -135,8 +161,12 @@ public class CheckoutService {
         item.setProductName(product.getName());
         item.setUnitPrice(product.getPrice());
         item.setQuantity(cartItem.getQuantity());
-        item.setLineTotal(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+        item.setLineTotal(lineTotal(cartItem));
         return item;
+    }
+
+    private static BigDecimal lineTotal(CartItem item) {
+        return item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
     }
 
     private void reserveStock(CartItem item) {

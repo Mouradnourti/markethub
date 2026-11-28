@@ -57,7 +57,7 @@ import { StatusChip } from '../../shared/ui/status-chip';
     .dispute { margin-bottom: 12px; }
     .head { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start; }
     h3 { margin: 8px 0 2px; font-size: 16px; }
-    blockquote { margin: 12px 0 0; padding: 10px 14px; border-left: 3px solid var(--mh-accent); background: var(--mh-surface-2); border-radius: 0 10px 10px 0; }
+    blockquote { margin: 12px 0 0; padding: 10px 14px; border-inline-start: 3px solid var(--mh-accent); background: var(--mh-surface-2); border-radius: 0 10px 10px 0; }
     .note { display: flex; gap: 6px; align-items: center; margin: 10px 0 0; color: var(--mh-text-muted); font-size: 14px; }
     mat-paginator { background: transparent; }
   `,

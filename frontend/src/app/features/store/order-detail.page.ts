@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { OrderApi } from '../../core/api/order.api';
 import { Order, ShopOrder } from '../../core/models/api.models';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { NotificationService } from '../../core/notifications/notification.service';
 import { Notifier } from '../../core/ui/notifier.service';
 import { MoneyPipe } from '../../shared/pipes/money.pipe';
 import { humanize, paymentLabel } from '../../shared/status';
@@ -29,6 +32,7 @@ const TRACK: ShopOrder['status'][] = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVE
     MatProgressSpinnerModule,
     MoneyPipe,
     StatusChip,
+    TranslatePipe,
   ],
   templateUrl: './order-detail.page.html',
   styleUrl: './order-detail.page.scss',
@@ -43,6 +47,8 @@ export class OrderDetailPage {
   protected readonly order = signal<Order | null>(null);
   protected readonly returnFor = signal<number | null>(null);
   protected readonly busy = signal(false);
+  /** Set when a parcel status arrived through the live stream while the page was open. */
+  protected readonly liveUpdated = signal(false);
   protected returnReason = '';
   protected readonly track = TRACK;
   protected readonly humanize = humanize;
@@ -54,6 +60,14 @@ export class OrderDetailPage {
 
   constructor() {
     effect(() => this.load(Number(this.id())));
+    inject(NotificationService)
+      .incoming.pipe(takeUntilDestroyed())
+      .subscribe((n) => {
+        if (n.link === `/orders/${this.id()}`) {
+          this.liveUpdated.set(true);
+          this.load(Number(this.id()));
+        }
+      });
   }
 
   protected stepReached(parcel: ShopOrder, step: ShopOrder['status']): boolean {
